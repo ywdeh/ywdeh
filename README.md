@@ -1,16 +1,12 @@
-## Hi there 👋
+<img width="4096" height="1130" alt="hakan-alp-nPWdEmwOKYM-unsplash 1" src="https://github.com/user-attachments/assets/4434fdd1-1baa-4b9b-9b51-8941aa429fd2" />
+### ☔ Hey there!
+I've known as Hedwy. I'm using code and design to bring up to life cozy and immersive ideas for people and myself to enjoy.
 
-<!--
-**ywdeh/ywdeh** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-
-Here are some ideas to get you started:
-
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+In 2026, I'm working on several projects:
+- **Wintertale**
+  Game-related community, the project itself is built on idea of making comfortable and noise-free environment for the players.
+  Development process includes art (illustrations), Discord app development and in-game scripting.
+  *Public repos are not available for now.*
+- **Patter**
+  Web application aimed to create a customizable space with pre-defined sound and visual effects for immersive writing sessions.
+  *Public repos are not available for now.*
