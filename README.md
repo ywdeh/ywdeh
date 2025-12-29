@@ -6,7 +6,7 @@ In 2026, I'm working on several projects:
 - **Wintertale**
   Game-related community, the project itself is built on idea of making comfortable and noise-free environment for the players.
   Development process includes art (illustrations), Discord app development and in-game scripting.
-  *Public repos are not available for now.*
+  </br>*Public repos are not available for now.*
 - **Patter**
   Web application aimed to create a customizable space with pre-defined sound and visual effects for immersive writing sessions.
-  *Public repos are not available for now.*
+  </br>*Public repos are not available for now.*
