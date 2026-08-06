@@ -80,14 +80,15 @@
     </div>
 
     <!-- thumbnail strip -->
+
     {#if pictures.length > 1}
-        <div class="flex gap-3">
+        <div class="flex flex-wrap gap-3">
             {#each pictures as img, i}
                 <figure data-props-for="img-color"><button
                     onclick={() => select(i)}
                     aria-label={`Show image ${i + 1}`}
-                    class="shrink-0 h-18 aspect-4/3 object-left overflow-hidden transition rounded-xl
-                        {i === activeIndex ? 'ring-4 opacity-100' : 'opacity-80 hover:opacity-100'}"
+                    class="flex shrink-0 h-18 aspect-4/3 object-left overflow-hidden transition rounded-xl
+                        {i === activeIndex ? 'ring-4 opacity-100' : 'opacity-80 saturate-20 sepia-20 hover:opacity-70'}"
                 >
                     <img src={img.src} alt={img.alt ?? ""} class="w-full h-full object-cover" />
                 </button></figure>
