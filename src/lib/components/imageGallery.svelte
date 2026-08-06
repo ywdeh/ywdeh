@@ -87,7 +87,7 @@
                 <button
                     onclick={() => select(i)}
                     aria-label={`Show image ${i + 1}`}
-                    class="flex shrink-0 h-12 md:h-18 aspect-4/3 object-left overflow-hidden transition rounded-xl
+                    class="flex shrink-0 h-14 md:h-18 aspect-4/3 object-left overflow-hidden transition rounded-xl
                         {i === activeIndex ? 'ring-4 ring-mauve-50/5 opacity-100' : 'opacity-80 saturate-20 sepia-20 hover:opacity-70'}"
                 >
                     <img src={img.src} alt={img.alt ?? ""} class="w-full h-full object-cover" />
