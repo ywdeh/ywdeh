@@ -1,0 +1,1 @@
+<img src="scenario/sneakers.png" alt="">

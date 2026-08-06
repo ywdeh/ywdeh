@@ -1,0 +1,1 @@
+<img src="scenario/dino_cafe.gif" alt="">

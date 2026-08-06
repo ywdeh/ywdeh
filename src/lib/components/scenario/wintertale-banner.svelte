@@ -1,0 +1,1 @@
+<img src="scenario/wintertale.webp" alt="">
