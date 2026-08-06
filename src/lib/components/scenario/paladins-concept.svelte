@@ -2,7 +2,7 @@
     import ImageGallery from "$lib/components/imageGallery.svelte";
 </script>
 
-<img src="https://cdn.dribbble.com/userupload/48290150/file/352736718653730faf1720d927251905.png?resize=1920x1080&vertical=center" alt="">
+<img src="scenario/paladins_menu.png" alt="">
 
 <article>
     <p><span class="font-semibold">Before we start:</span> This is a personal UI redesign concept for Paladins. All original game assets, characters, and trademarks belong to Hi-Rez Studios. The redesign elements and layout are my own creative work. This project is non-commercial and made for entertaining, education purposes only.</p>
@@ -16,14 +16,14 @@
     <p>Main focus was to improve visual convenience of the game's interface, but some of the screens had changed from the ground up.</p>
 </article>
 
-<img src="https://cdn.dribbble.com/userupload/48290150/file/352736718653730faf1720d927251905.png?resize=1920x1080&vertical=center" alt="">
+<img src="scenario/paladins_menu.png" alt="">
 
 <article>
     <h1>#2 Main Menu - match found</h1>
     <p>You see this popup when both your and opposite teams are formed. It shows players as their profile pictures, and asks if you're ready for a match. It might seem insignificant, but people actually spend a lot of time here, so my goal was to make the screen a little more entertaining.</p>
 </article>
 
-<img src="https://cdn.dribbble.com/userupload/48290149/file/82ffb9c78080595380f3c11c4a8313b4.png?resize=1920x1080&vertical=center" alt="">
+<img src="scenario/paladins_menu_queue.webp" alt="">
 
 <article>
     <p>You can now refuse to join the match, which was never possible in a base game. It is no longer a plain white rectangle, comparing to default interface.</p>
@@ -37,7 +37,7 @@
     <p>In that concept I kind of solved the problem while keeping scrolling opportunities for the future.</p>
 </article>
 
-<img src="https://cdn.dribbble.com/userupload/48290153/file/67438f4116c06f9e35ab7f1c331259a4.png?resize=1920x1080&vertical=center" alt="">
+<img src="scenario/paladins_character_list.png" alt="">
 
 <article>
     <p>New set of sorting rules was applied: your most popular and leveled characters listed first, followed by temporarily available ones. Locked characters arranged alphabetically at the end of the list.</p>
@@ -49,7 +49,7 @@
     <p>Last 2 icons are Profile picture and Profile frame, and I remade them from scratch. They now actually represent what they mean.</p>
 </article>
 
-<img src="https://cdn.dribbble.com/userupload/48290151/file/5c3ae99a3c6c1ca3f2b3b1c758cf1b9b.png?resize=1095x441&vertical=center" alt="">
+<img src="scenario/paladins_icons.png" alt="">
 
 <article>
     <h1>#5 Main Menu - bonus</h1>
@@ -68,7 +68,7 @@
     <p>Menu has to be easily readable to ensure that new and competitive players are not slowed down by it.</p>
 </article>
 
-<img src="https://cdn.dribbble.com/userupload/48290152/file/b4c9ea5fededf37aa9721b1198f8114e.png?resize=1920x1080&vertical=center" alt="">
+<img src="scenario/paladins.png" alt="">
 
 <article>
     <p>The layout is pretty much the same, but visuals are drastically different. In years, default interface has become mix of odd elements: some of the things hasn't changed since beta, newer elements looked out of place and some of them overlapped each other. I wanted to fix all these details and refine both looks and user experience.</p>
@@ -99,7 +99,7 @@
     <p>There's loadouts in the game, and cards are crucial part of character balancing. Previously there was no way to see which cards are changed in a recent update, so I added a little notification - "cards changed", so you can at least know that something here is not the way it was.</p>
 </article>
 
-<img src="https://cdn.dribbble.com/userupload/48290538/file/36cbb8acf9f2a03ef4bfb7e8cf8aa738.png?resize=1920x1080&vertical=center" alt="">
+<img src="scenario/paladins_selected_character.png" alt="">
 
 <article>
     <h1>#9 Other unfinished things</h1>
@@ -107,7 +107,7 @@
     <p>The concept was simple: you just click on the outline of the element you want to change. It also helps new players to understand what these elements are.</p>
 </article>
 
-<img src="https://cdn.dribbble.com/userupload/48290540/file/a63977c78b58a193d59f2b1f4d604bbe.png?resize=1920x1080&vertical=center" alt="">
+<img src="scenario/paladins_lobby.png" alt="">
 
 <article>
     <h1>Afterword</h1>

@@ -10,7 +10,7 @@
 </article>
 
 <ImageGallery pictures={[
-    { src: "https://cdn.dribbble.com/userupload/48280439/file/2faee2f6e15d0b47040bf7b68b3582ab.png?resize=1200x376&vertical=center", alt: "" },
+    { src: "scenario/rj_slate.png", alt: "" },
     { src: "scenario/rj_branches.png", alt: "" },
 ]} />
 
