@@ -1,6 +1,6 @@
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
-	"name": "web",
+	"name": "hedwy-website",
 	"compatibility_date": "2026-08-06",
 	"compatibility_flags": [
 		"nodejs_als"
