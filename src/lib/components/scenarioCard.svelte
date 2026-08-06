@@ -29,7 +29,7 @@
     {onclick}
     class="transition flex flex-col gap-4 cursor-pointer text-left w-full">
 
-    <div class="relative rounded-xl overflow-hidden">
+    <figure class="transition relative rounded-xl overflow-hidden hover:ring-4" data-props-for="img-color">
 
     <img
         src={showFull ? src : thumbnail}
@@ -40,15 +40,20 @@
                 saturate-0 hover:saturate-100"
         class:object-center={!left}
         class:object-left={left}
-        class:hover:scale-102={!left}
         class:hover:object-right={left}
         class:saturate-100={isCentered}
     />
 
-    </div>
+    </figure>
 
     <div class="flex justify-between">
         <h3>{title}</h3>
         <p class="opacity-40">{client}</p>
     </div>
 </button>
+
+<style>
+    figure {
+        --tw-ring-color: oklch(from var(--live-img-avg) calc(l + 0.2) calc(c * 1.5) h / 20%);
+    }
+</style>

@@ -1,3 +1,7 @@
+<script>
+    import ImageGallery from "$lib/components/imageGallery.svelte";
+</script>
+
 <img src="https://cdn.dribbble.com/userupload/48290150/file/352736718653730faf1720d927251905.png?resize=1920x1080&vertical=center" alt="">
 
 <article>
@@ -53,8 +57,10 @@
     <p>It didn't go far, but its fun. And- I still like the currency icons I came up with!</p>
 </article>
 
-<img src="https://cdn.dribbble.com/userupload/48290155/file/f21cc989f2c5954dc71bedd01764262e.png?resize=1920x1080&vertical=center" alt="">
-<img src="https://cdn.dribbble.com/userupload/48290156/file/3a24e301548721816ba691a1d5ae0766.png?resize=1325x771&vertical=center" alt="">
+<ImageGallery pictures={[
+    { src: "scenario/paladins_menu_2.webp", alt: "" },
+    { src: "scenario/paladins_currency.webp", alt: "" },
+]} />
 
 <article>
     <h1>#6 In Game - item store</h1>
@@ -76,9 +82,12 @@
     <p>So I decided to completely change how it looks and feels. Still fantasy, but with a nice modern touch.</p>
 </article>
 
-<img src="https://cdn.dribbble.com/userupload/48290543/file/c2357600867c516a65de52d66c0cad3e.png?resize=1400x1050&vertical=center" alt="">
-<img src="https://cdn.dribbble.com/userupload/48290541/file/01f9687d4b5891fdfb9d7f0a675142f8.png?resize=2400x1350&vertical=center" alt="">
-<img src="https://cdn.dribbble.com/userupload/48290542/file/e3acd4acc7681168443c2d2c1216cdbf.png?resize=2400x1350&vertical=center" alt="">
+<ImageGallery pictures={[
+    { src: "scenario/paladins_hud.webp", alt: "" },
+    { src: "scenario/paladins_hud_grayscale.webp", alt: "" },
+    { src: "scenario/paladins_hud_ingame.webp", alt: "" },
+]} />
+
 
 <article>
     <p>Does that diamond shape seems familiar? As inspiration for that I used an iconic dice from Dungeons and Dragons. It very well represents ultimate abilities in the game as well: you either success landing it- or critically miss the opportunity.</p>

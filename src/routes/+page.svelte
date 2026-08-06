@@ -27,7 +27,7 @@
             <ScenarioCard onclick={() => enterScenario('paladins-concept')} left src="scenario/paladins.png" alt="Redesigned in-game item store UI with category sidebar, item grid, and build path panel" title="game ux/ui redesign concept" client="Paladins" />
             <ScenarioCard onclick={() => enterScenario('pixel-icons-pack')} src="scenario/iconsvol2.png" alt="Grid of small pixel-art game icons in bright colors" title="pixel icon pack 5×5 and 3×3" client="Wintertale" />
             <ScenarioCard onclick={() => enterScenario('palia-concept')} src="scenario/palia.png" alt="Before and after comparison of an inventory hotbar, simplified into a cleaner slot-based layout" title="hotbar redesign concept" client="Palia" />
-            <ScenarioCard onclick={() => enterScenario('morroworld')} src="https://cdn.dribbble.com/userupload/15692955/file/04fb21afb07ce749c83b06d8c964ca22.png?crop=0x0-1575x1181&format=webp&resize=640x480&vertical=center" alt="" title="fantasy website design" client="MorroWorld" />
+            <ScenarioCard onclick={() => enterScenario('morroworld')} src="scenario/morroworld.webp" alt="" title="fantasy website design" client="MorroWorld" />
         </Category>
 
         <Category title="illustration & art" anchor="illustration-art">
