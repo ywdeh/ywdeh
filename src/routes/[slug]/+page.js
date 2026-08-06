@@ -1,6 +1,9 @@
-// routes/[slug]/+page.js
 import { scenario } from '$lib/scenario.js';
 import { error } from '@sveltejs/kit';
+
+export function entries() {
+    return Object.keys(scenario).map((slug) => ({ slug }));
+}
 
 export async function load({ params }) {
     const entry = scenario[params.slug];

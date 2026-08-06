@@ -10,11 +10,6 @@ export const scenario = {
         component: () => import("$lib/components/scenario/rj.svelte"),
     },
 
-    "routes-and-journeys": {
-        title: "dyeable emblem illustration",
-        component: () => import("$lib/components/scenario/rj.svelte"),
-    },
-
     "sq": {
         title: "sq community emblem",
         component: () => import("$lib/components/scenario/sq.svelte"),
