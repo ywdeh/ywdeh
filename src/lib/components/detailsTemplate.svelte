@@ -37,7 +37,7 @@
     transition:slideY>
 
         <div class="z-80 flex w-full sticky bg-neutral-900/98 backdrop-blur-lg py-5 md:py-10 justify-between
-                    -top-px md:top-0">
+                    -top-1.25 md:top-0">
             <h1>{title}</h1>
             <div class="flex items-center gap-5">
                 <button onclick={onclose} class="group cursor-pointer transition opacity-30 hover:opacity-80 active:opacity-30 -m-2 p-2"><img src="close.svg" alt="" class="size-8"></button>
