@@ -27,7 +27,6 @@
 
 </script>
 
-<svelte:head><title>hedwy × {title}</title></svelte:head>
 <svelte:window on:keydown={escape} />
 
 <div class="fixed flex items-center justify-center inset-0 z-90">
