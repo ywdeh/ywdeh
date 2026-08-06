@@ -55,6 +55,12 @@
     </ScenarioDetails>
 {/if}
 
+<noscript>
+    <style>
+        section { opacity: 1 !important; }
+    </style>
+</noscript>
+
 <script>
     import ScenarioCard from "$lib/components/scenarioCard.svelte";
     import ScenarioDetails from "$lib/components/scenarioDetails.svelte";
