@@ -1,11 +1,11 @@
 <script>
     import { goto } from "$app/navigation";
-    import DetailsTemplate from "$lib/components/detailsTemplate.svelte";
+    import ScenarioDetails from "$lib/components/scenarioDetails.svelte";
     let { data } = $props();
 </script>
 
-<DetailsTemplate title={data.title} onclose={() => goto("/")}>
+<ScenarioDetails title={data.title} onclose={() => goto("/")}>
     {#snippet children()}
         <data.Component />
     {/snippet}
-</DetailsTemplate>
+</ScenarioDetails>

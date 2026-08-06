@@ -1,5 +1,5 @@
 <script>
-    import CardScale from "$lib/components/cardScale.svelte";
+    import ScenarioCard from "$lib/components/scenarioCard.svelte";
 
     import Footer from "./footer.svelte";
 
