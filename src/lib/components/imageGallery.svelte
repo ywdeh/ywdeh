@@ -73,7 +73,7 @@
                     src={img.src}
                     alt={img.alt ?? ""}
                     draggable="false"
-                    class="w-full h-full object-cover shrink-0"
+                    class="w-full h-full object-cover"
                 />
             {/each}
         </div>
@@ -86,7 +86,7 @@
                 <figure data-props-for="img-color"><button
                     onclick={() => select(i)}
                     aria-label={`Show image ${i + 1}`}
-                    class="shrink-0 h-18 aspect-4/3 object-left overflow-hidden transition rounded-xl
+                    class="h-18 aspect-4/3 object-left overflow-hidden transition rounded-xl
                         {i === activeIndex ? 'ring-4 opacity-100' : 'opacity-80 hover:opacity-100'}"
                 >
                     <img src={img.src} alt={img.alt ?? ""} class="w-full h-full object-cover" />
