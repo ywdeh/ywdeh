@@ -1,10 +1,6 @@
 <script>
     import CardScale from "$lib/components/cardScale.svelte";
 
-    import BadgeFigma from "$lib/components/badges/badgeFigma.svelte";
-    import BadgeAdobe from "$lib/components/badges/badgeAdobe.svelte";
-    import BadgeProcreate from "$lib/components/badges/badgeProcreate.svelte";
-
     import Footer from "./footer.svelte";
 
     import { fade, fly } from "svelte/transition";

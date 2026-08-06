@@ -1,10 +1,7 @@
 <script>
     import CardScale from "$lib/components/cardScale.svelte";
 
-    import BadgeFigma from "$lib/components/badges/badgeFigma.svelte";
-    import BadgeAdobe from "$lib/components/badges/badgeAdobe.svelte";
-    import BadgeProcreate from "$lib/components/badges/badgeProcreate.svelte";
-
+    import Category from "$lib/components/category.svelte";
     import Footer from "$lib/components/footer.svelte";
 
     import { onMount } from "svelte";
@@ -96,9 +93,7 @@
         </div>
 
 
-
         <div class="flex flex-col gap-10">
-
             <nav aria-label="Work sections" class="flex flex-col gap-2 md:flex-row justify-between">
                 <div class="flex items-center gap-4">
                     <a use:scrollTo={'brand-identity'} href="#brand-identity" class="transition opacity-30 hover:opacity-90">brand & identity</a>
@@ -106,49 +101,29 @@
                     <a use:scrollTo={'illustration-art'} href="#illustration-art" class="transition opacity-30 hover:opacity-90">illustration & art</a>
                 </div>
                 <a use:scrollTo={'contacts'} href="#contacts" class="transition opacity-30 hover:opacity-90 w-fit">contact me</a>
-
             </nav>
 
-            <div class="flex gap-5 items-center justify-between text-2xl" id="brand-identity">
-                <h2>brand & identity</h2>
-                <div class="h-px flex-1 bg-mauve-100/5"></div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-10 md:gap-y-5">
+            <Category title="brand & identity" anchor="brand-identity">
                 <CardScale onclick={() => openCase('routes-and-journeys')} src="scenario/rj.png" alt="RJ initials carved into a stone tablet with ivy vines, shown in orange and green color variants" title="dyeable emblem illustration" client="Routes & Journeys" />
                 <CardScale onclick={() => openCase('sq')} src="scenario/sq.png" alt="SQ letters forming a glowing purple and pink gem-cut heart shape" title="sq community emblem" client="SQ" />
                 <CardScale onclick={() => openCase('dino-cafe')} thumbnail="scenario/dino_cafe.png" src="scenario/dino_cafe.gif" alt="Hand-lettered green Cyrillic wordmark on cream paper, styled like a hand-painted cafe sign" title="cafe full rebranding" client="Dino Cafe" />
                 <CardScale onclick={() => openCase('sneakers-bros')} src="scenario/sneakers.png" alt="Bold angular Sneakers Bro's logo in black and white streetwear style, with dashed technical line accents" title="sneakers store logo & socials banners" client="Sneakers Bro's" />
                 <CardScale onclick={() => openCase('daloras')} src="scenario/daloras.png" alt="Daloras model agency wordmark in a warm gold serif typeface, shown in lowercase and uppercase business card versions" title="model agency logo" client="Daloras" />
-            </div>
+            </Category>
         </div>
 
-        <div class="flex flex-col gap-10">
-            <div class="flex gap-5 items-center justify-between text-2xl" id="ux-ui-design">
-                <h2>ux & ui design</h2>
-                <div class="h-px flex-1 bg-mauve-100/5"></div>
-            </div>
+        <Category title="ux & ui design" anchor="ux-ui-design">
+            <CardScale onclick={() => openCase('paladins-concept')} left src="scenario/paladins.png" alt="Redesigned in-game item store UI with category sidebar, item grid, and build path panel" title="game ux/ui redesign concept" client="Paladins" />
+            <CardScale onclick={() => openCase('pixel-icons-pack')} src="scenario/iconsvol2.png" alt="Grid of small pixel-art game icons in bright colors" title="pixel icon pack 5×5 and 3×3" client="Wintertale" />
+            <CardScale onclick={() => openCase('palia-concept')} src="scenario/palia.png" alt="Before and after comparison of an inventory hotbar, simplified into a cleaner slot-based layout" title="hotbar redesign concept" client="Palia" />
+            <CardScale onclick={() => openCase('morroworld')} src="https://cdn.dribbble.com/userupload/15692955/file/04fb21afb07ce749c83b06d8c964ca22.png?crop=0x0-1575x1181&format=webp&resize=640x480&vertical=center" alt="" title="fantasy website design" client="MorroWorld" />
+        </Category>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-10 md:gap-y-5">
-                <CardScale onclick={() => openCase('paladins-concept')} left src="scenario/paladins.png" alt="Redesigned in-game item store UI with category sidebar, item grid, and build path panel" title="game ux/ui redesign concept" client="Paladins" />
-                <CardScale onclick={() => openCase('pixel-icons-pack')} src="scenario/iconsvol2.png" alt="Grid of small pixel-art game icons in bright colors" title="pixel icon pack 5×5 and 3×3" client="Wintertale" />
-                <CardScale onclick={() => openCase('palia-concept')} src="scenario/palia.png" alt="Before and after comparison of an inventory hotbar, simplified into a cleaner slot-based layout" title="hotbar redesign concept" client="Palia" />
-                <CardScale onclick={() => openCase('morroworld')} src="https://cdn.dribbble.com/userupload/15692955/file/04fb21afb07ce749c83b06d8c964ca22.png?crop=0x0-1575x1181&format=webp&resize=640x480&vertical=center" alt="" title="fantasy website design" client="MorroWorld" />
-            </div>
-        </div>
-
-        <div class="flex flex-col gap-10">
-            <div class="flex gap-5 items-center justify-between text-2xl" id="illustration-art">
-                <h2>illustration & art</h2>
-                <div class="h-px flex-1 bg-mauve-100/5"></div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-10 md:gap-y-5">
-                <CardScale onclick={() => openCase('wintertale-banner')} left src="scenario/wintertale.webp" alt="Illustrated banner split into a cozy blue-toned workshop scene and a snowy window view with gift boxes" title="illustrated banner" client="Wintertale" />
-                <CardScale onclick={() => openCase('blue-animation')} thumbnail="scenario/blue.png" src="scenario/blue.gif" alt="Simple round-headed illustrated character standing on a hill, looking down thoughtfully" title="blue - simple illustrated character" client="personal" />
-                <CardScale onclick={() => openCase('thats-what-journey-means')} src="scenario/pride.png" alt="Metallic holographic lettering reading that's what journey means against a dark background" title="that's what journey means poster" client="personal" />
-            </div>
-        </div>
+        <Category title="illustration & art" anchor="illustration-art">
+            <CardScale onclick={() => openCase('wintertale-banner')} left src="scenario/wintertale.webp" alt="Illustrated banner split into a cozy blue-toned workshop scene and a snowy window view with gift boxes" title="illustrated banner" client="Wintertale" />
+            <CardScale onclick={() => openCase('blue-animation')} thumbnail="scenario/blue.png" src="scenario/blue.gif" alt="Simple round-headed illustrated character standing on a hill, looking down thoughtfully" title="blue - simple illustrated character" client="personal" />
+            <CardScale onclick={() => openCase('thats-what-journey-means')} src="scenario/pride.png" alt="Metallic holographic lettering reading that's what journey means against a dark background" title="that's what journey means poster" client="personal" />
+        </Category>
 
         <Footer cta="have a role in mind?" />
 
