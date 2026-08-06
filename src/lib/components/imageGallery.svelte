@@ -81,7 +81,7 @@
 
     <!-- thumbnail strip -->
     {#if pictures.length > 1}
-        <div class="flex flex-wrap gap-3">
+        <div class="flex flex-wrap gap-3 w-full">
             {#each pictures as img, i}
                 <figure data-props-for="img-color"><button
                     onclick={() => select(i)}
