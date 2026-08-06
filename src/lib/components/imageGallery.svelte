@@ -33,7 +33,7 @@
         currentX = e.clientX;
         let delta = currentX - startX;
 
-        // resist dragging past the first/last image
+        // resist
         if ((activeIndex === 0 && delta > 0) || (activeIndex === pictures.length - 1 && delta < 0)) {
             delta *= 0.35;
         }
@@ -54,7 +54,6 @@
 </script>
 
 <div class="flex flex-col gap-3">
-    <!-- main viewer -->
     <div role="button" tabindex="0"
         bind:this={container}
         bind:clientWidth={containerWidth}
@@ -78,8 +77,6 @@
             {/each}
         </div>
     </div>
-
-    <!-- thumbnail strip -->
 
     {#if pictures.length > 1}
         <div class="flex flex-wrap gap-3">
