@@ -2,7 +2,7 @@
 
     <div class="flex justify-between">
         <div class="flex md:flex-col flex-row-reverse justify-between w-full">
-            <a href="/" class="w-fit"><img src="pfp.png" alt="" class="size-15 rounded-full mb-5"></a>
+            <img src="pfp.png" alt="" class="size-15 rounded-full mb-5">
             <h1 class="flex flex-col">
                 <span class="font-normal">Danya Hedwy</span>
                 <span class="opacity-90">graphic & visual design</span>
