@@ -46,7 +46,6 @@
         </div>
 
         <div class="flex flex-col gap-40 pt-5">
-        <!-- pt-5 ??? -->
 
             <div class="flex flex-col gap-20 scenario-body text-lg">
                 {@render children()}
