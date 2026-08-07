@@ -90,6 +90,7 @@
                     <img src={img.src} alt={img.alt ?? ""} class="w-full h-full object-cover" />
                 </button>
             {/each}
+            {#if pictures}<div class="bg-mauve-50/2 rounded-xl flex flex-1"></div>{/if}
         </div>
     {/if}
 </div>
