@@ -36,8 +36,8 @@
 
         <Category title="illustration & art" anchor="illustration-art">
             <ScenarioCard onclick={() => enterScenario('wintertale-banner')} left src="scenario/wintertale.webp" alt="Illustrated banner split into a cozy blue-toned workshop scene and a snowy window view with gift boxes" title="illustrated banner" client="Wintertale" />
-            <ScenarioCard onclick={() => enterScenario('blue-animation')} thumbnail="scenario/blue.png" src="scenario/blue.gif" alt="Simple round-headed illustrated character standing on a hill, looking down thoughtfully" title="blue - simple illustrated character" client="personal" />
             <ScenarioCard onclick={() => enterScenario('thats-what-journey-means')} src="scenario/pride.png" alt="Metallic holographic lettering reading that's what journey means against a dark background" title="that's what journey means poster" client="personal" />
+            <ScenarioCard onclick={() => enterScenario('blue-animation')} thumbnail="scenario/blue.png" src="scenario/blue.gif" alt="Simple round-headed illustrated character standing on a hill, looking down thoughtfully" title="blue - simple illustrated character" client="personal" />
         </Category>
 
         <Footer cta="have a role in mind?" />
