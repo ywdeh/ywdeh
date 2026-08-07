@@ -36,7 +36,7 @@
     <div class="fixed flex flex-col bottom-0 w-full max-w-261 bg-neutral-900 h-[90%] rounded-t-xl overflow-y-auto px-5 pb-10 md:px-10 md:pb-15 font-normal scrollbar-none!"
     transition:slideY>
 
-        <div class="z-80 flex w-full sticky bg-neutral-900/98 backdrop-blur-lg py-5 md:py-10 justify-between
+        <div class="z-80 flex w-full sticky bg-neutral-900/98 backdrop-blur-lg py-10 justify-between
                     -top-1.25 md:top-0">
             <h1>{title}</h1>
             <div class="flex items-center gap-5">

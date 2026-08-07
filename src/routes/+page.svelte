@@ -1,5 +1,5 @@
 <svelte:head>
-    <title>{page.state.scenarioSlug ? `hedwy × ${scenario[page.state.scenarioSlug].title}` : 'hedwy'}</title>
+    <!-- <title>{page.state.scenarioSlug ? `hedwy × ${scenario[page.state.scenarioSlug].title}` : 'hedwy'}</title> -->
 </svelte:head>
 
 <div class="fixed w-screen h-screen pointer-events-none bg-[url(/noise.gif)] mix-blend-overlay opacity-4 bg-repeat z-100"></div>
