@@ -4,7 +4,7 @@
 
 <div class="fixed w-screen h-screen pointer-events-none bg-[url(/noise.gif)] mix-blend-overlay opacity-4 bg-repeat z-100"></div>
 
-<section class="w-screen h-screen overflow-auto bg-neutral-900 text-mauve-50 p-5 lg:py-10 opacity-0" bind:this={mainSection}>
+<section class="w-screen h-screen overflow-auto overflow-x-hidden bg-neutral-900 text-mauve-50 p-5 lg:py-10 opacity-0" bind:this={mainSection}>
     <div class="flex flex-col gap-30 max-w-5xl mx-auto font-[Google_Sans_Flex]">
         <Header />
 
