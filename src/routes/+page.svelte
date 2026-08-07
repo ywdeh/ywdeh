@@ -30,7 +30,7 @@
         <Category title="ux & ui design" anchor="ux-ui-design">
             <ScenarioCard onclick={() => enterScenario('paladins-concept')} left src="scenario/paladins.png" alt="Redesigned in-game item store UI with category sidebar, item grid, and build path panel" title="game ux/ui redesign concept" client="Paladins" />
             <ScenarioCard onclick={() => enterScenario('pixel-icons-pack')} src="scenario/iconsvol2.png" alt="Grid of small pixel-art game icons in bright colors" title="pixel icon pack 5×5 and 3×3" client="Wintertale" />
-            <ScenarioCard onclick={() => enterScenario('palia-concept')} src="scenario/palia.png" alt="Before and after comparison of an inventory hotbar, simplified into a cleaner slot-based layout" title="hotbar redesign concept" client="Palia" />
+            <ScenarioCard onclick={() => enterScenario('palia-concept')} src="scenario/palia.png" alt="Before and after comparison of an inventory hotbar, simplified into a cleaner slot-based layout" title="hud elements redesign concept" client="Palia" />
             <ScenarioCard onclick={() => enterScenario('morroworld')} src="scenario/morroworld.webp" alt="" title="fantasy website design" client="MorroWorld" />
         </Category>
 

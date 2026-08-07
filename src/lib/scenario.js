@@ -36,7 +36,7 @@ export const scenario = {
     },
 
     "palia-concept": {
-        title: "hotbar redesign concept ",
+        title: "hud elements redesign concept",
         component: () => import("$lib/components/scenario/palia-concept.svelte"),
     },
 
