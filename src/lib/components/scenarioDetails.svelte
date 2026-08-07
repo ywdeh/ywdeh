@@ -33,7 +33,7 @@
     
     <button aria-label="overlay" onclick={onclose} class="fixed inset-0 bg-neutral-950/50 backdrop-saturate-0 backdrop-sepia-10" transition:fade={{ duration: 400 }}></button>
 
-    <div class="fixed flex flex-col bottom-0 w-full max-w-261 bg-neutral-900 h-[90%] rounded-t-xl overflow-y-auto px-5 pb-10 md:px-10 md:pb-15 font-normal scrollbar-none! overscroll-contain"
+    <div class="fixed flex flex-col bottom-0 w-full max-w-261 bg-neutral-900 h-[90%] rounded-t-xl overflow-y-auto px-5 pb-10 md:px-10 md:pb-15 font-normal scrollbar-none! overscroll-none"
     transition:slideY>
 
         <div class="z-80 flex w-full sticky bg-neutral-900/98 backdrop-blur-lg py-10 justify-between
