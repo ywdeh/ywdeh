@@ -1,11 +1,9 @@
-<svelte:head>
-    <!-- <title>{page.state.scenarioSlug ? `hedwy × ${scenario[page.state.scenarioSlug].title}` : 'hedwy'}</title> -->
-</svelte:head>
+<svelte:head></svelte:head>
 
 <div class="fixed w-screen h-screen pointer-events-none bg-[url(/noise.gif)] mix-blend-overlay opacity-4 bg-repeat z-100"></div>
 
 <section class="w-screen h-screen overflow-auto overflow-x-hidden bg-neutral-900 text-mauve-50 p-5 lg:py-10 opacity-0" bind:this={mainSection}>
-    <div class="flex flex-col gap-30 max-w-5xl mx-auto font-[Google_Sans_Flex]">
+    <div class="flex flex-col gap-30 max-w-5xl mx-auto font-[Google_Sans_Flex,'Google_Sans',sans-serif]">
         <Header />
 
         <div class="flex flex-col gap-10">
@@ -19,25 +17,98 @@
             </nav>
 
             <Category title="brand & identity" anchor="brand-identity">
-                <ScenarioCard onclick={() => enterScenario('routes-and-journeys')} src="scenario/rj.png" alt="RJ initials carved into a stone tablet with ivy vines, shown in orange and green color variants" title="dyeable emblem illustration" client="Routes & Journeys" />
-                <ScenarioCard onclick={() => enterScenario('sq')} src="scenario/sq.png" alt="SQ letters forming a glowing purple and pink gem-cut heart shape" title="sq community emblem" client="SQ" />
-                <ScenarioCard onclick={() => enterScenario('dino-cafe')} thumbnail="scenario/dino_cafe.png" src="scenario/dino_cafe.gif" alt="Hand-lettered green Cyrillic wordmark on cream paper, styled like a hand-painted cafe sign" title="cafe full rebranding" client="Dino Cafe" />
-                <ScenarioCard onclick={() => enterScenario('sneakers-bros')} src="scenario/sneakers.png" alt="Bold angular Sneakers Bro's logo in black and white streetwear style, with dashed technical line accents" title="sneakers store logo & socials banners" client="Sneakers Bro's" />
-                <ScenarioCard onclick={() => enterScenario('daloras')} src="scenario/daloras.png" alt="Daloras model agency wordmark in a warm gold serif typeface, shown in lowercase and uppercase business card versions" title="model agency logo" client="Daloras" />
+                <ScenarioCard 
+                    onclick={() => enterScenario('routes_and_journeys')} 
+                    src="scenario/rj.png"
+                    alt={scenario['routes_and_journeys'].alt}
+                    title={scenario['routes_and_journeys'].title}
+                    client={scenario['routes_and_journeys'].client}
+                />
+                <ScenarioCard 
+                    onclick={() => enterScenario('sq')} 
+                    src="scenario/sq.png" 
+                    alt={scenario['sq'].alt}
+                    title={scenario['sq'].title}
+                    client={scenario['sq'].client}
+                />
+                <ScenarioCard 
+                    onclick={() => enterScenario('dino_cafe')}
+                    thumbnail="scenario/dino_cafe.png"
+                    src="scenario/dino_cafe.gif"
+                    alt={scenario['dino_cafe'].alt}
+                    title={scenario['dino_cafe'].title}
+                    client={scenario['dino_cafe'].client}
+                />
+                <ScenarioCard 
+                onclick={() => enterScenario('sneakers_bros')}
+                src="scenario/sneakers.png"
+                alt={scenario['sneakers_bros'].alt}
+                title={scenario['sneakers_bros'].title}
+                client={scenario['sneakers_bros'].client}
+                />
+                <ScenarioCard 
+                    onclick={() => enterScenario('daloras')}
+                    src="scenario/daloras.png"
+                    alt={scenario['daloras'].alt}
+                    title={scenario['daloras'].title}
+                    client={scenario['daloras'].client}
+                />
             </Category>
         </div>
 
         <Category title="ux & ui design" anchor="ux-ui-design">
-            <ScenarioCard onclick={() => enterScenario('paladins-concept')} left src="scenario/paladins.png" alt="Redesigned in-game item store UI with category sidebar, item grid, and build path panel" title="game ux/ui redesign concept" client="Paladins" />
-            <ScenarioCard onclick={() => enterScenario('pixel-icons-pack')} src="scenario/iconsvol2.png" alt="Grid of small pixel-art game icons in bright colors" title="pixel icon pack 5×5 and 3×3" client="Wintertale" />
-            <ScenarioCard onclick={() => enterScenario('palia-concept')} src="scenario/palia.png" alt="Before and after comparison of an inventory hotbar, simplified into a cleaner slot-based layout" title="hud elements redesign concept" client="Palia" />
-            <ScenarioCard onclick={() => enterScenario('morroworld')} src="scenario/morroworld.webp" alt="" title="fantasy website design" client="MorroWorld" />
+            <ScenarioCard
+                onclick={() => enterScenario('paladins_concept')} left
+                src="scenario/paladins_character_list.png"
+                alt={scenario['paladins_concept'].alt}
+                title={scenario['paladins_concept'].title}
+                client={scenario['paladins_concept'].client}
+            />
+            <ScenarioCard 
+                onclick={() => enterScenario('pixel_icons_pack')}
+                src="scenario/iconsvol2.png"
+                alt={scenario['pixel_icons_pack'].alt}
+                title={scenario['pixel_icons_pack'].title}
+                client={scenario['pixel_icons_pack'].client}
+            />
+            <ScenarioCard
+                onclick={() => enterScenario('palia_concept')}
+                src="scenario/palia.png"
+                alt={scenario['palia_concept'].alt}
+                title={scenario['palia_concept'].title}
+                client={scenario['palia_concept'].client}
+            />
+            <ScenarioCard
+                onclick={() => enterScenario('morroworld')}
+                src="scenario/morroworld.webp"
+                alt={scenario['morroworld'].alt}
+                title={scenario['morroworld'].title}
+                client={scenario['morroworld'].client}
+            />
         </Category>
 
         <Category title="illustration & art" anchor="illustration-art">
-            <ScenarioCard onclick={() => enterScenario('wintertale-banner')} left src="scenario/wintertale.webp" alt="Illustrated banner split into a cozy blue-toned workshop scene and a snowy window view with gift boxes" title="illustrated banner" client="Wintertale" />
-            <ScenarioCard onclick={() => enterScenario('thats-what-journey-means')} src="scenario/pride.png" alt="Metallic holographic lettering reading that's what journey means against a dark background" title="that's what journey means poster" client="personal" />
-            <ScenarioCard onclick={() => enterScenario('blue-animation')} thumbnail="scenario/blue.png" src="scenario/blue.gif" alt="Simple round-headed illustrated character standing on a hill, looking down thoughtfully" title="blue - simple illustrated character" client="personal" />
+            <ScenarioCard
+                onclick={() => enterScenario('wintertale_banner')}
+                left src="scenario/wintertale.webp"
+                alt={scenario['wintertale_banner'].alt}
+                title={scenario['wintertale_banner'].title}
+                client={scenario['wintertale_banner'].client}
+            />
+            <ScenarioCard
+                onclick={() => enterScenario('thats_what_journey_means')}
+                src="scenario/pride.png"
+                alt={scenario['thats_what_journey_means'].alt}
+                title={scenario['thats_what_journey_means'].title}
+                client={scenario['thats_what_journey_means'].client}
+            />
+            <ScenarioCard
+                onclick={() => enterScenario('blue_animation')}
+                thumbnail="scenario/blue.png" src="scenario/blue.gif"
+                alt={scenario['blue_animation'].alt}
+                title={scenario['blue_animation'].title}
+                client={scenario['blue_animation'].client}
+            />
         </Category>
 
         <Footer cta="have a role in mind?" />

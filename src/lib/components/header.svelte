@@ -11,6 +11,6 @@
     </div>
 </header>
 
-<div class="max-w-full md:max-w-3xl font-[Yuyu] text-6xl md:text-7xl tracking-[-3px] split">
+<div class="max-w-full md:max-w-3xl font-[Yuyu,'Caveat',sans-serif] text-6xl md:text-7xl tracking-[-3px] split">
     Every project has a feeling <span class="opacity-30">it's reaching for. </span> I make that feeling visible <span class="opacity-30">with motion, patterns and textures, lights and shadows -</span> in web, game UIs, branding <span class="opacity-30">and anywhere <span class="relative inline-block"> else <img src="smile.gif" alt="" class="inline-block bottom-2 -right-9 h-7.5 md:h-8.5"></span></span>
 </div>

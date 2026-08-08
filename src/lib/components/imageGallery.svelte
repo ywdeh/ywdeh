@@ -61,7 +61,7 @@
         onpointermove={onPointerMove}
         onpointerup={onPointerUp}
         onpointercancel={onPointerUp}
-        class="relative w-full overflow-hidden rounded-xl bg-mauve-50/5 touch-pan-y {pictures.length > 1 ? 'cursor-grab active:cursor-grabbing' : ''}"
+        class="relative w-full overflow-hidden rounded-xl bg-mauve-100/5 touch-pan-y {pictures.length > 1 ? 'cursor-grab active:cursor-grabbing' : ''}"
     >
         <div
             class="flex h-full will-change-transform"
@@ -85,12 +85,11 @@
                     onclick={() => select(i)}
                     aria-label={`Show image ${i + 1}`}
                     class="flex shrink-0 h-14 md:h-18 aspect-4/3 object-left overflow-hidden transition rounded-xl cursor-pointer
-                        {i === activeIndex ? 'ring-4 ring-mauve-50/5 opacity-100' : 'opacity-80 saturate-20 sepia-20 hover:opacity-70'}"
+                        {i === activeIndex ? 'ring-4 ring-mauve-50/5 opacity-100' : 'opacity-60 hover:opacity-100'}"
                 >
                     <img src={img.src} alt={img.alt ?? ""} class="w-full h-full object-cover" />
                 </button>
             {/each}
-            {#if pictures}<div class="bg-mauve-50/2 rounded-xl flex flex-1"></div>{/if}
         </div>
     {/if}
 </div>

@@ -14,7 +14,7 @@
 <div class="h-px w-full bg-mauve-100/5"></div>
 
 <footer id="contacts" class="flex flex-col md:flex-row justify-between gap-2">
-    <a href="/" class="transition opacity-30 hover:opacity-90 before:content-['©'] before:mr-1">hedwy</a>
+    <p class="opacity-30">hedwy</p>
     <nav aria-label="Socials and contacts" class="flex items-center gap-2">
         <a href="https://t.me/ywdeh" target="_blank" rel="noopener noreferrer" class="transition opacity-30 hover:opacity-90">telegram</a>
         <a href="https://instagram.com/just.hedwy" rel="noopener noreferrer" target="_blank" class="transition opacity-30 hover:opacity-90">instagram</a>
