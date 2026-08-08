@@ -7,7 +7,7 @@
     <p>{cta}</p>
     <div class="flex flex-col md:flex-row justify-between">
         <a href="mailto:itshedwy@icloud.com" class="flex items-center gap-2 transition opacity-60 hover:opacity-90 w-full md:w-fit justify-between md:justify-start">itshedwy@icloud.com<img src="arrow_outward.svg" class="h-6" alt=""></a>
-        <a href="https://linkedin.com/in/hedwy" target="_blank" class="flex items-center gap-2 transition opacity-60 hover:opacity-90 w-full md:w-fit justify-between md:justify-start">check résumé<img src="arrow_down.svg" class="h-6" alt=""></a>
+        <a href="https://linkedin.com/in/hedwy" target="_blank" class="flex items-center gap-2 transition opacity-60 hover:opacity-90 w-full md:w-fit justify-between md:justify-start">check résumé<img src="arrow_outward.svg" class="h-6" alt=""></a>
     </div>
 </div>
 
