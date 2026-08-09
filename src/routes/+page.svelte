@@ -169,7 +169,11 @@
             y: 30,
             opacity: 0,
             delay: 0.2,
-            stagger: 0.1
+            stagger: 0.1,
+            ease: "power1.inOut",
+            onComplete: () => {
+            self.revert();
+            }
             });
         }
         });
