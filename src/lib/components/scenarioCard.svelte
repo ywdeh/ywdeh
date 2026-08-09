@@ -54,6 +54,6 @@
 
 <style>
     figure {
-        --tw-ring-color: oklch(from var(--live-img-avg) calc(l + 0.2) calc(c * 1.5) h / 20%);
+        --tw-ring-color: oklch(from var(--live-img-avg, oklch(20.5% 0 none)) calc(l + 0.2) calc(c * 1.5) h / 20%);
     }
 </style>
