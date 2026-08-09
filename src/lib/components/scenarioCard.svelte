@@ -37,7 +37,7 @@
         onmouseenter={() => (isHovered = true)}
         onmouseleave={() => (isHovered = false)}
         class="transition-all bg-neutral-950/20 object-cover duration-400 aspect-4/3
-                saturate-0 hover:saturate-100"
+                saturate-0 hover:saturate-100 size-full"
         class:object-center={!left}
         class:object-left={left}
         class:hover:object-right={left}
