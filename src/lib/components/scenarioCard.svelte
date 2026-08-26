@@ -60,7 +60,7 @@
     }
 
     .live-tint {
-        transition: color 0.4s;
+        transition: color 0.25s;
     }
 
     figure:hover ~ div .live-tint {
