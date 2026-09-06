@@ -13,7 +13,9 @@
                     <a use:scrollTo={'ux-ui-design'} href="#ux-ui-design" class="transition opacity-30 hover:opacity-90">ux & ui design</a>
                     <a use:scrollTo={'illustration-art'} href="#illustration-art" class="transition opacity-30 hover:opacity-90">illustration & art</a>
                 </div>
-                <a use:scrollTo={'contacts'} href="#contacts" class="transition opacity-30 hover:opacity-90 w-fit">contact me</a>
+                <div class="flex items-center gap-4">
+                    <a use:scrollTo={'contacts'} href="#contacts" class="transition opacity-30 hover:opacity-90 w-fit">contact me</a>
+                </div>
             </nav>
 
             <Category title="brand & identity" anchor="brand-identity">
