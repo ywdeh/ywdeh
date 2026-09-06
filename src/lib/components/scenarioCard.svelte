@@ -74,7 +74,11 @@
     }
 </script>
 
-<figure bind:this={figureEl} class="transition relative rounded-2xl">
+<figure
+    bind:this={figureEl}
+    onmouseenter={() => (isHovered = true)}
+    onmouseleave={() => (isHovered = false)}
+    class="group transition relative rounded-2xl">
     <button
         bind:this={cardEl}
         {onclick}
@@ -82,17 +86,14 @@
 
         <div class="rounded-xl overflow-hidden">
             <img
-                use:extractColor={undefined}
                 onload={(e) => extractColor(e.currentTarget)}
                 src={showFull ? src : thumbnail}
                 {alt}
-                onmouseenter={() => (isHovered = true)}
-                onmouseleave={() => (isHovered = false)}
                 class="transition-all bg-neutral-950/20 object-cover duration-400 aspect-4/3
-                        saturate-0 hover:saturate-100 size-full"
+                        saturate-0 group-hover:saturate-100 size-full"
                 class:object-center={!left}
                 class:object-left={left}
-                class:hover:object-right={left}
+                class:group-hover:object-right={left}
                 class:saturate-100={isCentered}
                 crossorigin="anonymous"
             />
@@ -112,7 +113,7 @@
         inset: 0;
         z-index: 0;
         border-radius: inherit;
-        background: oklch(from var(--live-img-avg, oklch(20.5% 0 none)) calc(l + 0.2) calc(c * 1.5) h / 10%);
+        background: oklch(from var(--live-img-avg, oklch(20.5% 0 none)) calc(l + 0.2) calc(c * 1.5) h / 12%);
         opacity: 0;
         transition: opacity 0.14s ease-in-out, inset 0.14s ease-in-out;
         pointer-events: none;
