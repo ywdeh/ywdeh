@@ -129,6 +129,6 @@
     }
 
     figure:hover .live-tint {
-        color: oklch(from var(--live-img-avg, oklch(70% 0 none)) clamp(0.88, l, 0.96) max(calc(c * 0.55), 0.025) h);
+        color: oklch(from var(--live-img-avg, oklch(70% 0 none)) clamp(0.85, l, 0.9) max(calc(c * 0.55), 0.015) h);
     }
 </style>
