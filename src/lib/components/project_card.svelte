@@ -62,7 +62,7 @@
     .project_backdrop {
         position: absolute;
         inset: 0;
-        z-index: -2;
+        z-index: -1;
         border-radius: var(--radius-xl);
         overflow: hidden;
         pointer-events: none;
@@ -94,7 +94,7 @@
         content: '';
         position: absolute;
         inset: 0;
-        z-index: -1;
+        z-index: -2;
         border-radius: inherit;
         background: oklch(from var(--live-img-avg, oklch(20.5% 0 none)) calc(l + 0.2) calc(c * 1.5) h / 12%);
         opacity: 0;
