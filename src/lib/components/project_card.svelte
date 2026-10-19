@@ -44,7 +44,7 @@
         </ul>
         <span class="project_destination">
             {new URL(href).hostname}
-            <img src="/arrow_outward.svg" alt="" width="24" height="24" draggable="false" />
+            <span class="project_arrow" aria-hidden="true"></span>
         </span>
         </div>
     </div>
@@ -122,8 +122,9 @@
     .project_header { display: flex; justify-content: space-between; align-items: stretch; gap: calc(var(--spacing) * 5); }
     .project_intro { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: calc(var(--spacing) * 2); }
     .project_meta { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); }
-    h3 { font-size: var(--text-4xl); line-height: var(--text-4xl--line-height); transition: color 0.14s; }
-    .project_card:hover h3, .project_card:focus-visible h3 {
+    .project_details { transition: color 0.14s; }
+    h3 { font-size: var(--text-4xl); line-height: var(--text-4xl--line-height); }
+    .project_card:hover .project_details, .project_card:focus-visible .project_details {
         color: oklch(from var(--live-img-avg, oklch(70% 0 none)) clamp(0.85, l, 0.9) max(calc(c * 0.55), 0.015) h);
     }
     .project_description { opacity: 0.6; }
@@ -139,7 +140,13 @@
         opacity: 0.6;
         transition: opacity 0.14s;
     }
-    .project_destination img { width: calc(var(--spacing) * 6); height: calc(var(--spacing) * 6); flex-shrink: 0; }
+    .project_arrow {
+        width: calc(var(--spacing) * 6);
+        height: calc(var(--spacing) * 6);
+        flex-shrink: 0;
+        background-color: currentColor;
+        mask: url('/arrow_outward.svg') center / contain no-repeat;
+    }
     .project_card:hover .project_destination, .project_card:focus-visible .project_destination { opacity: 0.9; }
     .project_visual {
         position: relative;
@@ -162,6 +169,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .project_card::before, .project_destination, .project_icon, .project_preview, h3 { transition: none; }
+        .project_card::before, .project_destination, .project_icon, .project_preview, .project_details { transition: none; }
     }
 </style>
