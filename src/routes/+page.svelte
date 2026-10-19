@@ -8,7 +8,8 @@
 
         <div class="flex flex-col gap-10">
             <nav aria-label="Work sections" class="flex flex-col gap-2 md:flex-row justify-between">
-                <div class="flex items-center gap-4">
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <a use:scrollTo={'personal-projects'} href="#personal-projects" class="transition opacity-30 hover:opacity-90">personal projects</a>
                     <a use:scrollTo={'brand-identity'} href="#brand-identity" class="transition opacity-30 hover:opacity-90">brand & identity</a>
                     <a use:scrollTo={'ux-ui-design'} href="#ux-ui-design" class="transition opacity-30 hover:opacity-90">ux & ui design</a>
                     <a use:scrollTo={'illustration-art'} href="#illustration-art" class="transition opacity-30 hover:opacity-90">illustration & art</a>
@@ -18,45 +19,57 @@
                 </div>
             </nav>
 
-            <Category title="brand & identity" anchor="brand-identity">
-                <ScenarioCard 
-                    onclick={() => enterScenario('routes_and_journeys')} 
-                    src="scenario/rj.png"
-                    alt={scenario['routes_and_journeys'].alt}
-                    title={scenario['routes_and_journeys'].title}
-                    client={scenario['routes_and_journeys'].client}
-                />
-                <ScenarioCard 
-                    onclick={() => enterScenario('sq')} 
-                    src="scenario/sq.png" 
-                    alt={scenario['sq'].alt}
-                    title={scenario['sq'].title}
-                    client={scenario['sq'].client}
-                />
-                <ScenarioCard 
-                    onclick={() => enterScenario('dino_cafe')}
-                    thumbnail="scenario/dino_cafe.png"
-                    src="scenario/dino_cafe.gif"
-                    alt={scenario['dino_cafe'].alt}
-                    title={scenario['dino_cafe'].title}
-                    client={scenario['dino_cafe'].client}
-                />
-                <ScenarioCard 
-                onclick={() => enterScenario('sneakers_bros')}
-                src="scenario/sneakers.png"
-                alt={scenario['sneakers_bros'].alt}
-                title={scenario['sneakers_bros'].title}
-                client={scenario['sneakers_bros'].client}
-                />
-                <ScenarioCard 
-                    onclick={() => enterScenario('daloras')}
-                    src="scenario/daloras.png"
-                    alt={scenario['daloras'].alt}
-                    title={scenario['daloras'].title}
-                    client={scenario['daloras'].client}
+            <Category title="personal projects" anchor="personal-projects">
+                <ProjectCard
+                    title="Patter"
+                    description="An ambient text editor for focused writing"
+                    title_font="Amarante, serif"
+                    href="https://patter.hedwy.art"
+                    icon="/projects/patter.ico"
+                    preview="/projects/patter_preview.png"
+                    stack={['sveltekit', 'gsap', 'web app']}
                 />
             </Category>
         </div>
+
+        <Category title="brand & identity" anchor="brand-identity">
+            <ScenarioCard
+                onclick={() => enterScenario('routes_and_journeys')}
+                src="scenario/rj.png"
+                alt={scenario['routes_and_journeys'].alt}
+                title={scenario['routes_and_journeys'].title}
+                client={scenario['routes_and_journeys'].client}
+            />
+            <ScenarioCard
+                onclick={() => enterScenario('sq')}
+                src="scenario/sq.png"
+                alt={scenario['sq'].alt}
+                title={scenario['sq'].title}
+                client={scenario['sq'].client}
+            />
+            <ScenarioCard
+                onclick={() => enterScenario('dino_cafe')}
+                thumbnail="scenario/dino_cafe.png"
+                src="scenario/dino_cafe.gif"
+                alt={scenario['dino_cafe'].alt}
+                title={scenario['dino_cafe'].title}
+                client={scenario['dino_cafe'].client}
+            />
+            <ScenarioCard
+            onclick={() => enterScenario('sneakers_bros')}
+            src="scenario/sneakers.png"
+            alt={scenario['sneakers_bros'].alt}
+            title={scenario['sneakers_bros'].title}
+            client={scenario['sneakers_bros'].client}
+            />
+            <ScenarioCard
+                onclick={() => enterScenario('daloras')}
+                src="scenario/daloras.png"
+                alt={scenario['daloras'].alt}
+                title={scenario['daloras'].title}
+                client={scenario['daloras'].client}
+            />
+        </Category>
 
         <Category title="ux & ui design" anchor="ux-ui-design">
             <ScenarioCard
@@ -66,7 +79,7 @@
                 title={scenario['paladins_concept'].title}
                 client={scenario['paladins_concept'].client}
             />
-            <ScenarioCard 
+            <ScenarioCard
                 onclick={() => enterScenario('pixel_icons_pack')}
                 src="scenario/iconsvol2.png"
                 alt={scenario['pixel_icons_pack'].alt}
@@ -136,6 +149,7 @@
 
 <script>
     import ScenarioCard from "$lib/components/scenarioCard.svelte";
+    import ProjectCard from "$lib/components/project_card.svelte";
     import ScenarioDetails from "$lib/components/scenarioDetails.svelte";
 
     import Header from "$lib/components/header.svelte";

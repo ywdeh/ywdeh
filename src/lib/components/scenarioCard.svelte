@@ -1,4 +1,5 @@
 <script>
+    import { get_average_color } from '$lib/image_average_color.js';
     let { src, thumbnail = src, alt, title, client, video = false, left = false, onclick } = $props();
 
     let cardEl = $state();
@@ -24,43 +25,11 @@
         return () => observer.disconnect();
     });
 
-    function getAverageColor(img) {
-        const size = 32;
-        const canvas = document.createElement("canvas");
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, size, size);
-
-        let data;
-        try {
-            data = ctx.getImageData(0, 0, size, size).data;
-        } catch (e) {
-            return null; // tainted canvas (cross-origin image without CORS headers)
-        }
-
-        let r = 0, g = 0, b = 0, count = 0;
-        for (let i = 0; i < data.length; i += 4) {
-            const alpha = data[i + 3];
-            if (alpha === 0) continue; // skip transparent pixels
-            r += data[i];
-            g += data[i + 1];
-            b += data[i + 2];
-            count++;
-        }
-        if (count === 0) return null;
-
-        r = Math.round(r / count);
-        g = Math.round(g / count);
-        b = Math.round(b / count);
-        return `rgb(${r}, ${g}, ${b})`;
-    }
-
     function extractColor(imgEl) {
         if (!figureEl) return;
 
         const run = () => {
-            const color = getAverageColor(imgEl);
+            const color = get_average_color(imgEl);
             if (color) {
                 figureEl.style.setProperty("--live-img-avg", color);
             }
@@ -95,7 +64,7 @@
                 class:object-left={left}
                 class:group-hover:object-right={left}
                 class:saturate-100={isCentered}
-                crossorigin="anonymous"
+                crossorigin="anonymous" draggable="false"
             />
         </div>
 
