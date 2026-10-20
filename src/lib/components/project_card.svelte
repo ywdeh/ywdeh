@@ -72,17 +72,17 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(90deg, color-mix(in oklab, var(--color-neutral-900) 85%, transparent), color-mix(in oklab, var(--color-neutral-900) 35%, transparent));
+        background: color-mix(in oklab, var(--color-neutral-900) 45%, transparent);
     }
 
     .project_preview {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        object-position: center;
+        object-position: center top;
         transform: scale(1.06);
         filter: blur(6px) saturate(0);
-        opacity: 0.65;
+        opacity: 0.85;
         transition: filter 400ms;
     }
 
@@ -165,6 +165,7 @@
     }
 
     @media (max-width: 767px) {
+        .project_details { min-height: 0; gap: calc(var(--spacing) * 8); }
         .project_header { gap: calc(var(--spacing) * 4); }
     }
 
