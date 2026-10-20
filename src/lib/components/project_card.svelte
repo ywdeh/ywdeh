@@ -57,12 +57,13 @@
         isolation: isolate;
         padding: calc(var(--spacing) * 5);
         border-radius: var(--radius-2xl);
+        --project-tint: oklch(from var(--live-img-avg, oklch(70% 0 none)) clamp(0.85, l, 0.9) max(calc(c * 0.55), 0.015) h);
     }
 
     .project_backdrop {
         position: absolute;
         inset: 0;
-        z-index: -1;
+        z-index: 1;
         border-radius: var(--radius-xl);
         overflow: hidden;
         pointer-events: none;
@@ -81,22 +82,22 @@
         object-fit: cover;
         object-position: center top;
         transform: scale(1.06);
-        filter: blur(6px) saturate(0);
+        filter: blur(3px) saturate(0);
         opacity: 0.85;
         transition: filter 400ms;
     }
 
     .project_card:hover .project_preview,
     .project_card:focus-visible .project_preview,
-    .is_centered .project_preview { filter: blur(6px) saturate(1); }
+    .is_centered .project_preview { filter: blur(3px) saturate(1); }
 
     .project_card::before {
         content: '';
         position: absolute;
         inset: 0;
-        z-index: -2;
+        z-index: 0;
         border-radius: inherit;
-        background: oklch(from var(--live-img-avg, oklch(20.5% 0 none)) calc(l + 0.2) calc(c * 1.5) h / 12%);
+        background: color-mix(in oklab, var(--project-tint) 12%, transparent);
         opacity: 0;
         transition: opacity 0.14s ease-in-out, inset 0.14s ease-in-out;
         pointer-events: none;
@@ -107,12 +108,12 @@
         inset: -10px;
     }
 
-    .project_card:focus-visible {
-        outline: 2px solid oklch(from var(--live-img-avg, oklch(70% 0 none)) clamp(0.65, l, 0.85) max(calc(c * 0.55), 0.015) h);
-        outline-offset: 5px;
-    }
+    .project_card:focus-visible { outline: none; }
+    .project_card:focus-visible::before { background: color-mix(in oklab, var(--project-tint) 22%, transparent); }
 
     .project_details {
+        position: relative;
+        z-index: 2;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -125,7 +126,7 @@
     .project_details { transition: color 0.14s; }
     h3 { font-size: var(--text-4xl); line-height: var(--text-4xl--line-height); }
     .project_card:hover .project_details, .project_card:focus-visible .project_details {
-        color: oklch(from var(--live-img-avg, oklch(70% 0 none)) clamp(0.85, l, 0.9) max(calc(c * 0.55), 0.015) h);
+        color: var(--project-tint);
     }
     .project_description { opacity: 0.6; }
     .project_stack { display: flex; flex-wrap: wrap; opacity: 0.4; }
