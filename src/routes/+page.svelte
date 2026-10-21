@@ -26,7 +26,7 @@
                     title_font="Amarante, serif"
                     href="https://patter.hedwy.art"
                     icon="/projects/patter.ico"
-                    preview="/projects/patter_editor.png"
+                    preview="/projects/patter_castle.webp"
                     stack={['sveltekit', 'gsap', 'web app']}
                 />
             </Category>
