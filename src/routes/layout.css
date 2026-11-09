@@ -1,1 +1,37 @@
 @import 'tailwindcss';
+
+/* keyboard focus looks like the hover outline on cards: a soft tint that extends 10px past the element */
+:root {
+    --focus-tint: oklch(40.5% 0.006 325.6 / 12%); /* light mauve, like the rest of the site */
+    --focus-spread: 10px;
+}
+
+/* the tint below (or a card's own ::before outline) replaces the browser ring everywhere */
+:where(*):focus-visible { outline: none; }
+
+/* cards draw their own outline with ::before on hover and focus */
+:where(a, button, [tabindex]:not([tabindex="-1"])):where(:not(.project_card, .card_trigger)):focus-visible {
+    outline: none;
+    background-color: var(--focus-tint);
+    box-shadow: 0 0 0 var(--focus-spread) var(--focus-tint);
+}
+
+/* dim links and thumbnails brighten on focus the same way they do on hover */
+:where(a, button):is(.opacity-30, .opacity-60):focus-visible { opacity: 0.9; }
+
+@media (prefers-reduced-motion: no-preference) {
+    a:where(:not(.project_card)) { transition: opacity 140ms var(--ease-out), background-color 140ms var(--ease-out), box-shadow 140ms var(--ease-out); }
+    /* pressing a link returns it to its resting opacity instead of dimming it further */
+    a:where(:not(.project_card)).opacity-30:is(:active, .is_pressed) { opacity: 0.3; }
+    a:where(:not(.project_card)).opacity-60:is(:active, .is_pressed) { opacity: 0.6; }
+}
+
+@layer base {
+    :where(body, body *) {
+        cursor: inherit;
+    }
+
+    /* 6px inside + 10px spread gives the same 16px outer corner as the card outline;
+       anything with its own rounded-* utility keeps that instead */
+    :where(a, button, [tabindex]):focus-visible { border-radius: 6px; }
+}

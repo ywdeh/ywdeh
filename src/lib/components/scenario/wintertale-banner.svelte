@@ -1,8 +1,9 @@
 <script>
+    import TrailImage from "$lib/components/trail_image.svelte";
     import ImageGallery from "$lib/components/imageGallery.svelte";
 </script>
 
-<img src="scenario/wintertale.webp" alt="">
+<TrailImage src="/scenario/wintertale.webp" alt="Illustrated banner split into a cozy blue-toned workshop scene and a snowy window view with gift boxes" />
 
 <article>
     <h1>The world is cold, but there's always warmth in a winter's tale</h1>
@@ -10,6 +11,6 @@
 </article>
 
 <ImageGallery pictures={[
-    { src: "scenario/wintertale_half_1.png", alt: "" },
-    { src: "scenario/wintertale_half_2.png", alt: "" },
+    { src: "/scenario/wintertale_half_1.png", alt: "Workshop half of the Wintertale banner" },
+    { src: "/scenario/wintertale_half_2.png", alt: "Snowy window half of the Wintertale banner" },
 ]} />

@@ -1,4 +1,8 @@
-<img src="scenario/morroworld.png" alt="">
+<script>
+    import TrailImage from "$lib/components/trail_image.svelte";
+</script>
+
+<TrailImage src="/scenario/morroworld.png" />
 
 <article>
     <h1>Time takes turns, unfolding stories untold</h1>
@@ -6,9 +10,9 @@
     <p>and with that in mind, fonts were chosen and details made</p>
 </article>
 
-<img src="scenario/morroworld_block_2.png" alt="">
-<img src="scenario/morroworld_gallery.png" alt="">
-<img src="scenario/morroworld_login.png" alt="">
+<TrailImage src="/scenario/morroworld_block_2.png" />
+<TrailImage src="/scenario/morroworld_gallery.png" />
+<TrailImage src="/scenario/morroworld_login.png" />
 
 <article>
     <p>It is the job that I love the most: to create a world within the project that tells its story through all the icons, lines and highlights.</p>

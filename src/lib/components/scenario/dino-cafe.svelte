@@ -1,1 +1,5 @@
-<img src="scenario/dino_cafe.gif" alt="">
+<script>
+    import TrailImage from "$lib/components/trail_image.svelte";
+</script>
+
+<TrailImage src="/scenario/dino_cafe.gif" />

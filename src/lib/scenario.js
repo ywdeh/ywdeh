@@ -1,9 +1,27 @@
 export const scenario = {
 
+    "patter": {
+        title: "ambient text editor",
+        client: "Patter",
+        alt: "A glowing lantern in a dark forest, one of Patter’s writing backgrounds",
+        images: [
+            "/projects/patter_lantern.webp",
+            "/projects/patter_editor_current.png",
+            "/projects/patter_editor.png",
+        ],
+        component: () => import("$lib/components/scenario/patter.svelte"),
+    },
+
     "routes_and_journeys": {
         title: "illustrated logo",
         client: "Routes & Journeys",
         alt: "RJ initials carved into a stone tablet with ivy vines, shown in orange and green color variants",
+        images: [
+            "/scenario/rj.png",
+            "/scenario/rj_slate.png",
+            "/scenario/rj_branches.png",
+            "/scenario/rj_outline.png",
+        ],
         component: () => import("$lib/components/scenario/rj.svelte"),
     },
 
@@ -39,6 +57,20 @@ export const scenario = {
         title: "game ui/ux redesign concept",
         client: "Paladins",
         alt: "Redesigned in-game menu UI",
+        images: [
+            "/scenario/paladins_menu.png",
+            "/scenario/paladins_menu_queue.webp",
+            "/scenario/paladins_character_list.png",
+            "/scenario/paladins_icons.png",
+            "/scenario/paladins_menu_2.webp",
+            "/scenario/paladins_currency.webp",
+            "/scenario/paladins.png",
+            "/scenario/paladins_hud.webp",
+            "/scenario/paladins_hud_grayscale.webp",
+            "/scenario/paladins_hud_ingame.webp",
+            "/scenario/paladins_selected_character.png",
+            "/scenario/paladins_lobby.png",
+        ],
         component: () => import("$lib/components/scenario/paladins-concept.svelte"),
     },
 
@@ -46,6 +78,12 @@ export const scenario = {
         title: "hud elements redesign concept",
         client: "Palia",
         alt: "Before and after comparison of an inventory hotbar, simplified into a cleaner slot-based layout",
+        images: [
+            "/scenario/palia.png",
+            "/scenario/palia_quest_log.png",
+            "/scenario/palia_bars.png",
+            "/scenario/palia_hud.png",
+        ],
         component: () => import("$lib/components/scenario/palia-concept.svelte"),
     },
 
@@ -53,6 +91,10 @@ export const scenario = {
         title: "5×5 and 3×3 icon pack",
         client: "Wintertale",
         alt: "Grid of small pixel-art game icons in bright colors",
+        images: [
+            "/scenario/iconsvol2.png",
+            "/scenario/iconsvol1.png",
+        ],
         component: () => import("$lib/components/scenario/pixel-icons-pack.svelte"),
     },
 
@@ -60,6 +102,11 @@ export const scenario = {
         title: "illustrated banner",
         client: "Wintertale",
         alt: "Illustrated banner split into a cozy blue-toned workshop scene and a snowy window view with gift boxes",
+        images: [
+            "/scenario/wintertale.webp",
+            "/scenario/wintertale_half_1.png",
+            "/scenario/wintertale_half_2.png",
+        ],
         component: () => import("$lib/components/scenario/wintertale-banner.svelte"),
     },
 
@@ -81,6 +128,12 @@ export const scenario = {
         title: "fantasy website design",
         client: "MorroWorld",
         alt: "",
+        images: [
+            "/scenario/morroworld.png",
+            "/scenario/morroworld_block_2.png",
+            "/scenario/morroworld_gallery.png",
+            "/scenario/morroworld_login.png",
+        ],
         component: () => import("$lib/components/scenario/morroworld.svelte"),
     },
 

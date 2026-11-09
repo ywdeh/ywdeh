@@ -1,2 +1,6 @@
-<img src="scenario/sq.png" alt="">
-<img src="scenario/sq_outline.png" alt="">
+<script>
+    import TrailImage from "$lib/components/trail_image.svelte";
+</script>
+
+<TrailImage src="/scenario/sq.png" />
+<TrailImage src="/scenario/sq_outline.png" />

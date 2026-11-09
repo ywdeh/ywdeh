@@ -1,4 +1,5 @@
 <script>
+    import TrailImage from "$lib/components/trail_image.svelte";
     import ImageGallery from "$lib/components/imageGallery.svelte";
 </script>
 
@@ -10,4 +11,4 @@
 
 <p>This Palia interface concept features three hud elements: hotbar, quest tracker and focus/stamina bars</p>
 
-<img src="scenario/palia_hud.png" alt="">
+<TrailImage src="/scenario/palia_hud.png" />

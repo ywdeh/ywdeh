@@ -49,13 +49,14 @@
 			* { scroll-behavior: smooth !important;
 				scroll-margin-top: 2.5rem;
 				scrollbar-width: thin;
-				scrollbar-color: oklch(98.6% 0.002 67.8 / 0.2) transparent;
+				/* same color and strength as the hand-drawn divider lines (mauve-100 at 12%) */
+				scrollbar-color: oklch(96% 0.003 325.6 / 0.12) transparent;
 			}
 
 			*::-webkit-scrollbar { width: 8px; height: 8px; }
 			*::-webkit-scrollbar-track { background: transparent; }
-			*::-webkit-scrollbar-thumb { background-color: oklch(98.6% 0.002 67.8 / 0.2); border-radius: 9999px; }
-			*::-webkit-scrollbar-thumb:hover { background-color: oklch(98.6% 0.002 67.8 / 0.4); }
+			*::-webkit-scrollbar-thumb { background-color: oklch(96% 0.003 325.6 / 0.12); border-radius: 9999px; }
+			*::-webkit-scrollbar-thumb:hover { background-color: oklch(96% 0.003 325.6 / 0.24); }
 
 			img { -webkit-user-drag: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 		</style>
@@ -63,7 +64,7 @@
 		%sveltekit.head%
 	</head>
 
-	<body data-sveltekit-preload-data="hover" class="font-light bg-neutral-900 text-mauve-50">
+	<body data-sveltekit-preload-data="hover" class="font-light bg-neutral-900 text-mauve-100">
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 

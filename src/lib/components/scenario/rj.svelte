@@ -1,8 +1,9 @@
 <script>
+    import TrailImage from "$lib/components/trail_image.svelte";
     import ImageGallery from "$lib/components/imageGallery.svelte";
 </script>
 
-<img src="scenario/rj.png" alt="">
+<TrailImage src="/scenario/rj.png" />
 <article>
     <h1>Vibes and seasons change, so does the emblem</h1>
     <p>Although it appears relatively simple, there was an intriguing request in client's brief: they needed an emblem that could adapt its appearance depending on the context</p>
@@ -19,4 +20,4 @@
     <p>Since its vector, changing colors is as easy as dragging sliders around!</p>
 </article>
 
-<img src="scenario/rj_outline.png" alt="">
+<TrailImage src="/scenario/rj_outline.png" />

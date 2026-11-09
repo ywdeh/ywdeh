@@ -1,1 +1,5 @@
-<img src="scenario/portfolio.png" alt="">
+<script>
+    import TrailImage from "$lib/components/trail_image.svelte";
+</script>
+
+<TrailImage src="/scenario/portfolio.png" />
