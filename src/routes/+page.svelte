@@ -3,7 +3,7 @@
 
 <div class="fixed w-screen h-screen pointer-events-none bg-[url(/noise.gif)] mix-blend-overlay opacity-4 bg-repeat z-100"></div>
 
-<section class="w-screen h-screen overflow-auto overflow-x-hidden bg-neutral-900 text-mauve-100 px-6 py-6 md:px-12 md:py-10 lg:px-16 lg:py-14 opacity-0" bind:this={mainSection} inert={!!(gallery_slug || page.state.scenarioSlug)}>
+<section class="w-screen h-screen overflow-auto overflow-x-hidden bg-neutral-900 text-mauve-100 px-[clamp(2rem,5vw+1rem,10rem)] py-6 md:py-10 lg:py-14 opacity-0" bind:this={mainSection} inert={!!(gallery_slug || page.state.scenarioSlug)}>
     <!-- every gap steps down with the screen: phone / md / lg -->
     <div class="flex flex-col gap-16 md:gap-24 lg:gap-30 w-full font-[Google_Sans_Flex,'Google_Sans',sans-serif]">
         <Header />
