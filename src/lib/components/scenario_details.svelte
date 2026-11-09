@@ -4,6 +4,7 @@
     import { fade } from "svelte/transition";
     import { cubicOut } from "svelte/easing";
     import { setContext, untrack } from "svelte";
+    import { unzoom_before_close } from "$lib/image_pan_zoom.js";
     import { fly, flight_duration, picture_box, when_painted } from "$lib/image_flight.js";
 
     // origin: for the image viewer, the <img> on the page it was opened from; the picture flies out of that
@@ -14,6 +15,7 @@
     // an image viewer opened from inside a case study (it leaves the dimming to the panel underneath)
     const nested = $derived(gallery && !tint_backdrop);
     let close_button = $state();
+    let dialog = $state();
     const backdrop_tint = 'bg-neutral-950/70 backdrop-saturate-0 backdrop-sepia-10';
     // case studies open as a panel sliding in from the right; the dimmed page stays visible beside it on wider screens
     const panel_box = 'inset-y-0 right-0 w-full md:w-[85%] lg:w-1/2 lg:min-w-[48rem] md:rounded-l-xl';
@@ -108,10 +110,26 @@
         node.focus({ preventScroll: true });
     }
 
+    let close_pending = false;
+
+    async function request_close() {
+        if (close_pending) return;
+        close_pending = true;
+        try {
+            if (gallery) {
+                const viewport = dialog?.querySelector('.gallery_image_viewport');
+                await unzoom_before_close(viewport);
+            }
+            onclose();
+        } finally {
+            close_pending = false;
+        }
+    }
+
     function handle_keydown(event) {
         if (!suspended && event.key === 'Escape' && !event.defaultPrevented) {
             event.preventDefault();
-            onclose();
+            request_close();
         }
     }
 </script>
@@ -119,12 +137,12 @@
 <svelte:window onkeydown={handle_keydown} />
 
 {#snippet close(label)}
-    <button type="button" bind:this={close_button} use:focus_close use:card_release aria-label={label} onclick={onclose}
+    <button type="button" bind:this={close_button} use:focus_close use:card_release aria-label={label} onclick={request_close}
         class="close_button pointer-events-auto block shrink-0 p-2 opacity-30 transition-opacity hover:opacity-80 focus-visible:opacity-100 active:opacity-30 motion-reduce:transition-none">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             class="size-8 text-mauve-300" aria-hidden="true">
-            <path d="M6.4 6.4l11.2 11.2" pathLength="1" />
-            <path d="M17.6 6.4L6.4 17.6" pathLength="1" />
+            <path d="M6.1 6.5Q12.5 11.6 17.7 17.8" pathLength="1" />
+            <path d="M17.5 6.2Q12.8 12.2 6.5 17.5" pathLength="1" />
         </svg>
     </button>
 {/snippet}
@@ -135,7 +153,7 @@
         class="backdrop fixed inset-0 backdrop-blur-sm {tint_backdrop ? backdrop_tint : ''}"
         transition:fade|global={{ duration: duration(400) }}></button>
 
-    <div role="dialog" aria-modal="true" aria-labelledby={heading_id}
+    <div bind:this={dialog} role="dialog" aria-modal="true" aria-labelledby={heading_id}
         class:z-0={!gallery}
         class:panel={!gallery}
         class="dialog_box flex flex-col overflow-y-auto font-normal scrollbar-none! overscroll-contain {gallery ? 'pointer-events-none absolute inset-0 px-3 py-(--viewer-gap-y) [--viewer-gap-y:5rem] md:px-21 md:[--viewer-gap-y:4.5rem]' : `fixed bg-neutral-900 ${panel_box}`}"

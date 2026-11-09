@@ -2,4 +2,4 @@
     import TrailImage from "$lib/components/trail_image.svelte";
 </script>
 
-<TrailImage src="/scenario/daloras.png" />
+<TrailImage src="/scenario/daloras.webp" />

@@ -10,7 +10,7 @@
 :where(*):focus-visible { outline: none; }
 
 /* cards draw their own outline with ::before on hover and focus */
-:where(a, button, [tabindex]:not([tabindex="-1"])):where(:not(.project_card, .card_trigger)):focus-visible {
+:where(a, button, [tabindex]:not([tabindex="-1"])):where(:not(.card_trigger)):focus-visible {
     outline: none;
     background-color: var(--focus-tint);
     box-shadow: 0 0 0 var(--focus-spread) var(--focus-tint);
@@ -20,10 +20,10 @@
 :where(a, button):is(.opacity-30, .opacity-60):focus-visible { opacity: 0.9; }
 
 @media (prefers-reduced-motion: no-preference) {
-    a:where(:not(.project_card)) { transition: opacity 140ms var(--ease-out), background-color 140ms var(--ease-out), box-shadow 140ms var(--ease-out); }
+    a:where(:not(.card_trigger)) { transition: opacity 140ms var(--ease-out), background-color 140ms var(--ease-out), box-shadow 140ms var(--ease-out); }
     /* pressing a link returns it to its resting opacity instead of dimming it further */
-    a:where(:not(.project_card)).opacity-30:is(:active, .is_pressed) { opacity: 0.3; }
-    a:where(:not(.project_card)).opacity-60:is(:active, .is_pressed) { opacity: 0.6; }
+    a:where(:not(.card_trigger)).opacity-30:is(:active, .is_pressed) { opacity: 0.3; }
+    a:where(:not(.card_trigger)).opacity-60:is(:active, .is_pressed) { opacity: 0.6; }
 }
 
 @layer base {

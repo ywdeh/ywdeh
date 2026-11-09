@@ -120,7 +120,7 @@
             {#each pictures as img, i}
                 {#if i === 0}
                     <span class="block min-w-0 basis-full shrink-0" bind:contentRect={first_slide_rect}>
-                        <TrailImage src={img.src} alt={img.alt} zoom={false} />
+                        <TrailImage src={img.src} alt={img.alt} zoom={false} eager />
                     </span>
                 {:else}
                     <span class="slide_fill block min-w-0 basis-full shrink-0"
@@ -147,7 +147,7 @@
                         {i === activeIndex ? 'ring-4 ring-mauve-100/5 opacity-100' : 'opacity-60 hover:opacity-100'}"
                 >
                     <TrailImage src={img.src} zoom={false} class="gallery_thumbnail_image w-full h-full">
-                        <img src={img.src} alt={img.alt ?? ""} class="w-full h-full object-cover" draggable="false" />
+                        <img src={img.src} alt={img.alt ?? ""} class="w-full h-full object-cover" loading="lazy" decoding="async" draggable="false" />
                     </TrailImage>
                 </button>
             {/each}

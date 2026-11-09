@@ -2,4 +2,4 @@
     import TrailImage from "$lib/components/trail_image.svelte";
 </script>
 
-<TrailImage src="/scenario/portfolio.png" />
+<TrailImage src="/scenario/portfolio.webp" />

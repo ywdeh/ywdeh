@@ -1,3 +1,9 @@
+const reset_before_close = new WeakMap();
+
+export function unzoom_before_close(viewport) {
+    return reset_before_close.get(viewport)?.();
+}
+
 export function image_pan_zoom(viewport) {
     const layer = viewport.firstElementChild;
     let zoom = 1;
@@ -128,6 +134,12 @@ export function image_pan_zoom(viewport) {
     }
 
     const listeners = new AbortController();
+    reset_before_close.set(viewport, () => {
+        viewport.inert = true;
+        reset_zoom();
+        const transition = layer.getAnimations().find((animation) => animation.transitionProperty === 'transform');
+        return transition?.finished.catch(() => {});
+    });
     const options = { signal: listeners.signal };
     viewport.addEventListener('wheel', wheel, { ...options, passive: false });
     viewport.addEventListener('pointerdown', pointerdown, options);
@@ -143,6 +155,7 @@ export function image_pan_zoom(viewport) {
     return {
         destroy() {
             listeners.abort();
+            reset_before_close.delete(viewport);
         },
     };
 }

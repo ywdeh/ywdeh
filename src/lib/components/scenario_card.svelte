@@ -4,101 +4,101 @@
     import CardBadge from "./card_badge.svelte";
     import { get_average_color } from '$lib/image_average_color.js';
     import { center_fade } from '$lib/center_fade.js';
-    let { src, thumbnail = src, alt, title, client, video = false, left = false, image_only = false, width, height, onclick, preload, href } = $props();
+    let { src, thumbnail = src, alt, title, client, left = false, image_only = false, width, height, onclick, preload } = $props();
 
-    let cardEl = $state();
-    let figureEl = $state();
-    let isCentered = $state(false);
-    let isHovered = $state(false);
-    let isFocused = $state(false);
+    let card_element = $state();
+    let figure_element = $state();
+    let is_centered = $state(false);
+    let is_hovered = $state(false);
+    let is_focused = $state(false);
 
-    let showFull = $derived(isCentered || isHovered || isFocused);
+    let show_full = $derived(is_centered || is_hovered || is_focused);
 
     // wide images rest on their left edge and pan toward whichever side the pointer is on
     // a critically damped spring chases the target: it speeds up gently and settles gently (ease-in-out),
     // and since it keeps its velocity, pointer moves mid-flight bend the motion instead of restarting it
     const PAN_REST = 0;
     const PAN_STIFFNESS = 12; // rad/s; higher = snappier, ~0.5s to settle at 12
-    let panX = $state(PAN_REST);
-    let panTarget = PAN_REST;
-    let panVelocity = 0;
-    let panFrame;
-    let lastFrame;
+    let pan_x = $state(PAN_REST);
+    let pan_target = PAN_REST;
+    let pan_velocity = 0;
+    let pan_frame;
+    let last_frame;
     // panning waits until the hover outline has finished growing (its 140ms transition)
     const OUTLINE_MS = 140;
-    let panReady = true;
-    let panDelay;
+    let pan_ready = true;
+    let pan_delay;
 
     function stop_pan_loop() {
-        cancelAnimationFrame(panFrame);
-        panFrame = undefined;
-        panVelocity = 0;
+        cancelAnimationFrame(pan_frame);
+        pan_frame = undefined;
+        pan_velocity = 0;
     }
 
     function hold_pan_for_outline() {
-        clearTimeout(panDelay);
+        clearTimeout(pan_delay);
         // freeze where it is (e.g. mid way back to center) instead of letting the old loop chase the new pointer
         stop_pan_loop();
-        panReady = false;
-        panDelay = setTimeout(() => {
-            panReady = true;
-            pan_to(panTarget);
+        pan_ready = false;
+        pan_delay = setTimeout(() => {
+            pan_ready = true;
+            pan_to(pan_target);
         }, OUTLINE_MS);
     }
 
     function release_pan() {
-        clearTimeout(panDelay);
-        panReady = true;
+        clearTimeout(pan_delay);
+        pan_ready = true;
     }
 
     function pan_to(target) {
-        panTarget = target;
-        if (!panReady) return;
+        pan_target = target;
+        if (!pan_ready) return;
         if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            panX = target;
+            pan_x = target;
             return;
         }
-        if (!panFrame) {
-            lastFrame = undefined;
-            panFrame = requestAnimationFrame(step_pan);
+        if (!pan_frame) {
+            last_frame = undefined;
+            pan_frame = requestAnimationFrame(step_pan);
         }
     }
 
     function step_pan(now) {
         // the first frame only records its timestamp: mixing it with an event-time clock
         // could give a negative or oversized step, which shows up as a jump
-        if (lastFrame === undefined) {
-            lastFrame = now;
-            panFrame = requestAnimationFrame(step_pan);
+        if (last_frame === undefined) {
+            last_frame = now;
+            pan_frame = requestAnimationFrame(step_pan);
             return;
         }
         // time-based, so it feels the same at any refresh rate; the step is capped so a stalled
         // frame (busy tab) can't teleport the image
-        const elapsed = Math.min(Math.max(now - lastFrame, 0), 50) / 1000;
-        lastFrame = now;
+        const elapsed = Math.min(Math.max(now - last_frame, 0), 50) / 1000;
+        last_frame = now;
         // small fixed substeps keep the spring stable whatever the frame length
-        let x = panX;
+        let x = pan_x;
         for (let left_time = elapsed; left_time > 0; left_time -= 0.004) {
             const dt = Math.min(0.004, left_time);
-            const accel = PAN_STIFFNESS * PAN_STIFFNESS * (panTarget - x) - 2 * PAN_STIFFNESS * panVelocity;
-            panVelocity += accel * dt;
-            x += panVelocity * dt;
+            const accel = PAN_STIFFNESS * PAN_STIFFNESS * (pan_target - x) - 2 * PAN_STIFFNESS * pan_velocity;
+            pan_velocity += accel * dt;
+            x += pan_velocity * dt;
         }
         // a fast direction change can carry it past the edge; past 0/100% would show empty space
-        panX = Math.min(100, Math.max(0, x));
-        if (panX !== x) panVelocity = 0;
-        if (Math.abs(panTarget - panX) < 0.05 && Math.abs(panVelocity) < 0.5) {
-            panX = panTarget;
-            panVelocity = 0;
-            panFrame = undefined;
+        pan_x = Math.min(100, Math.max(0, x));
+        if (pan_x !== x) pan_velocity = 0;
+        if (Math.abs(pan_target - pan_x) < 0.05 && Math.abs(pan_velocity) < 0.5) {
+            pan_x = pan_target;
+            pan_velocity = 0;
+            pan_frame = undefined;
             return;
         }
-        panFrame = requestAnimationFrame(step_pan);
+        pan_frame = requestAnimationFrame(step_pan);
     }
 
     $effect(() => () => {
         stop_pan_loop();
-        clearTimeout(panDelay);
+        clearTimeout(pan_delay);
     });
 
     function follow_pointer(event) {
@@ -110,21 +110,21 @@
     }
 
     $effect(() => {
-        if (!cardEl) return;
+        if (!card_element) return;
 
         const observer = new IntersectionObserver(
             ([entry]) => {
                 // a whole row crosses the middle of the screen together; delay each card by its place in
                 // the row so they color in one after another, left to right
                 stagger = column_in_row() * STAGGER_MS;
-                isCentered = entry.isIntersecting;
+                is_centered = entry.isIntersecting;
             },
             {
                 rootMargin: "-50% 0px -50% 0px",
                 threshold: 0,
             }
         );
-        observer.observe(cardEl);
+        observer.observe(card_element);
         return () => observer.disconnect();
     });
 
@@ -133,7 +133,7 @@
 
     // how many cards sit to the left of this one in the same row (works for the card grid and gallery rows)
     function column_in_row() {
-        const item = figureEl?.parentElement;
+        const item = figure_element?.parentElement;
         if (!item?.parentElement) return 0;
         const { top, left } = item.getBoundingClientRect();
         let column = 0;
@@ -145,64 +145,62 @@
         return column;
     }
 
-    function extractColor(imgEl) {
-        if (!figureEl) return;
+    function extract_color(image) {
+        if (!figure_element) return;
 
         const run = () => {
-            const color = get_average_color(imgEl);
+            const color = get_average_color(image);
             if (color) {
-                figureEl.style.setProperty("--live-img-avg", color);
+                figure_element.style.setProperty("--live-img-avg", color);
             }
         };
 
-        if (imgEl.complete) {
+        if (image.complete) {
             run();
         } else {
-            imgEl.addEventListener("load", run, { once: true });
+            image.addEventListener("load", run, { once: true });
         }
     }
 </script>
 
 <figure
-    bind:this={figureEl}
+    bind:this={figure_element}
     onmouseenter={() => {
-        isHovered = true;
+        is_hovered = true;
         stagger = 0; // hover reacts right away
         preload?.();
         if (left && !matchMedia('(prefers-reduced-motion: reduce)').matches) hold_pan_for_outline();
     }}
     onmouseleave={() => {
-        isHovered = false;
+        is_hovered = false;
         release_pan();
         pan_to(PAN_REST);
     }}
     onpointermove={follow_pointer}
-    use:center_fade={{ enabled: image_only, active: showFull }}
+    use:center_fade={{ enabled: image_only, active: show_full }}
     class:scroll_fade={image_only}
     class="has_badge group transition relative rounded-2xl">
-    <svelte:element this={href ? 'a' : 'button'}
-        type={href ? undefined : 'button'}
-        {href}
-        target={href ? '_blank' : undefined}
-        rel={href ? 'noopener noreferrer' : undefined}
-        bind:this={cardEl}
+    <button type="button"
+        bind:this={card_element}
         use:card_release={'.card_preview'}
         onfocus={() => {
-            isFocused = true;
+            is_focused = true;
             stagger = 0;
             preload?.();
         }}
-        onblur={() => (isFocused = false)}
+        onblur={() => (is_focused = false)}
         onpointerdown={preload}
         {onclick}
         aria-label={image_only ? title + " — " + client : undefined}
         class="card_trigger transition flex flex-col gap-4 text-left w-full relative z-10">
 
         <div class="relative">
-        <TrailImage class="card_preview rounded-xl overflow-hidden" src={showFull ? src : thumbnail}>
+        <TrailImage class="card_preview rounded-xl overflow-hidden" src={show_full ? src : thumbnail}>
             <img
-                onload={(e) => extractColor(e.currentTarget)}
-                src={showFull ? src : thumbnail}
+                onload={(e) => extract_color(e.currentTarget)}
+                src={show_full ? src : thumbnail}
+                loading={show_full && src !== thumbnail ? 'eager' : 'lazy'}
+                decoding="async"
                 {alt}
                 class="transition-all bg-neutral-950/20 object-cover duration-400
                         saturate-0 sepia-10 group-hover:saturate-100 group-hover:sepia-0 group-focus-within:saturate-100 group-focus-within:sepia-0 w-full {image_only ? 'h-auto' : 'aspect-4/3'}"
@@ -211,10 +209,10 @@
                 style:aspect-ratio={image_only ? width / height : undefined}
                 class:object-center={!left}
                 class:pannable={left}
-                style:object-position={left ? `${panX}% center` : undefined}
-                class:saturate-100={isCentered}
-                class:sepia-0={isCentered}
-                crossorigin="anonymous" draggable="false"
+                style:object-position={left ? `${pan_x}% center` : undefined}
+                class:saturate-100={is_centered}
+                class:sepia-0={is_centered}
+                draggable="false"
             />
         </TrailImage>
         <!-- gallery pictures zoom, everything else opens; the badge straddles the picture's bottom edge -->
@@ -233,7 +231,7 @@
             <p class="live-tint opacity-40 whitespace-nowrap">{client}</p>
         </div>
         {/if}
-    </svelte:element>
+    </button>
 </figure>
 
 <style>

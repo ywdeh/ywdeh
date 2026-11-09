@@ -1,11 +1,6 @@
 <script>
-    import { goto } from "$app/navigation";
-    import ScenarioDetails from "$lib/components/scenarioDetails.svelte";
+    import Portfolio from "$lib/components/portfolio.svelte";
     let { data } = $props();
 </script>
 
-<ScenarioDetails title={data.title} onclose={() => goto("/")}>
-    {#snippet children()}
-        <data.Component />
-    {/snippet}
-</ScenarioDetails>
+<Portfolio initial_slug={data.slug} initial_component={data.Component} />

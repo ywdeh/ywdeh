@@ -1,10 +1,10 @@
 <script>
     import { card_release } from "$lib/card_release.js";
     import TrailImage from "$lib/components/trail_image.svelte";
-    import ImageGallery from "$lib/components/imageGallery.svelte";
+    import ImageGallery from "$lib/components/image_gallery.svelte";
 </script>
 
-<TrailImage src="/scenario/paladins_menu.png" />
+<TrailImage src="/scenario/paladins_menu.webp" />
 
 <article>
     <p><span class="font-semibold">Before we start:</span> This is a personal UI redesign concept for Paladins. All original game assets, characters, and trademarks belong to Hi-Rez Studios. The redesign elements and layout are my own creative work. This project is non-commercial and made for entertaining, education purposes only.</p>
@@ -18,7 +18,7 @@
     <p>Main focus was to improve visual convenience of the game's interface, but some of the screens had changed from the ground up.</p>
 </article>
 
-<TrailImage src="/scenario/paladins_menu.png" />
+<TrailImage src="/scenario/paladins_menu.webp" />
 
 <article>
     <h1>#2 Main Menu - match found</h1>
@@ -39,7 +39,7 @@
     <p>In that concept I kind of solved the problem while keeping scrolling opportunities for the future.</p>
 </article>
 
-<TrailImage src="/scenario/paladins_character_list.png" />
+<TrailImage src="/scenario/paladins_character_list.webp" />
 
 <article>
     <p>New set of sorting rules was applied: your most popular and leveled characters listed first, followed by temporarily available ones. Locked characters arranged alphabetically at the end of the list.</p>
@@ -51,7 +51,7 @@
     <p>Last 2 icons are Profile picture and Profile frame, and I remade them from scratch. They now actually represent what they mean.</p>
 </article>
 
-<TrailImage src="/scenario/paladins_icons.png" />
+<TrailImage src="/scenario/paladins_icons.webp" />
 
 <article>
     <h1>#5 Main Menu - bonus</h1>
@@ -101,7 +101,7 @@
     <p>There's loadouts in the game, and cards are crucial part of character balancing. Previously there was no way to see which cards are changed in a recent update, so I added a little notification - "cards changed", so you can at least know that something here is not the way it was.</p>
 </article>
 
-<TrailImage src="/scenario/paladins_selected_character.png" />
+<TrailImage src="/scenario/paladins_selected_character.webp" />
 
 <article>
     <h1>#9 Other unfinished things</h1>
@@ -109,7 +109,7 @@
     <p>The concept was simple: you just click on the outline of the element you want to change. It also helps new players to understand what these elements are.</p>
 </article>
 
-<TrailImage src="/scenario/paladins_lobby.png" />
+<TrailImage src="/scenario/paladins_lobby.webp" />
 
 <article>
     <h1>Afterword</h1>

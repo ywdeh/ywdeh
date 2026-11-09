@@ -18,9 +18,9 @@ export const scenario = {
         alt: "RJ initials carved into a stone tablet with ivy vines, shown in orange and green color variants",
         images: [
             "/scenario/rj.png",
-            "/scenario/rj_slate.png",
-            "/scenario/rj_branches.png",
-            "/scenario/rj_outline.png",
+            "/scenario/rj_slate.webp",
+            "/scenario/rj_branches.webp",
+            "/scenario/rj_outline.webp",
         ],
         component: () => import("$lib/components/scenario/rj.svelte"),
     },
@@ -36,14 +36,14 @@ export const scenario = {
         title: "cafe animated logo",
         client: "Dino Cafe",
         alt: "Hand-lettered green Cyrillic wordmark on cream paper, styled like a hand-painted cafe sign",
-        component: () => import("$lib/components/scenario/dino-cafe.svelte"),
+        component: () => import("$lib/components/scenario/dino_cafe.svelte"),
     },
 
     "sneakers_bros": {
         title: "store logo and banner",
         client: "Sneakers Bro's",
         alt: "Bold angular Sneakers Bro's logo in black and white streetwear style, with dashed technical line accents",
-        component: () => import("$lib/components/scenario/sneakers-bros.svelte"),
+        component: () => import("$lib/components/scenario/sneakers_bros.svelte"),
     },
 
     "daloras": {
@@ -58,20 +58,20 @@ export const scenario = {
         client: "Paladins",
         alt: "Redesigned in-game menu UI",
         images: [
-            "/scenario/paladins_menu.png",
+            "/scenario/paladins_menu.webp",
             "/scenario/paladins_menu_queue.webp",
-            "/scenario/paladins_character_list.png",
-            "/scenario/paladins_icons.png",
+            "/scenario/paladins_character_list.webp",
+            "/scenario/paladins_icons.webp",
             "/scenario/paladins_menu_2.webp",
             "/scenario/paladins_currency.webp",
             "/scenario/paladins.png",
             "/scenario/paladins_hud.webp",
             "/scenario/paladins_hud_grayscale.webp",
             "/scenario/paladins_hud_ingame.webp",
-            "/scenario/paladins_selected_character.png",
-            "/scenario/paladins_lobby.png",
+            "/scenario/paladins_selected_character.webp",
+            "/scenario/paladins_lobby.webp",
         ],
-        component: () => import("$lib/components/scenario/paladins-concept.svelte"),
+        component: () => import("$lib/components/scenario/paladins_concept.svelte"),
     },
 
     "palia_concept": {
@@ -79,12 +79,12 @@ export const scenario = {
         client: "Palia",
         alt: "Before and after comparison of an inventory hotbar, simplified into a cleaner slot-based layout",
         images: [
-            "/scenario/palia.png",
-            "/scenario/palia_quest_log.png",
-            "/scenario/palia_bars.png",
-            "/scenario/palia_hud.png",
+            "/scenario/palia.webp",
+            "/scenario/palia_quest_log.webp",
+            "/scenario/palia_bars.webp",
+            "/scenario/palia_hud.webp",
         ],
-        component: () => import("$lib/components/scenario/palia-concept.svelte"),
+        component: () => import("$lib/components/scenario/palia_concept.svelte"),
     },
 
     "pixel_icons_pack": {
@@ -95,7 +95,7 @@ export const scenario = {
             "/scenario/iconsvol2.png",
             "/scenario/iconsvol1.png",
         ],
-        component: () => import("$lib/components/scenario/pixel-icons-pack.svelte"),
+        component: () => import("$lib/components/scenario/pixel_icons_pack.svelte"),
     },
 
     "wintertale_banner": {
@@ -104,24 +104,24 @@ export const scenario = {
         alt: "Illustrated banner split into a cozy blue-toned workshop scene and a snowy window view with gift boxes",
         images: [
             "/scenario/wintertale.webp",
-            "/scenario/wintertale_half_1.png",
-            "/scenario/wintertale_half_2.png",
+            "/scenario/wintertale_half_1.webp",
+            "/scenario/wintertale_half_2.webp",
         ],
-        component: () => import("$lib/components/scenario/wintertale-banner.svelte"),
+        component: () => import("$lib/components/scenario/wintertale_banner.svelte"),
     },
 
     "blue_animation": {
         title: "illustrated animated character",
         client: "personal",
         alt: "Simple round-headed illustrated character standing on a hill, looking down thoughtfully",
-        component: () => import("$lib/components/scenario/blue-animated.svelte"),
+        component: () => import("$lib/components/scenario/blue_animated.svelte"),
     },
 
     "thats_what_journey_means": {
         title: "that's what journey means poster",
         client: "personal",
         alt: "Metallic holographic lettering reading that's what journey means against a dark background",
-        component: () => import("$lib/components/scenario/thats-what-journey-means.svelte"),
+        component: () => import("$lib/components/scenario/thats_what_journey_means.svelte"),
     },
 
     "morroworld": {
@@ -130,11 +130,38 @@ export const scenario = {
         alt: "",
         images: [
             "/scenario/morroworld.png",
-            "/scenario/morroworld_block_2.png",
-            "/scenario/morroworld_gallery.png",
-            "/scenario/morroworld_login.png",
+            "/scenario/morroworld_block_2.webp",
+            "/scenario/morroworld_gallery.webp",
+            "/scenario/morroworld_login.webp",
         ],
         component: () => import("$lib/components/scenario/morroworld.svelte"),
     },
 
 };
+export const case_studies = [
+    { slug: 'paladins_concept', src: '/scenario/paladins_character_list.webp', left: true },
+    { slug: 'routes_and_journeys', src: '/scenario/rj.png' },
+    { slug: 'palia_concept', src: '/scenario/palia.webp' },
+    { slug: 'morroworld', src: '/scenario/morroworld.webp' },
+    { slug: 'pixel_icons_pack', src: '/scenario/iconsvol2.png' },
+    { slug: 'wintertale_banner', src: '/scenario/wintertale.webp', left: true },
+];
+
+// hand-made rows; each spans the full width, its pictures sharing it by aspect ratio so they all
+// come out the same height (on phones every picture gets a row of its own)
+export const gallery_rows = [
+    [
+        { slug: 'thats_what_journey_means', src: '/scenario/pride.png', width: 1600, height: 1200 },
+        { slug: 'sq', src: '/scenario/sq.png', width: 2800, height: 2100 },
+        { slug: 'daloras', src: '/scenario/daloras.webp', width: 2800, height: 2100 },
+    ],
+    [
+        { slug: 'sneakers_bros', src: '/scenario/sneakers_2.webp', width: 1905, height: 1429, alt: 'Alternate Sneakers Bro’s brand artwork' },
+        { slug: 'sneakers_bros', src: '/scenario/sneakers_full.webp', width: 2800, height: 938, alt: 'Wide Sneakers Bro’s brand banner' },
+    ],
+    [
+        { slug: 'sneakers_bros', src: '/scenario/sneakers.png', width: 1905, height: 1429 },
+        { slug: 'dino_cafe', src: '/scenario/dino_cafe.webp', full_src: '/scenario/dino_cafe.gif', width: 1400, height: 1050 },
+        { slug: 'blue_animation', src: '/scenario/blue.webp', full_src: '/scenario/blue.gif', width: 1258, height: 851 },
+    ],
+];

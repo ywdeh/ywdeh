@@ -5,9 +5,9 @@
 <!-- stroke goes through style, not the attribute, so CSS variables like var(--color-mauve-300) work -->
 <svg class="size-6 shrink-0" viewBox="0 0 24 24" fill="none" style:stroke={color}
     stroke-width="2" stroke-linecap="round" aria-hidden="true">
-    <path d="M17.3 6.7H7.3" pathLength="1" />
-    <path d="M17.3 6.7v10" pathLength="1" />
-    <path d="M17.3 6.7 6.7 17.3" pathLength="1" />
+    <path d="M17.3 6.7Q12.6 6.2 7.5 7.1" pathLength="1" />
+    <path d="M17.3 6.7Q17.9 11.7 17.1 16.5" pathLength="1" />
+    <path d="M17.3 6.7Q12.8 12.1 6.5 17.4" pathLength="1" />
 </svg>
 
 <style>

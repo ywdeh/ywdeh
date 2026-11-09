@@ -1,6 +1,6 @@
 <script>
     import TrailImage from "$lib/components/trail_image.svelte";
-    import ImageGallery from "$lib/components/imageGallery.svelte";
+    import ImageGallery from "$lib/components/image_gallery.svelte";
 </script>
 
 <TrailImage src="/scenario/rj.png" />
@@ -20,4 +20,4 @@
     <p>Since its vector, changing colors is as easy as dragging sliders around!</p>
 </article>
 
-<TrailImage src="/scenario/rj_outline.png" />
+<TrailImage src="/scenario/rj_outline.webp" />

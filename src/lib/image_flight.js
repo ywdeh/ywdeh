@@ -9,11 +9,6 @@ const DURATION = 450; // ms
 const EASING = 'cubic-bezier(0.65, 0, 0.35, 1)'; // ease in-out
 const RADIUS = 12; // px: the pictures' corner radius (rounded-xl)
 
-// same curve as EASING, to keep the corner animation in step with the movement
-function ease(t) {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-}
-
 export function flight_duration() {
     return matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : DURATION;
 }
@@ -87,17 +82,7 @@ export function fly(image, small, big, direction) {
     const scale_y = small.height / big.height;
     const shrunk = `translate(${small.left - big.left}px, ${small.top - big.top}px) scale(${scale_x}, ${scale_y})`;
 
-    // the corners are counter-scaled so they look the same 12px round all the way, instead of shrinking
-    // and stretching with the picture. It's a separate animation, so it can't hold the movement back
-    // (only transform-only animations run on the compositor)
-    const corners = [];
-    for (let step = 0; step <= 12; step++) {
-        const shrink = 1 - ease(step / 12); // 1 = fully on the page spot, 0 = fully in the viewer
-        const sx = 1 + (scale_x - 1) * shrink;
-        const sy = 1 + (scale_y - 1) * shrink;
-        corners.push({ borderRadius: `${RADIUS / sx}px / ${RADIUS / sy}px` });
-    }
-
+    // Let the corners scale with the image so the flight only animates transform.
     const element = make_stand_in(image, big);
     const timing = { duration: flight_duration(), fill: 'both' };
     const opening = direction === 'in';
@@ -105,7 +90,6 @@ export function fly(image, small, big, direction) {
         opening ? [{ transform: shrunk }, { transform: 'none' }] : [{ transform: 'none' }, { transform: shrunk }],
         { ...timing, easing: EASING }
     );
-    const rounding = element.animate(opening ? corners : [...corners].reverse(), { ...timing, easing: 'linear' });
 
     // resolves on arrival even after a reverse() (the movement's `finished` promise is replaced then)
     let arrive;
@@ -118,11 +102,9 @@ export function fly(image, small, big, direction) {
         finished,
         reverse() {
             movement.reverse();
-            rounding.reverse();
         },
         remove() {
             movement.cancel();
-            rounding.cancel();
             element.remove();
         },
     };

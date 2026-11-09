@@ -2,11 +2,13 @@
     import { getContext } from "svelte";
     import { card_release } from "$lib/card_release.js";
     import { get_average_color } from "$lib/image_average_color.js";
+    import { image_dimensions } from "$lib/image_dimensions.js";
     import CardBadge from "./card_badge.svelte";
 
-    let { src, alt = "", gallery = false, zoom = true, class: class_name = "", children } = $props();
+    let { src, alt = "", gallery = false, zoom = true, eager = gallery, class: class_name = "", children } = $props();
     const open_image = getContext('case_image_viewer');
     const can_zoom = $derived(zoom && !!open_image);
+    const dimensions = $derived(image_dimensions[src]);
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions (The click handler is only set on the native button.) -->
@@ -18,7 +20,8 @@
     {#if children}
         {@render children()}
     {:else}
-        <img src={src} alt={alt} draggable="false" onload={(event) => {
+        <img src={src} alt={alt} width={dimensions?.[0]} height={dimensions?.[1]}
+            loading={eager ? 'eager' : 'lazy'} decoding="async" draggable="false" onload={(event) => {
             const img = event.currentTarget;
             if (can_zoom || !zoom) img.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
             // the zoom badge takes the picture's average color

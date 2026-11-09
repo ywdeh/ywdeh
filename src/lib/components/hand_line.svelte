@@ -11,5 +11,5 @@
 </svg>
 
 <style>
-    .hand_line { display: block; height: 12px; color: var(--color-mauve-100); opacity: 0.12; overflow: visible; }
+    .hand_line { display: block; height: 12px; color: var(--color-mauve-100); opacity: 0.072; overflow: visible; }
 </style>

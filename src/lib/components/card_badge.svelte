@@ -73,10 +73,10 @@
     <svg viewBox="0 0 40 40" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         {#if kind === 'zoom'}
             <!-- magnifying glass -->
-            <circle cx="18.5" cy="18.5" r="5.5" />
-            <path d="M22.5 22.5 26 26" />
+            <path d="M17.1 12.6C19.4 11.8 23.6 13.5 24.3 16.6C25 19.2 23 22.9 20.4 23.9C17.5 25 13.8 23.2 12.9 20.6C11.7 17.9 13.6 13.7 17.1 12.6Z" />
+            <path d="M22.3 22.6Q23.7 25.4 27 27" />
         {:else}
-            <path d="M15.2 24.8 24.6 15.4M17.4 15.2h7.4v7.4" />
+            <path d="M15 24.8Q20.3 20.6 24.7 15.3M17.3 15.7Q21.1 14.9 24.7 15.3Q25.1 19.1 24.5 22.7" />
         {/if}
     </svg>
 </span>

@@ -3,4 +3,4 @@
 </script>
 
 <TrailImage src="/scenario/sq.png" />
-<TrailImage src="/scenario/sq_outline.png" />
+<TrailImage src="/scenario/sq_outline.webp" />

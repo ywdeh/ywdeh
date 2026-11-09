@@ -6,8 +6,7 @@ export function entries() {
 }
 
 export async function load({ params }) {
-    const entry = scenario[params.slug];
-    if (!entry) throw error(404, 'Not found');
-    const module = await entry.component();
-    return { title: entry.title, Component: module.default };
+    if (!Object.hasOwn(scenario, params.slug)) throw error(404, 'Not found');
+    const module = await scenario[params.slug].component();
+    return { slug: params.slug, Component: module.default };
 }
