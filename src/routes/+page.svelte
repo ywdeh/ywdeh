@@ -10,6 +10,7 @@
         <div class="flex flex-col gap-6 md:gap-8 lg:gap-10">
             <nav aria-label="Work sections" class="flex flex-col gap-2 md:flex-row justify-between">
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <a use:card_release use:scrollTo={'personal-projects'} href="#personal-projects" class="transition opacity-30 hover:opacity-90">personal projects</a>
                     <a use:card_release use:scrollTo={'case-studies'} href="#case-studies" class="transition opacity-30 hover:opacity-90">case studies</a>
                     <a use:card_release use:scrollTo={'gallery'} href="#gallery" class="transition opacity-30 hover:opacity-90">gallery</a>
                 </div>
@@ -18,6 +19,26 @@
                 </div>
             </nav>
 
+            <Category title="personal projects" anchor="personal-projects">
+                <!-- text only, in one card: name and what it is on top; what it's built with and a way in below -->
+                <article class="flex flex-col justify-between gap-8 rounded-2xl bg-mauve-100/5 p-6">
+                    <div class="flex flex-col gap-2">
+                        <h3 class="text-3xl font-[Amarante,serif]">Patter</h3>
+                        <p class="opacity-60 max-w-[36ch]">An ambient text editor: pick a scene, let its sounds play, and write with nothing else asking for your attention.</p>
+                    </div>
+                    <div class="flex items-end justify-between gap-4">
+                        <ul aria-label="Built with" class="flex flex-wrap gap-x-3 gap-y-1 text-sm opacity-40">
+                            <li>svelte</li>
+                            <li>gsap</li>
+                            <li>html, css, js</li>
+                        </ul>
+                        <VisitButton href="https://patter.hedwy.art">Visit</VisitButton>
+                    </div>
+                </article>
+            </Category>
+        </div>
+
+        <div class="flex flex-col gap-6 md:gap-8 lg:gap-10">
             <Category title="case studies" anchor="case-studies">
             {#each case_studies as { slug, src, left } (slug)}
                 <div>
@@ -108,6 +129,7 @@
     import Header from "$lib/components/header.svelte";
     import Category from "$lib/components/category.svelte";
     import Footer from "$lib/components/footer.svelte";
+    import VisitButton from "$lib/components/visit_button.svelte";
 
     import { onMount } from "svelte";
     import { goto, pushState } from "$app/navigation";
