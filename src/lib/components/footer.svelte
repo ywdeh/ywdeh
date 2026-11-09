@@ -9,8 +9,8 @@
 <div class="flex flex-col text-2xl gap-2">
     <p>{cta}</p>
     <div class="flex flex-col md:flex-row justify-between">
-        <a use:card_release href="mailto:itshedwy@icloud.com" class="arrow_link flex items-center justify-center gap-2 transition opacity-60 hover:opacity-90 w-full md:w-fit">itshedwy@icloud.com<ArrowIcon color="var(--color-mauve-300)" /></a>
-        <a use:card_release href="https://linkedin.com/in/hedwy" target="_blank" class="arrow_link flex items-center justify-center gap-2 transition opacity-60 hover:opacity-90 w-full md:w-fit">check résumé<ArrowIcon color="var(--color-mauve-300)" /></a>
+        <a use:card_release href="mailto:itshedwy@icloud.com" class="arrow_link flex items-center gap-2 transition opacity-60 hover:opacity-90 w-fit">itshedwy@icloud.com<ArrowIcon color="var(--color-mauve-300)" /></a>
+        <a use:card_release href="https://linkedin.com/in/hedwy" target="_blank" class="arrow_link flex items-center gap-2 transition opacity-60 hover:opacity-90 w-fit self-end">check résumé<ArrowIcon color="var(--color-mauve-300)" /></a>
     </div>
 </div>
 

@@ -1,5 +1,4 @@
 <svelte:head></svelte:head>
-<svelte:window bind:innerWidth={viewport_width} />
 
 <div class="fixed w-screen h-screen pointer-events-none bg-[url(/noise.gif)] mix-blend-overlay opacity-4 bg-repeat z-100"></div>
 
@@ -19,7 +18,7 @@
                 </div>
             </nav>
 
-            <Category title="case studies" anchor="case-studies" count={case_studies.length}>
+            <Category title="case studies" anchor="case-studies">
             {#each case_studies as { slug, src, left } (slug)}
                 <div>
                     <ScenarioCard
@@ -37,21 +36,16 @@
         </div>
 
         <Category title="gallery" anchor="gallery">
-            <div class="gallery gap-y-8 md:gap-y-10 lg:gap-y-12" bind:clientWidth={gallery_width}>
-                {#each gallery_layout as { items, height, filler }}
-                    <div class="gallery_row gap-x-6 md:gap-x-8 lg:gap-x-10">
-                        {#each items as { slug, src, full_src, width, height: image_height, alt, brightness } (src)}
-                            <div class="gallery_item"
-                                style:width={height ? height * width / image_height + 'px' : undefined}
-                                style:flex={height ? undefined : `${width / image_height} 1 0`}>
-                                <ScenarioCard image_only src={full_src ?? src} thumbnail={src} {width} height={image_height} {brightness}
+            <div class="gallery gap-y-8 md:gap-y-10 lg:gap-y-12">
+                {#each gallery_rows as items}
+                    <div class="gallery_row gap-y-8 gap-x-6 md:gap-x-8 lg:gap-x-10">
+                        {#each items as { slug, src, full_src, width, height: image_height, alt } (src)}
+                            <div class="gallery_item" style:--ratio={width / image_height}>
+                                <ScenarioCard image_only src={full_src ?? src} thumbnail={src} {width} height={image_height}
                                     title={scenario[slug].title} client={scenario[slug].client} alt={alt ?? scenario[slug].alt}
                                     onclick={(event) => open_gallery(src, event.currentTarget)} />
                             </div>
                         {/each}
-                        {#if filler}
-                            <div aria-hidden="true" class="flex-1 rounded-xl bg-mauve-100/3" style:height={height + 'px'}></div>
-                        {/if}
                     </div>
                 {/each}
             </div>
@@ -129,77 +123,26 @@
         { slug: 'wintertale_banner', src: '/scenario/wintertale.webp', left: true },
     ];
 
+    // hand-made rows; each spans the full width, its pictures sharing it by aspect ratio so they all
+    // come out the same height (on phones every picture gets a row of its own)
     const gallery_rows = [
         [
-            { slug: 'sq', src: '/scenario/sq.png', width: 2800, height: 2100 },
-            { slug: 'sq', src: '/scenario/sq_outline.png', width: 2800, height: 2100, alt: 'Outline version of the SQ emblem' },
-        ],
-        [
-            { slug: 'daloras', src: '/scenario/daloras.png', width: 2800, height: 2100 },
             { slug: 'thats_what_journey_means', src: '/scenario/pride.png', width: 1600, height: 1200 },
+            { slug: 'sq', src: '/scenario/sq.png', width: 2800, height: 2100 },
+            { slug: 'daloras', src: '/scenario/daloras.png', width: 2800, height: 2100 },
         ],
         [
-            { slug: 'sneakers_bros', src: '/scenario/sneakers_2.webp', width: 1905, height: 1429, brightness: 0.68, alt: 'Alternate Sneakers Bro’s brand artwork' },
-            { slug: 'blue_animation', src: '/scenario/blue.png', full_src: '/scenario/blue.gif', width: 1258, height: 851, brightness: 0.66 },
+            { slug: 'sneakers_bros', src: '/scenario/sneakers_2.webp', width: 1905, height: 1429, alt: 'Alternate Sneakers Bro’s brand artwork' },
+            { slug: 'sneakers_bros', src: '/scenario/sneakers_full.webp', width: 2800, height: 938, alt: 'Wide Sneakers Bro’s brand banner' },
         ],
         [
-            { slug: 'sneakers_bros', src: '/scenario/sneakers_full.webp', width: 2800, height: 938, brightness: 0.65, alt: 'Wide Sneakers Bro’s brand banner' },
-        ],
-        [
-            { slug: 'sneakers_bros', src: '/scenario/sneakers.png', width: 1905, height: 1429, brightness: 0.62 },
-            { slug: 'dino_cafe', src: '/scenario/dino_cafe.png', full_src: '/scenario/dino_cafe.gif', width: 1400, height: 1050, brightness: 0.61 },
+            { slug: 'sneakers_bros', src: '/scenario/sneakers.png', width: 1905, height: 1429 },
+            { slug: 'dino_cafe', src: '/scenario/dino_cafe.png', full_src: '/scenario/dino_cafe.gif', width: 1400, height: 1050 },
+            { slug: 'blue_animation', src: '/scenario/blue.png', full_src: '/scenario/blue.gif', width: 1258, height: 851 },
         ],
     ];
 
     let mainSection;
-    // justified gallery: fill each row with as many images as fit at about the old size (376px tall),
-    // then scale that row so it spans the width exactly; the last row keeps the target height
-    let gallery_width = $state(0);
-    let viewport_width = $state(0);
-    const gallery_items = gallery_rows.flat();
-
-    let gallery_layout = $derived.by(() => {
-        // before the width is measured (server render), fall back to the hand-made rows
-        if (!gallery_width) return gallery_rows.map((items) => ({ items, height: 0 }));
-        // matches gap-x-6 / md:gap-x-8 / lg:gap-x-10 on .gallery_row
-        const gap = viewport_width >= 1024 ? 40 : viewport_width >= 768 ? 32 : 24;
-        // on phones the target sits just above a full-width 4:3 image, so it's one image per row
-        const target = gallery_width < 768 ? 260 : 376;
-        const rows = [];
-        let row = [];
-        let ratio_sum = 0;
-        const row_height = (count, sum) => (gallery_width - gap * (count - 1)) / sum;
-        for (const item of gallery_items) {
-            const ratio = item.width / item.height;
-            const height = row_height(row.length + 1, ratio_sum + ratio);
-            if (height > target) {
-                row.push(item);
-                ratio_sum += ratio;
-                continue;
-            }
-            // adding this image makes the row shorter than the target: break wherever the row height
-            // lands closer to the target, either before this image or after it
-            const without = row.length ? row_height(row.length, ratio_sum) : Infinity;
-            if (without - target < target - height) {
-                rows.push({ items: row, height: without });
-                row = [item];
-                ratio_sum = ratio;
-            } else {
-                rows.push({ items: [...row, item], height });
-                row = [];
-                ratio_sum = 0;
-            }
-        }
-        if (row.length) {
-            // a short last row would blow up if stretched, so it stays at the target height (capped to fit)
-            const fit = (gallery_width - gap * (row.length - 1)) / ratio_sum;
-            const height = Math.min(target, fit);
-            // whatever width the last row leaves is filled by one gray block, like the card grids
-            const leftover = gallery_width - height * ratio_sum - gap * row.length;
-            rows.push({ items: row, height, filler: leftover >= 80 });
-        }
-        return rows;
-    });
 
     let gallery_slug = $state();
     let gallery_zoom_width = $state(0);
@@ -312,10 +255,15 @@
 </script>
 
 <style>
-    /* row packing happens in gallery_layout; widths come from there */
     .gallery { grid-column: 1 / -1; display: flex; flex-direction: column; }
+    /* a picture's share of its row's width is its aspect ratio, so every picture in a row is the same height */
     .gallery_row { display: flex; align-items: flex-start; }
-    .gallery_item { min-width: 0; flex-shrink: 1; }
+    .gallery_item { min-width: 0; flex: var(--ratio) 1 0; }
+    /* phones: one full-width picture per row */
+    @media (max-width: 767.98px) {
+        .gallery_row { flex-direction: column; align-items: stretch; }
+        .gallery_item { flex: none; }
+    }
     .gallery_view { width: 100%; margin-inline: auto; }
     /* the viewport spans the whole viewer area, so a zoomed image fills it instead of staying cropped to its starting size */
     .gallery_image_viewport {

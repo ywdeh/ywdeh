@@ -3,7 +3,8 @@
     import TrailImage from "./trail_image.svelte";
     import CardBadge from "./card_badge.svelte";
     import { get_average_color } from '$lib/image_average_color.js';
-    let { src, thumbnail = src, alt, title, client, video = false, left = false, image_only = false, width, height, brightness, onclick, preload, href } = $props();
+    import { center_fade } from '$lib/center_fade.js';
+    let { src, thumbnail = src, alt, title, client, video = false, left = false, image_only = false, width, height, onclick, preload, href } = $props();
 
     let cardEl = $state();
     let figureEl = $state();
@@ -176,6 +177,8 @@
         pan_to(PAN_REST);
     }}
     onpointermove={follow_pointer}
+    use:center_fade={{ enabled: image_only, active: showFull }}
+    class:scroll_fade={image_only}
     class="has_badge group transition relative rounded-2xl">
     <svelte:element this={href ? 'a' : 'button'}
         type={href ? undefined : 'button'}
@@ -201,12 +204,9 @@
                 onload={(e) => extractColor(e.currentTarget)}
                 src={showFull ? src : thumbnail}
                 {alt}
-                class="transition-all bg-neutral-950/20 object-cover duration-400 brightness-[var(--thumbnail-brightness,1)]
+                class="transition-all bg-neutral-950/20 object-cover duration-400
                         saturate-0 sepia-10 group-hover:saturate-100 group-hover:sepia-0 group-focus-within:saturate-100 group-focus-within:sepia-0 w-full {image_only ? 'h-auto' : 'aspect-4/3'}"
-                style:--thumbnail-brightness={isCentered ? 1 : brightness}
                 style:--stagger={stagger + 'ms'}
-                class:group-hover:brightness-100={brightness !== undefined}
-                class:group-focus-within:brightness-100={brightness !== undefined}
                 {width} {height}
                 style:aspect-ratio={image_only ? width / height : undefined}
                 class:object-center={!left}
@@ -221,10 +221,16 @@
         <CardBadge kind={image_only ? 'zoom' : 'open'} />
         </div>
 
-        {#if !image_only}
-        <div class="card_caption flex justify-between">
-            <h3 class="live-tint">{title}</h3>
-            <p class="live-tint opacity-40">{client}</p>
+        {#if image_only}
+        <!-- gallery pictures just get a dim name: who it's for, or what it is for personal work -->
+        <div class="card_caption">
+            <p class="live-tint opacity-40 truncate">{client === 'personal' ? title : client}</p>
+        </div>
+        {:else}
+        <!-- always one line: on a narrow card the title shortens with an ellipsis, the client stays whole -->
+        <div class="card_caption flex justify-between gap-4">
+            <h3 class="live-tint truncate">{title}</h3>
+            <p class="live-tint opacity-40 whitespace-nowrap">{client}</p>
         </div>
         {/if}
     </svelte:element>
@@ -253,7 +259,6 @@
     }
 
     figure:has(> .card_trigger:is(:active, :global(.is_pressed)))::before { inset: -4px; }
-
     .card_trigger :global(.card_preview) { clip-path: inset(0 round var(--radius-xl)); }    .card_trigger:is(:active, :global(.is_pressed)) :global(.card_preview) { clip-path: inset(6px round var(--radius-xl)); }
     .card_trigger:is(:active, :global(.is_pressed)) img { padding: 6px; }
     .card_trigger:is(:active, :global(.is_pressed)) .card_caption { padding-inline: 6px; translate: 0 -6px; }
@@ -266,6 +271,9 @@
         .card_trigger img.pannable { transition: filter 400ms var(--stagger, 0ms), padding 140ms var(--ease-out); }
         .card_caption { transition: padding-inline 140ms var(--ease-out), translate 140ms var(--ease-out); }
     }
+
+    /* gallery pictures fade the farther they are from the middle of the screen (--fade comes from center_fade.js) */
+    figure.scroll_fade img { opacity: var(--fade, 1); }
 
     .live-tint {
         transition: color 0.14s;
