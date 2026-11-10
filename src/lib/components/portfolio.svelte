@@ -118,7 +118,7 @@
                 <article class="flex flex-col justify-between gap-8 rounded-card bg-mauve-100/5 p-6">
                     <div class="flex flex-col gap-2">
                         <h3 class="font-display text-3xl">Patter</h3>
-                        <p class="fg-soft max-w-[36ch]">An ambient text editor: pick a scene, let its sounds play, and write with nothing else asking for your attention.</p>
+                        <p class="fg-soft max-w-[36ch]">an ambient text editor: pick a scene, let its sounds play, and write with nothing else asking for your attention</p>
                     </div>
                     <div class="flex items-end justify-between gap-4">
                         <ul aria-label="Built with" class="fg-muted flex flex-wrap gap-x-3 gap-y-1 text-sm">
