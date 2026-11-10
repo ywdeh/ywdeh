@@ -11,6 +11,10 @@
     // [width, height, average color], worked out ahead of time (scripts/image_data.mjs); the size sets
     // the picture's shape before it has loaded
     const data = $derived(image_data[src]);
+    // a fixed shape for the whole box (padding included), so a pressed picture's padding shrinks the
+    // picture instead of changing its height and moving everything below it (the viewer's own picture
+    // sizes itself)
+    const ratio = $derived(data && (can_zoom || !zoom) ? `${data[0]} / ${data[1]}` : undefined);
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions (The click handler is only set on the native button.) -->
@@ -33,10 +37,10 @@
     {#if children}
         {@render children()}
     {:else if eager}
-        <img src={src} alt={alt} width={data?.[0]} height={data?.[1]} decoding="async" draggable="false" />
+        <img src={src} alt={alt} width={data?.[0]} height={data?.[1]} style:aspect-ratio={ratio} decoding="async" draggable="false" />
     {:else}
         <!-- waits its turn as a grey block: on-screen pictures load one at a time, top to bottom (load_queue.js) -->
-        <img use:queued={src} alt={alt} width={data?.[0]} height={data?.[1]} decoding="async" draggable="false" />
+        <img use:queued={src} alt={alt} width={data?.[0]} height={data?.[1]} style:aspect-ratio={ratio} decoding="async" draggable="false" />
     {/if}
 {/snippet}
 
