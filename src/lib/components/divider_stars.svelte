@@ -24,7 +24,7 @@
     });
 
     function show_callout(index, velocity, speed, travel) {
-        const spread = clamp(Math.abs(speed) * 24, 0, 46);
+        const spread = clamp(Math.abs(speed) * 34, 0, 64);
         const label = travel > 0 ? 'woo' : 'wee';
         const direction = speed > 0 ? 'woo' : 'wee';
         if (callout?.index === index && !callout.interrupted && Math.abs(speed) >= 0.75 && callout.label !== direction) {
@@ -33,8 +33,7 @@
             callout.interrupted = true;
             return;
         }
-        const minimum_travel = document.documentElement.clientWidth * 0.2;
-        if (Math.abs(travel) < minimum_travel || Math.abs(velocity) < 1.2 || Math.sign(velocity) !== Math.sign(travel)) {
+        if (Math.abs(travel) < 24 || Math.abs(velocity) < 1.2 || Math.sign(velocity) !== Math.sign(travel)) {
             if (callout?.index === index && callout.visible) callout.spread = callout.label === label ? spread : 0;
             return;
         }
@@ -254,7 +253,7 @@
                         text-anchor="middle" fill="currentColor" stroke="var(--color-neutral-900)"
                         stroke-width="8" stroke-linejoin="round" paint-order="stroke"
                         style:--letter-order={from_star}
-                        style:--letter-stretch={(right ? 1 : -1) * (active ? word.spread : 0) * (from_star / 2) ** 2 + 'px'}>{letter}</text>
+                        style:--letter-stretch={(right ? 1 : -1) * (active ? word.spread : 0) * (from_star / 2) ** 1.5 + 'px'}>{letter}</text>
                 {/each}
             </svg>
         {/each}
@@ -334,7 +333,7 @@
             transform-origin: center;
             transition: opacity var(--letter-duration, var(--press-time)) var(--press-ease) var(--letter-delay),
                 scale var(--letter-duration, var(--press-time)) var(--press-ease) var(--letter-delay),
-                translate 55ms ease-out, fill-opacity 180ms ease-out;
+                translate 30ms ease-out, fill-opacity 180ms ease-out;
         }
         .star_callout.visible .callout_letter {
             --letter-delay: calc(var(--letter-order) * var(--letter-step));
