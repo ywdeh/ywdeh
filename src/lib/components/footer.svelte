@@ -22,8 +22,11 @@
 <div class="flex flex-col gap-10">
     <div class="flex flex-col gap-2 text-2xl">
         <p>{cta}</p>
-        {@render contact('itshedwy@icloud.com', 'mailto:itshedwy@icloud.com')}
-        {@render contact('check résumé', 'https://linkedin.com/in/hedwy', true)}
+        <!-- stacked on phones; on wider screens the résumé link moves to the far right, level with the email -->
+        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            {@render contact('itshedwy@icloud.com', 'mailto:itshedwy@icloud.com')}
+            {@render contact('check résumé', 'https://linkedin.com/in/hedwy', true)}
+        </div>
     </div>
 
     <div class="relative">
