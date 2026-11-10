@@ -2,6 +2,8 @@
     // The footer renders two groups on the same track.
     const star_edges = new WeakMap();
     const set_star_position = new WeakMap();
+    const max_callout_letters = 4;
+    const callout_slots = Array.from({ length: max_callout_letters }, (_, index) => index);
 </script>
 
 <script>
@@ -17,33 +19,46 @@
     const tip_stretch = new Tween(0, { duration: 140, easing: cubicOut });
     let stretch_idle;
     let callout = $state();
+    let outgoing_callout = $state();
     let callout_idle;
     $effect(() => () => {
         clearTimeout(stretch_idle);
         clearTimeout(callout_idle);
     });
 
+    function hide_callout(interrupted = false) {
+        clearTimeout(callout_idle);
+        callout.visible = false;
+        callout.interrupted = interrupted;
+    }
+
     function show_callout(index, velocity, speed, travel) {
-        const spread = clamp(Math.abs(speed) * 34, 0, 64);
+        const pace = Math.abs(speed);
+        const spread = clamp(pace * 34, 0, 64);
         const label = travel > 0 ? 'woo' : 'wee';
         const direction = speed > 0 ? 'woo' : 'wee';
-        if (callout?.index === index && !callout.interrupted && Math.abs(speed) >= 0.75 && callout.label !== direction) {
-            clearTimeout(callout_idle);
-            callout.visible = false;
-            callout.interrupted = true;
+        const turning = pace >= 0.75 && callout?.label !== direction;
+        if (callout?.index === index && callout.visible && (Math.abs(velocity) < 0.8 || turning)) {
+            hide_callout(turning);
             return;
         }
-        if (Math.abs(travel) < 24 || Math.abs(velocity) < 1.2 || Math.sign(velocity) !== Math.sign(travel)) {
+        if (pace < 0.8 || Math.abs(travel) < 24 || Math.abs(velocity) < 1.2 || Math.sign(velocity) !== Math.sign(travel)) {
             if (callout?.index === index && callout.visible) callout.spread = callout.label === label ? spread : 0;
             return;
         }
+        const letter_count = clamp(1 + Math.floor((Math.abs(velocity) - 1.2) / 0.22), 1, max_callout_letters);
         if (!callout?.visible || callout.index !== index || callout.label !== label) {
-            callout = { index, label, spread, visible: true };
+            if (callout && (callout.index !== index || callout.label !== label)) {
+                callout.visible = false;
+                outgoing_callout = callout;
+            }
+            callout = { index, label, spread, letter_count, visible: true };
         } else {
             callout.spread = spread;
+            callout.letter_count = Math.max(callout.letter_count, letter_count);
         }
         clearTimeout(callout_idle);
-        callout_idle = setTimeout(() => { callout.visible = false; }, 480);
+        callout_idle = setTimeout(hide_callout, 120);
     }
 
     // the same star drawn a second time by hand: every point shifted a touch, as a redraw would land.
@@ -232,7 +247,6 @@
     {@const shape = index === 0 ? large_shape ?? default_shape : default_shape}
     {@const shape_id = star_id + '-' + index}
     {@const transform = index === 0 ? large_transform : small_transform}
-    {@const word = callout?.index === index ? callout : undefined}
     {@const initial_position = single_star ? star_position : index === 0
         ? 'calc(' + star_position + ' - clamp(13px, 1.6vw, 20px))'
         : 'calc(' + star_position + ' + clamp(30px, 3.4vw, 45px))'}
@@ -244,16 +258,22 @@
         onpointerup={end_drag} onpointercancel={end_drag}>
         {#each ['woo', 'wee'] as label}
             {@const right = label === 'wee'}
+            {@const word = callout?.index === index && callout.label === label ? callout : outgoing_callout?.index === index ? outgoing_callout : undefined}
             {@const active = word?.label === label}
+            {@const last_order = active ? word.letter_count - 1 : 0}
             <svg viewBox="0 0 144 60" class="star_callout font-hand"
-                class:visible={active && word.visible} class:interrupted={active && word.interrupted} class:trailing_right={right}>
-                {#each [...label] as letter, letter_index}
-                    {@const from_star = right ? letter_index : 2 - letter_index}
-                    <text class="callout_letter" x={72 + (letter_index - 1) * 39} y={[37, 35, 39][letter_index]}
+                class:interrupted={active && word.interrupted} class:trailing_right={right}
+                style:--last-letter-order={last_order}>
+                {#each callout_slots as slot}
+                    {@const letter = slot === 0 ? 'w' : right ? 'e' : 'o'}
+                    {@const in_word = active && slot <= last_order}
+                    <text class="callout_letter" class:visible={in_word && word.visible}
+                        x={right ? 33 : 111} y={[39, 35, 37][slot % 3]}
                         text-anchor="middle" fill="currentColor" stroke="var(--color-neutral-900)"
                         stroke-width="8" stroke-linejoin="round" paint-order="stroke"
-                        style:--letter-order={from_star}
-                        style:--letter-stretch={(right ? 1 : -1) * (active ? word.spread : 0) * (from_star / 2) ** 1.5 + 'px'}>{letter}</text>
+                        style:--letter-offset={(right ? 1 : -1) * slot * 39 + 'px'}
+                        style:--letter-order={slot}
+                        style:--letter-stretch={(right ? 1 : -1) * (in_word ? word.spread : 0) * (slot / Math.max(1, last_order)) ** 1.5 + 'px'}>{letter}</text>
                 {/each}
             </svg>
         {/each}
@@ -309,6 +329,7 @@
     .divider_star.dragging { z-index: 2; cursor: grabbing; }
     .star_callout {
         --letter-step: 115ms;
+        --tail-step: 30ms;
         position: absolute;
         top: 50%;
         left: 50%;
@@ -320,14 +341,16 @@
         font-size: 2.75rem;
     }
     .star_callout.trailing_right { --trail-offset: 6.5rem; }
-    .callout_letter { fill-opacity: var(--star-ink-opacity); opacity: 0; }
-    .star_callout.visible .callout_letter { opacity: 1; }
+    .callout_letter { fill-opacity: var(--star-ink-opacity); opacity: 0; translate: var(--letter-offset); }
+    .callout_letter.visible { opacity: 1; }
     @media (prefers-reduced-motion: no-preference) {
         .divider_star:not(.dragging) { transition: left 420ms ease-out, z-index 0s 420ms; }
         .divider_star g[stroke-opacity] { transition: stroke-opacity 180ms ease-out; }
         .callout_letter {
-            --letter-delay: calc((2 - var(--letter-order)) * var(--letter-step));
-            translate: var(--letter-stretch);
+            --entry-delay: calc(min(var(--letter-order), 2) * var(--letter-step) + max(0, var(--letter-order) - 2) * var(--tail-step));
+            --last-entry-delay: calc(min(var(--last-letter-order), 2) * var(--letter-step) + max(0, var(--last-letter-order) - 2) * var(--tail-step));
+            --letter-delay: max(0ms, calc(var(--last-entry-delay) - var(--entry-delay)));
+            translate: calc(var(--letter-offset) + var(--letter-stretch));
             scale: 0.45;
             transform-box: fill-box;
             transform-origin: center;
@@ -335,12 +358,13 @@
                 scale var(--letter-duration, var(--press-time)) var(--press-ease) var(--letter-delay),
                 translate 30ms ease-out, fill-opacity 180ms ease-out;
         }
-        .star_callout.visible .callout_letter {
-            --letter-delay: calc(var(--letter-order) * var(--letter-step));
+        .callout_letter.visible {
+            --letter-delay: var(--entry-delay);
             scale: 1;
         }
         .star_callout.interrupted {
-            --letter-step: 35ms;
+            --letter-step: 18ms;
+            --tail-step: 18ms;
             --letter-duration: 90ms;
         }
         /* the two drawings take turns, each held 390ms: the timing of the :) in the header (two drawings,
