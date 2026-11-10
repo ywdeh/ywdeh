@@ -29,12 +29,12 @@ export function picture_box(image) {
 
 const usable = (box) => box && box.width > 0 && box.height > 0 && Number.isFinite(box.left) && Number.isFinite(box.top);
 
-// A copy of the picture laid out at `box`, reusing the already-decoded file.
-function make_stand_in(image, box) {
+// A copy of the picture laid out at `box`, reusing an already-decoded file.
+function make_stand_in(src, box) {
     const element = new Image();
     element.decoding = 'sync';
     element.alt = '';
-    element.src = image.currentSrc || image.src;
+    element.src = src;
     element.setAttribute('aria-hidden', 'true');
     Object.assign(element.style, {
         position: 'fixed',
@@ -56,17 +56,18 @@ function make_stand_in(image, box) {
 
 // Flies `image` between a small box (its spot on the page) and a big box (its spot in the viewer):
 // direction 'in' goes small → big, 'out' big → small. Returns null if the boxes can't be used.
+// src: the file the stand-in shows (the picture's own, unless a sharper one is already loaded)
 //   finished: resolves once it has arrived (whichever way it's going by then)
 //   reverse(): turns round mid-flight, from wherever it is
 //   remove(): takes the stand-in away
-export function fly(image, small, big, direction) {
+export function fly(image, small, big, direction, src = image.currentSrc || image.src) {
     if (!image || !usable(small) || !usable(big)) return null;
     const scale_x = small.width / big.width;
     const scale_y = small.height / big.height;
     const shrunk = `translate(${small.left - big.left}px, ${small.top - big.top}px) scale(${scale_x}, ${scale_y})`;
 
     // Let the corners scale with the image so the flight only animates transform.
-    const element = make_stand_in(image, big);
+    const element = make_stand_in(src, big);
     const timing = { duration: flight_duration(), fill: 'both' };
     const opening = direction === 'in';
     const movement = element.animate(

@@ -18,6 +18,10 @@ Thumbs.db
 !.env.example
 !.env.test
 
+# Local tooling, and Cloudflare's generated types (made by `npm run gen`, and by every build)
+.claude
+worker-configuration.d.ts
+
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*

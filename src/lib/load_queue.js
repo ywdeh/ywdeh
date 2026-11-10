@@ -7,6 +7,8 @@
 // Use as an action on an <img> rendered without a src: `<img use:queued={src}>` (styles in layout.css).
 // Changing the src later (a card swapping to its animation) loads it at once, outside the line.
 
+import { image_data, srcset_of } from './image_data.js';
+
 const NEAR_SCREEN = '200px';
 const AT_ONCE = 2;
 const STALL_MS = 4000; // a picture that takes this long stops holding up the rest
@@ -43,9 +45,21 @@ function forget(image) {
     watched_by.delete(image);
 }
 
+// points the picture at its sizes (image_data.js): the browser takes the smallest that's still sharp at
+// the size it's shown on this screen. A picture cropped to fill its box (object-fit: cover) is shown wider
+// than the box, so that's the width it asks for.
+function put(image, src) {
+    const box = image.getBoundingClientRect();
+    const [width, height] = image_data[src] ?? [];
+    const shown = width && height && box.height ? Math.max(box.width, box.height * width / height) : box.width;
+    if (shown) image.sizes = `${Math.ceil(shown)}px`;
+    image.srcset = srcset_of(src);
+    image.src = src;
+}
+
 // loads a picture and fades it in once it's decoded
 async function show(image, src) {
-    image.src = src;
+    put(image, src);
     try {
         await image.decode();
     } catch {
@@ -92,7 +106,7 @@ export function queued(image, src) {
                 forget(image);
                 show(image, new_src);
             } else if (image.getAttribute('src') !== new_src) {
-                image.src = new_src; // already showing: the old picture stays up until the new one is in
+                put(image, new_src); // already showing: the old picture stays up until the new one is in
             }
         },
         destroy() {

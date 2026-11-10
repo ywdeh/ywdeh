@@ -1,21 +1,23 @@
 // Run `npm run images` after adding or changing pictures. It:
 // - writes src/lib/image_data.js: every picture in static/scenario and static/projects with its size (so its
 //   space is held before it loads) and its average color (the tint its outline, badge and caption take)
-// - makes a small copy of every picture shown on a card (static/thumbs): cards are a few hundred pixels
-//   wide, and decoding the full 2800px originals for them is what made scrolling into the gallery stutter.
-//   The originals only load where they're shown big: in a case study and the image viewer.
+// - makes a few sizes of every picture shown on a card (static/sizes). A card lists them all (srcset) and
+//   the browser takes the one that's sharp on that screen, so a card never decodes a 2800px original it
+//   shows at a few hundred pixels (that's what made scrolling into the gallery stutter), and never looks
+//   soft either. Big screens and dense displays still get the original.
 import sharp from 'sharp';
-import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { case_studies, gallery_rows } from '../src/lib/scenario.js';
 
 const FOLDERS = ['projects', 'scenario'];
 const PICTURE = /\.(webp|png|jpe?g|gif|avif)$/i;
-const THUMB_WIDTH = 1200; // a card at its widest, on a 2× screen
-const ANIMATION_WIDTH = 640; // the narrower gallery cards that play an animation, on a 2× screen
-const PIXEL_ART = /iconsvol/; // scaled by whole pixels, so the icons stay crisp
+const WIDTHS = [640, 960, 1280, 1920]; // the sizes made, where the original is wider
+const ANIMATION_WIDTHS = [480, 960]; // every frame of an animation is decoded as it plays: fewer, smaller
+const PIXEL_ART = /iconsvol/; // tiny flat files that blur when resized: the original only
 const hex = (value) => Math.round(value).toString(16).padStart(2, '0');
 
 const lines = [];
+const known = {};
 for (const folder of FOLDERS) {
     for (const name of readdirSync(`static/${folder}`).filter((file) => PICTURE.test(file)).sort()) {
         const file = `static/${folder}/${name}`;
@@ -28,32 +30,32 @@ for (const folder of FOLDERS) {
             red += data[i]; green += data[i + 1]; blue += data[i + 2]; count++;
         }
         const color = count ? `#${hex(red / count)}${hex(green / count)}${hex(blue / count)}` : null;
+        known[`/${folder}/${name}`] = width;
         lines.push(`    '/${folder}/${name}': [${width}, ${pageHeight ?? height}, ${color ? `'${color}'` : 'null'}],`);
     }
 }
 
-// card pictures → thumbnails (remade only when the original is newer)
-// pixel art stays a palette PNG (far smaller than WebP for flat colors), everything else becomes WebP
-const thumb_of = (src) => '/thumbs' + (PIXEL_ART.test(src) ? src.replace(/\.\w+$/, '.png') : src.replace(/\.\w+$/, '.webp'));
-// (a gallery card plays its animation while it's in color: that gets a small copy too, every frame resized)
+// card pictures → their sizes (remade only when the original is newer)
 const animations = gallery_rows.flat().map(({ full_src }) => full_src).filter(Boolean);
-const card_pictures = [...new Set([...case_studies.map(({ src }) => src), ...gallery_rows.flat().map(({ src }) => src), ...animations])];
+const card_pictures = [...new Set([...case_studies.map(({ src }) => src), ...gallery_rows.flat().map(({ src }) => src), ...animations])]
+    .filter((src) => !PIXEL_ART.test(src));
+rmSync('static/thumbs', { recursive: true, force: true }); // the single small copies these replace
+const size_lines = [];
 for (const src of card_pictures) {
     const original = `static${src}`;
-    const thumb = `static${thumb_of(src)}`;
-    if (existsSync(thumb) && statSync(thumb).mtimeMs > statSync(original).mtimeMs) continue;
-    mkdirSync(thumb.slice(0, thumb.lastIndexOf('/')), { recursive: true });
-    const { width } = await sharp(original).metadata();
-    const pixel_art = PIXEL_ART.test(src);
     const animated = animations.includes(src);
-    // every frame of an animation is decoded as it plays, so those are kept smaller (gallery cards with
-    // animations are narrow)
-    const widest = animated ? ANIMATION_WIDTH : THUMB_WIDTH;
-    const target = pixel_art ? Math.round(width / Math.max(1, Math.round(width / widest))) : Math.min(width, widest);
-    const resized = sharp(original, { animated }).resize({ width: target, kernel: pixel_art ? 'nearest' : 'lanczos3' });
-    await (pixel_art ? resized.png({ palette: true, compressionLevel: 9 }) : resized.webp({ quality: animated ? 75 : 80 })).toFile(thumb);
+    const widths = (animated ? ANIMATION_WIDTHS : WIDTHS).filter((width) => width < known[src]);
+    const made = [];
+    for (const width of widths) {
+        const path = `/sizes${src.replace(/\.\w+$/, `-${width}.webp`)}`;
+        made.push(`['${path}', ${width}]`);
+        const file = `static${path}`;
+        if (existsSync(file) && statSync(file).mtimeMs > statSync(original).mtimeMs) continue;
+        mkdirSync(file.slice(0, file.lastIndexOf('/')), { recursive: true });
+        await sharp(original, { animated }).resize({ width }).webp({ quality: animated ? 80 : 88 }).toFile(file);
+    }
+    size_lines.push(`    '${src}': [${made.join(', ')}],`);
 }
-const thumb_lines = card_pictures.map((src) => `    '${src}': '${thumb_of(src)}',`);
 
 writeFileSync('src/lib/image_data.js', `// Generated by scripts/image_data.mjs (npm run images); don't edit by hand.
 // Every picture's [width, height, average color]: the size holds its space before it loads, the color
@@ -62,14 +64,15 @@ export const image_data = {
 ${lines.join('\n')}
 };
 
-// the small copy a card shows instead of the full-size picture
-export const thumbnails = {
-${thumb_lines.join('\n')}
+// the smaller sizes made of each card picture: [path, width]
+export const sizes = {
+${size_lines.join('\n')}
 };
 
 /** a picture's average color, or undefined if it isn't listed */
 export const image_color = (src) => image_data[src]?.[2] ?? undefined;
-/** the small copy for a card, or the picture itself if there isn't one */
-export const thumbnail_of = (src) => thumbnails[src] ?? src;
+/** every size of a picture, the original included, for an <img srcset> */
+export const srcset_of = (src) => [...(sizes[src] ?? []), [src, image_data[src]?.[0]]]
+    .filter(([, width]) => width).map(([path, width]) => \`\${path} \${width}w\`).join(', ');
 `);
-console.log(`image_data.js: ${lines.length} pictures, ${card_pictures.length} thumbnails`);
+console.log(`image_data.js: ${lines.length} pictures, ${card_pictures.length} with extra sizes`);

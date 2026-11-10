@@ -66,7 +66,14 @@
             }
             flight = fly(enlarged, picture_box(home), picture_box(enlarged), 'out');
         } else {
-            flight = fly(home, picture_box(home), landing_box(node), 'in');
+            // the full picture if it's already in (it starts loading when the card is hovered), otherwise the
+            // card's own copy until it is
+            const ready = enlarged.complete && enlarged.naturalWidth;
+            flight = fly(home, picture_box(home), landing_box(node), 'in', ready ? enlarged.currentSrc : undefined);
+            if (flight && !ready) {
+                const stand_in = flight.element;
+                enlarged.decode().then(() => { if (stand_in.isConnected) stand_in.src = enlarged.currentSrc; }, () => {});
+            }
         }
         if (!flight) return false;
 

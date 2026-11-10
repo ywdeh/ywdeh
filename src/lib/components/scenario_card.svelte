@@ -1,6 +1,6 @@
 <script>
     import { card_release } from '$lib/card_release.js';
-    import { image_color, thumbnail_of } from '$lib/image_data.js';
+    import { image_color } from '$lib/image_data.js';
     import { queued } from '$lib/load_queue.js';
     import TrailImage from "./trail_image.svelte";
     import CardBadge from "./card_badge.svelte";
@@ -17,10 +17,9 @@
 
     // in color (and on the full-size file) while hovered, focused or crossing the middle of the screen
     const show_full = $derived(is_centered || is_hovered || is_focused);
-    // the card shows small copies (static/thumbs): the full-size files are only for the case study and the
-    // image viewer. A different src (an animation) takes over while the card is in color.
-    const still = $derived(thumbnail_of(thumbnail));
-    const shown = $derived(show_full && src !== thumbnail ? thumbnail_of(src) : still);
+    // a different src (an animation) takes over while the card is in color; either way the card loads
+    // the size of it that's sharp on this screen (load_queue.js)
+    const shown = $derived(show_full ? src : thumbnail);
     const reduced_motion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // ── wide pictures pan toward whichever side the pointer is on ──

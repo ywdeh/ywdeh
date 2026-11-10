@@ -34,20 +34,24 @@
         gallery_slug = slug;
     }
 
-    // ── case studies: their own URL, without leaving the page ──
-    const preloaded_case_images = new Set();
+    // ── pictures start loading when their card is hovered, focused or pressed, so they're in by the time
+    // they open: a case study's first pictures, or a gallery picture's full size ──
+    const preloaded = new Set();
 
+    function preload(src) {
+        if (preloaded.has(src)) return;
+        preloaded.add(src);
+        const image = new Image();
+        image.fetchPriority = 'low';
+        image.onerror = () => preloaded.delete(src);
+        image.src = src;
+    }
+
+    // ── case studies: their own URL, without leaving the page ──
     function preload_case(slug) {
         const entry = scenario[slug];
         void entry.component().catch(() => {});
-        for (const src of entry.images?.slice(0, 2) ?? []) {
-            if (preloaded_case_images.has(src)) continue;
-            preloaded_case_images.add(src);
-            const image = new Image();
-            image.fetchPriority = 'low';
-            image.onerror = () => preloaded_case_images.delete(src);
-            image.src = src;
-        }
+        for (const src of entry.images?.slice(0, 2) ?? []) preload(src);
     }
 
     const enter_scenario = (slug) => pushState(`/${slug}`, { scenarioSlug: slug });
@@ -150,6 +154,7 @@
                             <div class="gallery_item" style:--ratio={width / height}>
                                 <ScenarioCard image_only src={full_src ?? src} thumbnail={src} {width} {height}
                                     title={scenario[slug].title} client={scenario[slug].client} alt={alt ?? scenario[slug].alt}
+                                    preload={() => preload(full_src ?? src)}
                                     onclick={(event) => open_gallery(src, event.currentTarget)} />
                             </div>
                         {/each}

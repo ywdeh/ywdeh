@@ -47,27 +47,27 @@ export const image_data = {
     '/scenario/wintertale_half_2.webp': [2800, 1679, '#355595'],
 };
 
-// the small copy a card shows instead of the full-size picture
-export const thumbnails = {
-    '/scenario/paladins_character_list.webp': '/thumbs/scenario/paladins_character_list.webp',
-    '/scenario/rj.webp': '/thumbs/scenario/rj.webp',
-    '/scenario/palia.webp': '/thumbs/scenario/palia.webp',
-    '/scenario/morroworld.webp': '/thumbs/scenario/morroworld.webp',
-    '/scenario/iconsvol2.png': '/thumbs/scenario/iconsvol2.png',
-    '/scenario/wintertale.webp': '/thumbs/scenario/wintertale.webp',
-    '/scenario/pride.png': '/thumbs/scenario/pride.webp',
-    '/scenario/sq.webp': '/thumbs/scenario/sq.webp',
-    '/scenario/daloras.webp': '/thumbs/scenario/daloras.webp',
-    '/scenario/sneakers_2.webp': '/thumbs/scenario/sneakers_2.webp',
-    '/scenario/sneakers_full.webp': '/thumbs/scenario/sneakers_full.webp',
-    '/scenario/sneakers.png': '/thumbs/scenario/sneakers.webp',
-    '/scenario/dino_cafe.webp': '/thumbs/scenario/dino_cafe.webp',
-    '/scenario/blue.webp': '/thumbs/scenario/blue.webp',
-    '/scenario/dino_cafe_animated.webp': '/thumbs/scenario/dino_cafe_animated.webp',
-    '/scenario/blue_animated.webp': '/thumbs/scenario/blue_animated.webp',
+// the smaller sizes made of each card picture: [path, width]
+export const sizes = {
+    '/scenario/paladins_character_list.webp': [['/sizes/scenario/paladins_character_list-640.webp', 640], ['/sizes/scenario/paladins_character_list-960.webp', 960], ['/sizes/scenario/paladins_character_list-1280.webp', 1280]],
+    '/scenario/rj.webp': [['/sizes/scenario/rj-640.webp', 640], ['/sizes/scenario/rj-960.webp', 960], ['/sizes/scenario/rj-1280.webp', 1280], ['/sizes/scenario/rj-1920.webp', 1920]],
+    '/scenario/palia.webp': [['/sizes/scenario/palia-640.webp', 640], ['/sizes/scenario/palia-960.webp', 960], ['/sizes/scenario/palia-1280.webp', 1280], ['/sizes/scenario/palia-1920.webp', 1920]],
+    '/scenario/morroworld.webp': [['/sizes/scenario/morroworld-640.webp', 640], ['/sizes/scenario/morroworld-960.webp', 960], ['/sizes/scenario/morroworld-1280.webp', 1280]],
+    '/scenario/wintertale.webp': [['/sizes/scenario/wintertale-640.webp', 640], ['/sizes/scenario/wintertale-960.webp', 960], ['/sizes/scenario/wintertale-1280.webp', 1280], ['/sizes/scenario/wintertale-1920.webp', 1920]],
+    '/scenario/pride.png': [['/sizes/scenario/pride-640.webp', 640], ['/sizes/scenario/pride-960.webp', 960], ['/sizes/scenario/pride-1280.webp', 1280]],
+    '/scenario/sq.webp': [['/sizes/scenario/sq-640.webp', 640], ['/sizes/scenario/sq-960.webp', 960], ['/sizes/scenario/sq-1280.webp', 1280], ['/sizes/scenario/sq-1920.webp', 1920]],
+    '/scenario/daloras.webp': [['/sizes/scenario/daloras-640.webp', 640], ['/sizes/scenario/daloras-960.webp', 960], ['/sizes/scenario/daloras-1280.webp', 1280], ['/sizes/scenario/daloras-1920.webp', 1920]],
+    '/scenario/sneakers_2.webp': [['/sizes/scenario/sneakers_2-640.webp', 640], ['/sizes/scenario/sneakers_2-960.webp', 960], ['/sizes/scenario/sneakers_2-1280.webp', 1280]],
+    '/scenario/sneakers_full.webp': [['/sizes/scenario/sneakers_full-640.webp', 640], ['/sizes/scenario/sneakers_full-960.webp', 960], ['/sizes/scenario/sneakers_full-1280.webp', 1280], ['/sizes/scenario/sneakers_full-1920.webp', 1920]],
+    '/scenario/sneakers.png': [['/sizes/scenario/sneakers-640.webp', 640], ['/sizes/scenario/sneakers-960.webp', 960], ['/sizes/scenario/sneakers-1280.webp', 1280]],
+    '/scenario/dino_cafe.webp': [['/sizes/scenario/dino_cafe-640.webp', 640], ['/sizes/scenario/dino_cafe-960.webp', 960], ['/sizes/scenario/dino_cafe-1280.webp', 1280]],
+    '/scenario/blue.webp': [['/sizes/scenario/blue-640.webp', 640], ['/sizes/scenario/blue-960.webp', 960]],
+    '/scenario/dino_cafe_animated.webp': [['/sizes/scenario/dino_cafe_animated-480.webp', 480], ['/sizes/scenario/dino_cafe_animated-960.webp', 960]],
+    '/scenario/blue_animated.webp': [['/sizes/scenario/blue_animated-480.webp', 480], ['/sizes/scenario/blue_animated-960.webp', 960]],
 };
 
 /** a picture's average color, or undefined if it isn't listed */
 export const image_color = (src) => image_data[src]?.[2] ?? undefined;
-/** the small copy for a card, or the picture itself if there isn't one */
-export const thumbnail_of = (src) => thumbnails[src] ?? src;
+/** every size of a picture, the original included, for an <img srcset> */
+export const srcset_of = (src) => [...(sizes[src] ?? []), [src, image_data[src]?.[0]]]
+    .filter(([, width]) => width).map(([path, width]) => `${path} ${width}w`).join(', ');
