@@ -66,7 +66,42 @@ export function image_pan_zoom(viewport) {
         render(true);
     }
 
+    // ── two fingers pinch: the point between them stays under them while the picture scales ──
+    const touches = new Map(); // pointerId → { x, y }
+    let pinch;
+
+    function pinch_frame() {
+        const [a, b] = [...touches.values()];
+        return { distance: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    }
+
+    function start_pinch() {
+        const bounds = viewport.getBoundingClientRect();
+        const { distance, x, y } = pinch_frame();
+        drag = undefined;
+        pending_tap = undefined;
+        moved = true; // the lift after a pinch isn't a tap
+        // the picture point under the fingers, in unzoomed picture space
+        pinch = { distance, zoom, point_x: (x - bounds.left - pan_x) / zoom, point_y: (y - bounds.top - pan_y) / zoom };
+    }
+
+    function move_pinch() {
+        const bounds = viewport.getBoundingClientRect();
+        const { distance, x, y } = pinch_frame();
+        zoom = Math.min(4, Math.max(1, pinch.zoom * distance / pinch.distance));
+        pan_x = x - bounds.left - pinch.point_x * zoom;
+        pan_y = y - bounds.top - pinch.point_y * zoom;
+        render();
+    }
+
     function pointerdown(event) {
+        if (event.pointerType === 'touch') {
+            touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+            if (touches.size === 2) {
+                start_pinch();
+                return;
+            }
+        }
         moved = false;
         if (!event.isPrimary || event.button !== 0) return;
         drag = {
@@ -77,7 +112,16 @@ export function image_pan_zoom(viewport) {
     }
 
     function pointermove(event) {
+        if (touches.has(event.pointerId)) {
+            touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+            if (pinch && touches.size === 2) {
+                move_pinch();
+                return;
+            }
+        }
         if (drag?.id !== event.pointerId) return;
+        // an unzoomed picture already fits: there's nothing to pan to
+        if (zoom <= 1) return;
         const x = event.clientX - drag.x;
         const y = event.clientY - drag.y;
         if (!moved && Math.hypot(x, y) < 5) return;
@@ -97,7 +141,15 @@ export function image_pan_zoom(viewport) {
         render();
     }
 
+    function end_touch(event) {
+        if (!touches.delete(event.pointerId) || !pinch) return;
+        pinch = undefined;
+        // let go (nearly) unzoomed: settle back to fit
+        if (zoom < 1.05) reset_zoom();
+    }
+
     function end_drag(event) {
+        end_touch(event);
         if (drag?.id !== event.pointerId) return;
         drag = undefined;
         viewport.classList.remove('cursor-grabbing');

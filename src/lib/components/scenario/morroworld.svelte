@@ -2,7 +2,7 @@
     import TrailImage from "$lib/components/trail_image.svelte";
 </script>
 
-<TrailImage src="/scenario/morroworld.png" />
+<TrailImage src="/scenario/morroworld.webp" />
 
 <article>
     <h1>Time takes turns, unfolding stories untold</h1>

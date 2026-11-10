@@ -4,9 +4,9 @@
 </script>
 
 <ImageGallery pictures={[
-    { src: "scenario/palia.png", alt: "" },
-    { src: "scenario/palia_quest_log.png", alt: "" },
-    { src: "scenario/palia_bars.png", alt: "" },
+    { src: "/scenario/palia.webp", alt: "" },
+    { src: "/scenario/palia_quest_log.webp", alt: "" },
+    { src: "/scenario/palia_bars.webp", alt: "" },
 ]} />
 
 <p>This Palia interface concept features three hud elements: hotbar, quest tracker and focus/stamina bars</p>

@@ -25,7 +25,8 @@
     .gallery_image_viewport {
         height: calc(100dvh - 2 * var(--viewer-gap-y));
         overflow: clip;
-        border-radius: var(--radius-xl);
+        border-radius: var(--radius-card);
+        touch-action: none; /* pinching and dragging belong to the picture, not the page */
     }
     /* it spans the whole viewer, so a filled tint would wash over the empty space around the image */
     .gallery_image_viewport:focus-visible { background-color: transparent; }

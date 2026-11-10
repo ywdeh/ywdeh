@@ -9,7 +9,7 @@
 <article>
     <p><span class="font-semibold">Before we start:</span> This is a personal UI redesign concept for Paladins. All original game assets, characters, and trademarks belong to Hi-Rez Studios. The redesign elements and layout are my own creative work. This project is non-commercial and made for entertaining, education purposes only.</p>
     <p>This project contains a lot of pictures, explanation and many rough edges. Paladins style influenced me in many ways, and I use some of the aspects even in my current works. Everything published here is my contribution to the community, and my tribute to developers.</p>
-    <p>It was also posted on <a use:card_release href="https://www.reddit.com/r/Paladins/s/Q1U5ZDQB2V" target="_blank">reddit</a> and received a lot of positive feedback from the player base.</p>
+    <p>It was also posted on <a use:card_release href="https://www.reddit.com/r/Paladins/s/Q1U5ZDQB2V" target="_blank" rel="noopener noreferrer">reddit</a> and received a lot of positive feedback from the player base.</p>
 </article>
 
 <article>
@@ -60,8 +60,8 @@
 </article>
 
 <ImageGallery pictures={[
-    { src: "scenario/paladins_menu_2.webp", alt: "" },
-    { src: "scenario/paladins_currency.webp", alt: "" },
+    { src: "/scenario/paladins_menu_2.webp", alt: "" },
+    { src: "/scenario/paladins_currency.webp", alt: "" },
 ]} />
 
 <article>
@@ -70,7 +70,7 @@
     <p>Menu has to be easily readable to ensure that new and competitive players are not slowed down by it.</p>
 </article>
 
-<TrailImage src="/scenario/paladins.png" />
+<TrailImage src="/scenario/paladins.webp" />
 
 <article>
     <p>The layout is pretty much the same, but visuals are drastically different. In years, default interface has become mix of odd elements: some of the things hasn't changed since beta, newer elements looked out of place and some of them overlapped each other. I wanted to fix all these details and refine both looks and user experience.</p>
@@ -85,9 +85,9 @@
 </article>
 
 <ImageGallery pictures={[
-    { src: "scenario/paladins_hud.webp", alt: "" },
-    { src: "scenario/paladins_hud_grayscale.webp", alt: "" },
-    { src: "scenario/paladins_hud_ingame.webp", alt: "" },
+    { src: "/scenario/paladins_hud.webp", alt: "" },
+    { src: "/scenario/paladins_hud_grayscale.webp", alt: "" },
+    { src: "/scenario/paladins_hud_ingame.webp", alt: "" },
 ]} />
 
 

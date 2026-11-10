@@ -3,7 +3,7 @@
     import ImageGallery from "$lib/components/image_gallery.svelte";
 </script>
 
-<TrailImage src="/scenario/rj.png" />
+<TrailImage src="/scenario/rj.webp" />
 <article>
     <h1>Vibes and seasons change, so does the emblem</h1>
     <p>Although it appears relatively simple, there was an intriguing request in client's brief: they needed an emblem that could adapt its appearance depending on the context</p>
@@ -11,8 +11,8 @@
 </article>
 
 <ImageGallery pictures={[
-    { src: "scenario/rj_slate.png", alt: "" },
-    { src: "scenario/rj_branches.png", alt: "" },
+    { src: "/scenario/rj_slate.webp", alt: "" },
+    { src: "/scenario/rj_branches.webp", alt: "" },
 ]} />
 
 <article>

@@ -1,37 +1,107 @@
 @import 'tailwindcss';
 
-/* keyboard focus looks like the hover outline on cards: a soft tint that extends 10px past the element */
-:root {
-    --focus-tint: oklch(40.5% 0.006 325.6 / 12%); /* light mauve, like the rest of the site */
-    --focus-spread: 10px;
+/* ── design tokens ───────────────────────────────────────────────────────────────────────────────
+   Radii follow one rule: a shape drawn around another at a distance keeps the gap even all the way
+   round, so outer radius = inner radius + distance. Cards are --radius-card; the hover outline sits
+   --outline-spread outside them, so it's --radius-outline; keyboard focus rings do the same. */
+@theme {
+    --font-sans: "Google Sans Flex", "Google Sans", sans-serif;
+    --font-hand: Yuyu, Caveat, sans-serif; /* the handwritten intro */
+    --font-display: Amarante, serif; /* project names */
+
+    --radius-card: 0.75rem; /* pictures, cards, panels: rounded-card */
+    --radius-outline: calc(var(--radius-card) + 10px); /* outlines 10px outside a card: rounded-outline */
 }
 
-/* the tint below (or a card's own ::before outline) replaces the browser ring everywhere */
+:root {
+    --outline-spread: 10px; /* hover outlines and focus rings reach this far past an element */
+    --outline-press: 4px; /* …and shrink to this while it's pressed */
+    --press-inset: 6px; /* a pressed card's picture sinks in by this much */
+    --press-time: 140ms; /* press, hover and outline feedback */
+    --press-ease: ease-in-out;
+    --focus-tint: oklch(40.5% 0.006 325.6 / 12%); /* light mauve, like the rest of the site */
+}
+
+/* the tint a picture lends its card (its outline, badge and caption): set --live-img-avg on any
+   .has_badge element and everything inside picks the matching shades up */
+.has_badge {
+    --avg-outline: oklch(from var(--live-img-avg, oklch(20.5% 0.004 325.6)) calc(l + 0.2) calc(c * 1.5) h / 12%);
+    --avg-text: oklch(from var(--live-img-avg, oklch(70% 0.01 325.6)) clamp(0.85, l, 0.9) max(calc(c * 0.55), 0.015) h);
+}
+
+/* ── text tones: one ladder of emphasis, used instead of loose opacity values ── */
+@utility fg-soft { opacity: 0.6; } /* body copy, descriptions */
+@utility fg-muted { opacity: 0.4; } /* meta: clients, stacks, captions */
+@utility fg-faint { opacity: 0.3; } /* the quiet half of the intro, resting links */
+
+/* links that brighten under the pointer or focus, and settle back to rest while pressed */
+@utility link-quiet {
+    opacity: 0.3;
+    &:hover, &:focus-visible { opacity: 0.9; }
+    &:is(:active, .is_pressed) { opacity: 0.3; }
+}
+@utility link-soft {
+    opacity: 0.6;
+    &:hover, &:focus-visible { opacity: 0.9; }
+    &:is(:active, .is_pressed) { opacity: 0.6; }
+}
+
+/* ── the page's own scroll area ──
+   Sized to the visible viewport (dvh), so on phones it ends where the browser's toolbar begins instead of
+   running underneath it. Its top and bottom edges fade into the background: a mask on the scroller
+   itself, so the fade always sits exactly at its edges. */
+.page_scroll {
+    --edge-fade: 1.25rem;
+    height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    mask-image: linear-gradient(to bottom, transparent, #000 var(--edge-fade), #000 calc(100% - var(--edge-fade)), transparent);
+}
+@media (width >= 48rem) {
+    .page_scroll { --edge-fade: 2rem; }
+}
+
+/* ── pictures loading in turn (src/lib/load_queue.js) ──
+   Every picture's wrapper is a soft grey block (trail_image.svelte). Until its turn the picture is hidden, so
+   only the block shows; once it's decoded it fades in over it. */
+img.is_waiting { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+    img.is_revealing { animation: picture_reveal 350ms var(--ease-out); }
+}
+@keyframes picture_reveal { from { opacity: 0; } }
+
+/* ── keyboard focus looks like the hover outline on cards: a soft tint reaching --outline-spread past the element ── */
 :where(*):focus-visible { outline: none; }
 
 /* cards draw their own outline with ::before on hover and focus */
 :where(a, button, [tabindex]:not([tabindex="-1"])):where(:not(.card_trigger)):focus-visible {
-    outline: none;
     background-color: var(--focus-tint);
-    box-shadow: 0 0 0 var(--focus-spread) var(--focus-tint);
+    box-shadow: 0 0 0 var(--outline-spread) var(--focus-tint);
 }
 
-/* dim links and thumbnails brighten on focus the same way they do on hover */
-:where(a, button):is(.opacity-30, .opacity-60):focus-visible { opacity: 0.9; }
-
 @media (prefers-reduced-motion: no-preference) {
-    a:where(:not(.card_trigger)) { transition: opacity 140ms var(--ease-out), background-color 140ms var(--ease-out), box-shadow 140ms var(--ease-out); }
-    /* pressing a link returns it to its resting opacity instead of dimming it further */
-    a:where(:not(.card_trigger)).opacity-30:is(:active, .is_pressed) { opacity: 0.3; }
-    a:where(:not(.card_trigger)).opacity-60:is(:active, .is_pressed) { opacity: 0.6; }
+    a:where(:not(.card_trigger)) {
+        transition: opacity var(--press-time) var(--ease-out), background-color var(--press-time) var(--ease-out), box-shadow var(--press-time) var(--ease-out);
+    }
 }
 
 @layer base {
-    :where(body, body *) {
-        cursor: inherit;
-    }
+    :where(body, body *) { cursor: inherit; }
 
-    /* 6px inside + 10px spread gives the same 16px outer corner as the card outline;
-       anything with its own rounded-* utility keeps that instead */
-    :where(a, button, [tabindex]):focus-visible { border-radius: 6px; }
+    /* the ring's outer corner (radius + spread) matches the card outline; anything with its own
+       rounded-* utility keeps that instead */
+    :where(a, button, [tabindex]):focus-visible { border-radius: var(--radius-card); }
+
+    /* ── case study copy ── */
+    .case_body h1 { font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); opacity: 0.8; }
+    .case_body p { opacity: 0.6; }
+    .case_body img { border-radius: var(--radius-card); }
+    .case_body article {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--spacing) * 5);
+        align-self: center;
+        width: 100%;
+        max-width: var(--container-3xl);
+    }
 }

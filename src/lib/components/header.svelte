@@ -1,16 +1,11 @@
-<header class="flex flex-col gap-20 justify-between">
-
-    <div class="flex justify-between">
-        <div class="flex md:flex-col flex-row-reverse justify-between w-full">
-            <img src="/pfp.png" width="60" height="60" decoding="async" alt="" class="size-15 rounded-full mb-5">
-            <h1 class="flex flex-col">
-                <span class="font-normal">Danya Hedwy</span>
-                <span class="opacity-90">graphic & visual design</span>
-            </h1>
-        </div>
-    </div>
+<header class="flex flex-row-reverse justify-between md:flex-col">
+    <img src="/pfp.png" width="60" height="60" decoding="async" alt="" class="mb-5 size-15 rounded-full">
+    <h1 class="flex flex-col">
+        <span class="font-normal">Danya Hedwy</span>
+        <span class="opacity-90">graphic & visual design</span>
+    </h1>
 </header>
 
-<div class="max-w-full md:max-w-3xl font-[Yuyu,'Caveat',sans-serif] text-6xl md:text-7xl tracking-[-3px] split">
-    Every project has a feeling <span class="opacity-30">it's reaching for. </span> I make that feeling visible <span class="opacity-30">with motion, patterns and textures, lights and shadows -</span> in web, game UIs, branding <span class="opacity-30">and anywhere <span class="relative inline-block"> else <img src="smile.gif" alt="" class="inline-block bottom-2 -right-9 h-7.5 md:h-8.5"></span></span>
-</div>
+<p class="split font-hand max-w-full text-6xl tracking-[-3px] md:max-w-3xl md:text-7xl">
+    Every project has a feeling <span class="fg-faint">it's reaching for.</span> I make that feeling visible <span class="fg-faint">with motion, patterns and textures, lights and shadows -</span> in web, game UIs, branding<span class="fg-faint">, and anywhere <span class="relative inline-block">else <img src="/smile.gif" alt="" class="inline-block h-7.5 md:h-8.5"></span></span>
+</p>

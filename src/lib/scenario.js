@@ -1,3 +1,5 @@
+import { image_data } from './image_data.js';
+
 export const scenario = {
 
     "patter": {
@@ -6,8 +8,8 @@ export const scenario = {
         alt: "A glowing lantern in a dark forest, one of Patter’s writing backgrounds",
         images: [
             "/projects/patter_lantern.webp",
-            "/projects/patter_editor_current.png",
-            "/projects/patter_editor.png",
+            "/projects/patter_editor_current.webp",
+            "/projects/patter_editor.webp",
         ],
         component: () => import("$lib/components/scenario/patter.svelte"),
     },
@@ -17,7 +19,7 @@ export const scenario = {
         client: "Routes & Journeys",
         alt: "RJ initials carved into a stone tablet with ivy vines, shown in orange and green color variants",
         images: [
-            "/scenario/rj.png",
+            "/scenario/rj.webp",
             "/scenario/rj_slate.webp",
             "/scenario/rj_branches.webp",
             "/scenario/rj_outline.webp",
@@ -64,7 +66,7 @@ export const scenario = {
             "/scenario/paladins_icons.webp",
             "/scenario/paladins_menu_2.webp",
             "/scenario/paladins_currency.webp",
-            "/scenario/paladins.png",
+            "/scenario/paladins.webp",
             "/scenario/paladins_hud.webp",
             "/scenario/paladins_hud_grayscale.webp",
             "/scenario/paladins_hud_ingame.webp",
@@ -129,7 +131,7 @@ export const scenario = {
         client: "MorroWorld",
         alt: "",
         images: [
-            "/scenario/morroworld.png",
+            "/scenario/morroworld.webp",
             "/scenario/morroworld_block_2.webp",
             "/scenario/morroworld_gallery.webp",
             "/scenario/morroworld_login.webp",
@@ -140,7 +142,7 @@ export const scenario = {
 };
 export const case_studies = [
     { slug: 'paladins_concept', src: '/scenario/paladins_character_list.webp', left: true },
-    { slug: 'routes_and_journeys', src: '/scenario/rj.png' },
+    { slug: 'routes_and_journeys', src: '/scenario/rj.webp' },
     { slug: 'palia_concept', src: '/scenario/palia.webp' },
     { slug: 'morroworld', src: '/scenario/morroworld.webp' },
     { slug: 'pixel_icons_pack', src: '/scenario/iconsvol2.png' },
@@ -148,20 +150,22 @@ export const case_studies = [
 ];
 
 // hand-made rows; each spans the full width, its pictures sharing it by aspect ratio so they all
-// come out the same height (on phones every picture gets a row of its own)
+// come out the same height on larger screens. Each picture's size comes from the file itself
+// (image_data.js), so it can't drift from it.
 export const gallery_rows = [
     [
-        { slug: 'thats_what_journey_means', src: '/scenario/pride.png', width: 1600, height: 1200 },
-        { slug: 'sq', src: '/scenario/sq.png', width: 2800, height: 2100 },
-        { slug: 'daloras', src: '/scenario/daloras.webp', width: 2800, height: 2100 },
+        { slug: 'thats_what_journey_means', src: '/scenario/pride.png' },
+        { slug: 'sq', src: '/scenario/sq.webp' },
+        { slug: 'daloras', src: '/scenario/daloras.webp' },
+        { slug: 'sneakers_bros', src: '/scenario/sneakers_2.webp', alt: 'Alternate Sneakers Bro’s brand artwork' },
     ],
     [
-        { slug: 'sneakers_bros', src: '/scenario/sneakers_2.webp', width: 1905, height: 1429, alt: 'Alternate Sneakers Bro’s brand artwork' },
-        { slug: 'sneakers_bros', src: '/scenario/sneakers_full.webp', width: 2800, height: 938, alt: 'Wide Sneakers Bro’s brand banner' },
+        { slug: 'sneakers_bros', src: '/scenario/sneakers_full.webp', alt: 'Wide Sneakers Bro’s brand banner' },
+        { slug: 'sneakers_bros', src: '/scenario/sneakers.png' },
+        { slug: 'dino_cafe', src: '/scenario/dino_cafe.webp', full_src: '/scenario/dino_cafe_animated.webp' },
+        { slug: 'blue_animation', src: '/scenario/blue.webp', full_src: '/scenario/blue_animated.webp' },
     ],
-    [
-        { slug: 'sneakers_bros', src: '/scenario/sneakers.png', width: 1905, height: 1429 },
-        { slug: 'dino_cafe', src: '/scenario/dino_cafe.webp', full_src: '/scenario/dino_cafe.gif', width: 1400, height: 1050 },
-        { slug: 'blue_animation', src: '/scenario/blue.webp', full_src: '/scenario/blue.gif', width: 1258, height: 851 },
-    ],
-];
+].map((row) => row.map((item) => {
+    const [width, height] = image_data[item.full_src ?? item.src] ?? [];
+    return { ...item, width, height };
+}));

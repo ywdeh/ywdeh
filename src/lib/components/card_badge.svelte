@@ -1,12 +1,13 @@
 <script>
     // a small round badge with an icon that appears on hover/focus: an arrow for cards that open something,
-    // a plus for pictures that zoom. The circle is the card outline's color (the picture's average color,
-    // --live-img-avg, lifted the same way); the icon is the light caption tint. Shown by any `.has_badge` ancestor.
-    // It straddles the bottom edge of its positioned parent (the picture), half on it and half below,
-    // and slides along that edge to sit under the mouse (centered for keyboard focus and touch).
+    // a magnifier for pictures that zoom. The circle is the card outline's color
+    // (--avg-outline over the page background); the icon is the light caption tint (--avg-text). Shown by any
+    // `.has_badge` ancestor. It straddles the bottom edge of its positioned parent (the picture), half on it
+    // and half below, and slides along that edge to sit under the mouse (centered for keyboard focus and touch).
     let { kind = 'open' } = $props();
 
-    let badge = $state();    const R = 20; // badge radius; it keeps this far from the corners
+    let badge = $state();
+    const R = 20; // badge radius; it keeps this far from the corners
 
     $effect(() => {
         const host = badge?.closest('.has_badge');
@@ -91,25 +92,22 @@
         height: 40px;
         border-radius: 999px;
         pointer-events: none;
-        /* exactly what the hover outline looks like: its 12% tint over the page background, made solid
+        /* exactly what the hover outline looks like: its tint over the page background, made solid
            so it reads the same over the picture too */
-        background:
-            linear-gradient(oklch(from var(--live-img-avg, oklch(20.5% 0.004 325.6)) calc(l + 0.2) calc(c * 1.5) h / 12%) 0 0),
-            var(--color-neutral-900);
-        color: oklch(from var(--live-img-avg, oklch(70% 0.01 325.6)) clamp(0.85, l, 0.9) max(calc(c * 0.55), 0.015) h);
+        background: linear-gradient(var(--avg-outline) 0 0), var(--color-neutral-900);
+        color: var(--avg-text);
         opacity: 0;
         scale: 0.8;
     }
     /* inside a case study panel it's simply the panel's own background, as if cut out of it */
     :global([role="dialog"]) .card_badge { background: var(--color-neutral-900); }
     svg { display: block; width: 40px; height: 40px; stroke: currentColor; }
-
     :global(.has_badge:is(:hover, :focus-visible, :focus-within)) .card_badge { opacity: 1; scale: 1; }
     /* rides along with the picture's bottom edge as a pressed card insets */
     :global(:is(:active, .is_pressed)) > .card_badge,
-    :global(:is(:active, .is_pressed)) > :global(*) > .card_badge { translate: 0 -6px; }
+    :global(:is(:active, .is_pressed)) > :global(*) > .card_badge { translate: 0 calc(-1 * var(--press-inset)); }
 
     @media (prefers-reduced-motion: no-preference) {
-        .card_badge { transition: opacity 140ms var(--ease-out), scale 200ms var(--ease-out), translate 140ms var(--ease-out); }
+        .card_badge { transition: opacity var(--press-time) var(--ease-out), scale 200ms var(--ease-out), translate var(--press-time) var(--press-ease); }
     }
 </style>

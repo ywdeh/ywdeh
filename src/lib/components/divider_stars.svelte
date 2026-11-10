@@ -95,7 +95,15 @@
     @media (prefers-reduced-motion: no-preference) {
         .divider_star:not(.dragging) { transition: left 240ms ease-out; }
         .divider_star g[stroke-opacity] { transition: stroke-opacity 180ms ease-out; }
+        .divider_star svg { animation: star_wobble 780ms step-end infinite; }
+        .divider_star.small svg { animation-delay: -210ms; }
     }
     .divider_star svg { display: block; width: 100%; overflow: visible; }
     .divider_star.small { width: clamp(36px, 4.6vw, 59px); }
+
+    /* Hold each drawing for half the loop. */
+    @keyframes star_wobble {
+        0%, 100% { transform: skewX(-2deg) scaleY(0.98); }
+        50% { transform: skewX(3deg) scaleY(1.03); }
+    }
 </style>

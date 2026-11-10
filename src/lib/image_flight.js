@@ -29,29 +29,12 @@ export function picture_box(image) {
 
 const usable = (box) => box && box.width > 0 && box.height > 0 && Number.isFinite(box.left) && Number.isFinite(box.top);
 
-// A copy of the picture laid out at `box`. Animated pictures (GIFs) are copied as a still of the frame
-// they're on, so they hold still mid-air instead of playing; anything else reuses the already-decoded file.
+// A copy of the picture laid out at `box`, reusing the already-decoded file.
 function make_stand_in(image, box) {
-    const src = image.currentSrc || image.src;
-    let element = null;
-    if (/\.gif(\?|#|$)/i.test(src)) {
-        const canvas = document.createElement('canvas');
-        const ratio = Math.min(devicePixelRatio || 1, 2);
-        canvas.width = Math.max(1, Math.round(box.width * ratio));
-        canvas.height = Math.max(1, Math.round(box.height * ratio));
-        try {
-            canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-            element = canvas;
-        } catch {
-            element = null;
-        }
-    }
-    if (!element) {
-        element = new Image();
-        element.decoding = 'sync';
-        element.alt = '';
-        element.src = src;
-    }
+    const element = new Image();
+    element.decoding = 'sync';
+    element.alt = '';
+    element.src = image.currentSrc || image.src;
     element.setAttribute('aria-hidden', 'true');
     Object.assign(element.style, {
         position: 'fixed',
@@ -113,6 +96,5 @@ export function fly(image, small, big, direction) {
 // Waits until the stand-in has something to show, then a frame more so it's on screen: only then can
 // the picture under it step aside without leaving a blank frame.
 export function when_painted(flight) {
-    const ready = flight.element instanceof HTMLImageElement ? flight.element.decode().catch(() => {}) : Promise.resolve();
-    return ready.then(() => new Promise((resolve) => requestAnimationFrame(() => resolve())));
+    return flight.element.decode().catch(() => {}).then(() => new Promise((resolve) => requestAnimationFrame(() => resolve())));
 }

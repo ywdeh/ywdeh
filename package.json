@@ -9,6 +9,7 @@
 		"preview": "wrangler dev .svelte-kit/cloudflare/_worker.js --port 4173",
 		"prepare": "svelte-kit sync || echo ''",
 		"gen": "wrangler types",
+		"images": "node scripts/image_data.mjs",
 		"check": "wrangler types --check"
 	},
 	"devDependencies": {

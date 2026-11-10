@@ -2,4 +2,4 @@
     import TrailImage from "$lib/components/trail_image.svelte";
 </script>
 
-<TrailImage src="/scenario/dino_cafe.gif" />
+<TrailImage src="/scenario/dino_cafe_animated.webp" />

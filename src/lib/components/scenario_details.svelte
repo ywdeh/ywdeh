@@ -8,7 +8,7 @@
     import { fly, flight_duration, picture_box, when_painted } from "$lib/image_flight.js";
 
     // origin: for the image viewer, the <img> on the page it was opened from; the picture flies out of that
-    // spot to the middle of the screen (and back into it on close), leaving the spot empty meanwhile
+    // spot to the middle of the screen (and back into it on close), leaving its grey block meanwhile
     // natural: the picture's { width, height }, to work out where it lands before it has been laid out
     let { title, onclose, children, gallery = false, suspended = false, open_image, tint_backdrop = true, origin, natural } = $props();
     const heading_id = $props.id();
@@ -18,7 +18,7 @@
     let dialog = $state();
     const backdrop_tint = 'bg-neutral-950/70 backdrop-saturate-0 backdrop-sepia-10';
     // case studies open as a panel sliding in from the right; the dimmed page stays visible beside it on wider screens
-    const panel_box = 'inset-y-0 right-0 w-full md:w-[85%] lg:w-1/2 lg:min-w-[48rem] md:rounded-l-xl';
+    const panel_box = 'inset-y-0 right-0 w-full md:w-[85%] lg:w-1/2 lg:min-w-[48rem] md:rounded-l-card';
     setContext('case_image_viewer', untrack(() => open_image));
 
     function duration(ms) {
@@ -26,17 +26,20 @@
     }
 
     // ── the image viewer's picture flies out of its spot on the page and back (see image_flight.js) ──
-    // While it's out, its spot on the page stays empty; while the stand-in is flying, the viewer's own
-    // picture is hidden under it.
+    // While it's out, its spot on the page shows its grey block; while the stand-in is flying, the viewer's
+    // own picture is hidden under it.
     let flight = null;
     let closing = false;
+    // kept here: a viewer opened from a case study loses its origin prop as soon as it starts closing
+    let home;
 
     // where the enlarged picture will sit: measured if it's already laid out, otherwise worked out the
     // way the viewer lays it out (fitted into the viewing area, never past its own size, centered)
     function landing_box(node) {
-        // (a very wide picture gets its minimum width before it has loaded, so it can have a width but
-        // no height yet: only trust a measurement with both)
-        const measured = node.querySelector('.trail_image img')?.getBoundingClientRect();
+        // (only once it has loaded: until then a very wide picture sits at its minimum width, far
+        // smaller than where it ends up)
+        const enlarged = node.querySelector('.trail_image img');
+        const measured = enlarged?.complete && enlarged.naturalWidth && enlarged.getBoundingClientRect();
         if (measured?.width && measured?.height) return measured;
         const area = node.querySelector('.gallery_image_viewport')?.getBoundingClientRect();
         if (!area?.width || !natural?.width || !natural?.height) return null;
@@ -51,7 +54,8 @@
     function fly_picture(node, direction) {
         const picture = node.querySelector('.trail_image.gallery');
         const enlarged = picture?.querySelector('img');
-        if (!picture || !enlarged || !origin?.isConnected || !flight_duration()) return false;
+        if (direction === 'in') home = origin;
+        if (!picture || !enlarged || !home?.isConnected || !flight_duration()) return false;
 
         if (direction === 'out') {
             closing = true;
@@ -60,19 +64,25 @@
                 flight.reverse();
                 return true;
             }
-            flight = fly(enlarged, picture_box(origin), picture_box(enlarged), 'out');
+            flight = fly(enlarged, picture_box(home), picture_box(enlarged), 'out');
         } else {
-            flight = fly(origin, picture_box(origin), landing_box(node), 'in');
+            flight = fly(home, picture_box(home), landing_box(node), 'in');
         }
         if (!flight) return false;
 
         const current = flight;
+        const spot = home;
         picture.style.visibility = 'hidden';
         // the spot on the page empties only once the stand-in is on screen over it, so there's no blank frame
-        if (direction === 'in') when_painted(current).then(() => { if (!closing) origin.style.visibility = 'hidden'; });
-        current.finished.then(() => {
+        if (direction === 'in') when_painted(current).then(() => { if (!closing) spot.style.visibility = 'hidden'; });
+        current.finished.then(async () => {
+            // the card only had a small copy, so the full-size picture may still be on its way: the stand-in
+            // (that copy, already at full size) holds the spot until it's decoded, so there's no blank frame
+            if (direction === 'in' && !closing) await enlarged.decode().catch(() => {});
+            // closed meanwhile: the stand-in is flying back, so wait for it to land on the page
+            if (direction === 'in' && closing) await current.element.getAnimations()[0]?.finished.catch(() => {});
             // whatever the stand-in landed on shows again, and the stand-in goes a frame later
-            (closing ? origin : picture).style.visibility = '';
+            (closing ? spot : picture).style.visibility = '';
             requestAnimationFrame(() => {
                 current.remove();
                 if (flight === current) flight = null;
@@ -84,8 +94,7 @@
     // safety net: never leave the page's picture hidden or a stand-in behind
     $effect(() => () => {
         flight?.remove();
-        const image = untrack(() => origin);
-        if (image) image.style.visibility = '';
+        if (home) home.style.visibility = '';
     });
 
     function viewer_transition(node, direction) {
@@ -138,7 +147,7 @@
 
 {#snippet close(label)}
     <button type="button" bind:this={close_button} use:focus_close use:card_release aria-label={label} onclick={request_close}
-        class="close_button pointer-events-auto block shrink-0 p-2 opacity-30 transition-opacity hover:opacity-80 focus-visible:opacity-100 active:opacity-30 motion-reduce:transition-none">
+        class="close_button link-quiet pointer-events-auto block shrink-0 p-2 transition-opacity motion-reduce:transition-none">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             class="size-8 text-mauve-300" aria-hidden="true">
             <path d="M6.1 6.5Q12.5 11.6 17.7 17.8" pathLength="1" />
@@ -168,12 +177,12 @@
         {/if}
 
         {#if gallery}
-            <div class="scenario-body m-auto w-full text-lg">
+            <div class="m-auto w-full">
                 {@render children()}
             </div>
         {:else}
             <div class="flex flex-col gap-40 px-5 pt-5 pb-10 md:px-10 md:pb-15">
-                <div class="flex flex-col gap-20 scenario-body text-lg">
+                <div class="case_body flex flex-col gap-20 text-lg">
                     {@render children()}
                 </div>
                 <Footer cta="have a role in mind?" />
@@ -208,7 +217,7 @@
 
     @media (prefers-reduced-motion: no-preference) {
         .close_button path {
-            transition: stroke-dasharray 120ms var(--ease-out), stroke-dashoffset 120ms var(--ease-out);
+            transition: stroke-dasharray var(--press-time) var(--press-ease), stroke-dashoffset var(--press-time) var(--press-ease);
         }
 
         @media (hover: hover) and (pointer: fine) {
@@ -218,12 +227,10 @@
             }
         }
 
-        .close_button:global(.is_pressed) { opacity: 0.3; }
-
         /* pressing the empty space beside a case study nudges the panel right, hinting it's about to close
            (the image viewer has no such hint: it would fight the picture's flight back to the page).
            Uses translate, not transform, so it adds to the slide animation instead of fighting it */
-        .dialog_box { transition: translate 140ms var(--ease-out); }
+        .dialog_box { transition: translate var(--press-time) var(--press-ease); }
         .overlay_root:has(> .backdrop:active) > .dialog_box.panel { translate: 16px 0; }
 
         .close_button:is(:active, :global(.is_pressed)) path {
@@ -232,38 +239,10 @@
         }
     }
 
+    /* the panel's title, styled like the headings inside the case study (.case_body h1 in layout.css) */
     h1 {
         font-size: var(--text-2xl);
-        line-height: var(--tw-leading, var(--text-2xl--line-height));
+        line-height: var(--text-2xl--line-height);
         opacity: 0.8;
-    }
-
-    :global(.scenario-body a) {
-        opacity: 1;
-        /* todo */
-    }
-
-    :global(.scenario-body h1) {
-        font-size: var(--text-2xl);
-        line-height: var(--tw-leading, var(--text-2xl--line-height));
-        opacity: 0.8;
-    }
-
-    :global(.scenario-body p) {
-        opacity: 0.6;
-    }
-
-    :global(.scenario-body img) {
-        border-radius: 0.75rem;
-    }
-
-    :global(.scenario-body article) {
-        display: flex;
-        flex-direction: column;
-        gap: calc(var(--spacing) * 5);
-        align-self: center;
-        text-align: left;
-        width: 100%;
-        max-width: var(--container-3xl);
     }
 </style>
