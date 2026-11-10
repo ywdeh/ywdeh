@@ -2,7 +2,6 @@
 // Every picture's [width, height, average color]: the size holds its space before it loads, the color
 // tints its outline, badge and caption.
 export const image_data = {
-    '/projects/patter_card.webp': [460, 420, '#1f1e24'],
     '/projects/patter_editor.webp': [1280, 420, '#1a1718'],
     '/projects/patter_editor_current.webp': [1280, 720, '#16161d'],
     '/projects/patter_lantern.webp': [2560, 1462, '#302413'],
@@ -65,6 +64,7 @@ export const sizes = {
     '/scenario/blue.webp': [['/sizes/scenario/blue-640.webp', 640], ['/sizes/scenario/blue-960.webp', 960]],
     '/scenario/dino_cafe_animated.webp': [['/sizes/scenario/dino_cafe_animated-480.webp', 480], ['/sizes/scenario/dino_cafe_animated-960.webp', 960]],
     '/scenario/blue_animated.webp': [['/sizes/scenario/blue_animated-480.webp', 480], ['/sizes/scenario/blue_animated-960.webp', 960]],
+    '/projects/patter_lantern.webp': [['/sizes/projects/patter_lantern-640.webp', 640], ['/sizes/projects/patter_lantern-960.webp', 960], ['/sizes/projects/patter_lantern-1280.webp', 1280], ['/sizes/projects/patter_lantern-1920.webp', 1920]],
 };
 
 /** a picture's average color, or undefined if it isn't listed */

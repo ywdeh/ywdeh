@@ -37,7 +37,8 @@ for (const folder of FOLDERS) {
 
 // card pictures → their sizes (remade only when the original is newer)
 const animations = gallery_rows.flat().map(({ full_src }) => full_src).filter(Boolean);
-const card_pictures = [...new Set([...case_studies.map(({ src }) => src), ...gallery_rows.flat().map(({ src }) => src), ...animations])]
+const BACKDROPS = ['/projects/patter_lantern.webp']; // shown blurred behind a card: small sizes do
+const card_pictures = [...new Set([...case_studies.map(({ src }) => src), ...gallery_rows.flat().map(({ src }) => src), ...animations, ...BACKDROPS])]
     .filter((src) => !PIXEL_ART.test(src));
 rmSync('static/thumbs', { recursive: true, force: true }); // the single small copies these replace
 const size_lines = [];

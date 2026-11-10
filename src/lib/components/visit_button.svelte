@@ -6,7 +6,7 @@
 </script>
 
 <a use:card_release {href} target="_blank" rel="noopener noreferrer" class="visit_button arrow_link rounded-full">
-    {@render children()}<ArrowIcon color="var(--color-mauve-300)" />
+    {@render children()}<ArrowIcon />
 </a>
 
 <style>

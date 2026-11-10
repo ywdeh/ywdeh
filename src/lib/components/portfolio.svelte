@@ -1,3 +1,24 @@
+<script module>
+    const pattern_line_count = 64;
+    const pattern_line_spacing = 64;
+
+    function slash_drawing() {
+        const paths = [];
+        // Include the slashes entering from the preceding tile so the repeat has no seam.
+        for (let index = -3; index < pattern_line_count; index++) {
+            const line = (index + pattern_line_count) % pattern_line_count;
+            const x = index * pattern_line_spacing;
+            const upper = -Math.round(5 * Math.sin(line * 2.4 + 0.8));
+            const lower = -Math.round(5 * Math.cos(line * 1.7 + 0.5));
+            paths.push(`M${x + 4} 101C${x + 75 + lower} 69 ${x + 78 - lower} 64 ${x + 112 + lower} 50S${x + 184 + upper} 15 ${x + 220} -1`);
+        }
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pattern_line_count * pattern_line_spacing} 100" preserveAspectRatio="none"><path d="${paths.join(' ')}" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
+        return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+    }
+
+    const pattern_drawing = slash_drawing();
+</script>
+
 <script>
     import { onMount } from "svelte";
     import { pushState } from "$app/navigation";
@@ -10,9 +31,7 @@
     import ScenarioCard from "./scenario_card.svelte";
     import CaseViewer from "./case_viewer.svelte";
     import ImageViewer from "./image_viewer.svelte";
-
-    const PATTER_SHOT = '/projects/patter_card.webp'; // the Patter card's picture, which also tints it
-
+    import ArrowIcon from "./arrow_icon.svelte";
     // opened straight at /<slug>: that case study shows over the page once it has faded in
     let { initial_slug, initial_component: InitialCase } = $props();
 
@@ -115,17 +134,19 @@
             </nav>
 
             <Category title="personal projects" anchor="personal-projects">
-                <!-- a case card that opens the project's site instead of a case study; in place of a picture,
-                     its name and what it is over the app's settings panel, which fades in from the right.
-                     The caption: what kind of project, and what it's built with -->
-                <ScenarioCard href="https://patter.hedwy.art" src={PATTER_SHOT} title="ambient text editor" client="svelte, gsap, html, css, js">
-                    <div class="flex flex-col gap-2 pt-6 pr-6 pb-10">
-                        <img src={PATTER_SHOT} alt="" aria-hidden="true"
-                            loading="lazy" decoding="async" draggable="false" class="project_scene" />
-                        <h3 class="project_tint font-display text-3xl">Patter</h3>
-                        <p class="project_tint fg-soft max-w-[50%]">an ambient text editor: pick a scene, let its sounds play, and write with nothing else asking for your attention</p>
+                <article class="patter_entry relative isolate col-span-full flex flex-col items-start gap-row"
+                    style:--pattern-drawing={pattern_drawing}
+                    style:--pattern-line-count={pattern_line_count}>
+                    <div class="flex flex-col gap-gutter">
+                        <h3 class="font-display text-5xl md:text-6xl">Patter</h3>
+                        <div class="fg-soft flex max-w-[46ch] flex-col gap-3">
+                            <p>an ambient text editor: pick a scene, let its sounds play, and write with nothing else asking for your attention</p>
+                            <p>built with sveltekit, gsap, html, css, and javascript</p>
+                        </div>
                     </div>
-                </ScenarioCard>
+                    <a href="https://patter.hedwy.art" target="_blank" rel="noopener noreferrer" use:card_release
+                        class="arrow_link link-soft flex w-fit items-center gap-2 text-2xl">patter.hedwy.art<ArrowIcon /></a>
+                </article>
             </Category>
         </div>
 
@@ -190,27 +211,18 @@
 </noscript>
 
 <style>
-    /* ── the Patter card's own content (the card itself is scenario_card.svelte) ──
-       the app's settings panel: the card's right half, fading in from nothing at its left edge so it meets the
-       text (the left half) softly; grey until the card is in color, like a card's picture */
-    .project_scene {
+    .patter_entry::before {
+        content: "";
         position: absolute;
-        inset: 0 0 0 auto;
+        inset: 0;
         z-index: -1;
-        width: 50%;
-        height: 100%;
-        object-fit: cover;
-        object-position: right top;
-        filter: saturate(0) sepia(0.1);
-        mask-image: linear-gradient(to right, transparent 5%, black 60%);
         pointer-events: none;
-    }
-    :global(figure.in_color) .project_scene { filter: none; }
-    /* the name and description take the tint with the caption */
-    :global(figure:is(:hover, :focus-within)) .project_tint { color: var(--avg-text); }
-    @media (prefers-reduced-motion: no-preference) {
-        .project_scene { transition: filter 400ms; }
-        .project_tint { transition: color var(--press-time); }
+        background-color: var(--color-mauve-100);
+        opacity: 0.012;
+        mask:
+            var(--pattern-drawing) center / calc(var(--pattern-line-count) * clamp(2.5rem, 4vw, 4.5rem)) 100% repeat-x,
+            radial-gradient(ellipse 43% 50% at 57% 52%, #000 18%, rgb(0 0 0 / 55%) 55%, transparent 98%);
+        mask-composite: intersect;
     }
 
     .gallery {

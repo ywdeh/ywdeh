@@ -16,7 +16,7 @@
 
 {#snippet contact(label, href, external = false)}
     <a use:card_release {href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}
-        class="arrow_link link-soft flex w-fit items-center gap-2">{label}<ArrowIcon color="var(--color-mauve-300)" /></a>
+        class="arrow_link link-soft flex w-fit items-center gap-2">{label}<ArrowIcon /></a>
 {/snippet}
 
 <div class="flex flex-col gap-10">

@@ -1,9 +1,4 @@
-<script>
-    let { color = "currentColor" } = $props();
-</script>
-
-<!-- stroke goes through style, not the attribute, so CSS variables like var(--color-mauve-300) work -->
-<svg class="size-6 shrink-0" viewBox="0 0 24 24" fill="none" style:stroke={color}
+<svg class="size-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
     stroke-width="2" stroke-linecap="round" aria-hidden="true">
     <path d="M17.3 6.7Q12.6 6.2 7.5 7.1" pathLength="1" />
     <path d="M17.3 6.7Q17.9 11.7 17.1 16.5" pathLength="1" />
