@@ -68,12 +68,13 @@
     }
     :is(.trail_image, .picture_frame) > img { display: block; width: 100%; height: auto; }
     .trail_image.gallery { width: fit-content; max-width: 100%; margin-inline: auto; overflow: clip; border-radius: var(--radius-card); }
+    /* (never wider than the screen, though: on a phone a card can be nearly full width already) */
     .trail_image.gallery > img {
-        min-width: var(--gallery-zoom-width, 0px);
+        min-width: min(var(--gallery-zoom-width, 0px), 100%);
         max-width: 100%;
         max-height: calc(100dvh - 2 * var(--viewer-gap-y, 1.25rem));
         width: auto;
         height: auto;
     }
-    .trail_image.gallery:has(> img) { min-width: var(--gallery-zoom-width, 0px); }
+    .trail_image.gallery:has(> img) { min-width: min(var(--gallery-zoom-width, 0px), 100%); }
 </style>

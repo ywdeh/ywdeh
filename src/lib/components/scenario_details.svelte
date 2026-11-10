@@ -165,11 +165,11 @@
     <div bind:this={dialog} role="dialog" aria-modal="true" aria-labelledby={heading_id}
         class:z-0={!gallery}
         class:panel={!gallery}
-        class="dialog_box flex flex-col overflow-y-auto font-normal scrollbar-none! overscroll-contain {gallery ? 'pointer-events-none absolute inset-0 px-3 py-(--viewer-gap-y) [--viewer-gap-y:5rem] md:px-21 md:[--viewer-gap-y:4.5rem]' : `fixed bg-neutral-900 ${panel_box}`}"
+        class="dialog_box flex flex-col overflow-y-auto font-normal scrollbar-none! overscroll-contain {gallery ? 'pointer-events-none absolute inset-0 px-viewer py-(--viewer-gap-y) [--viewer-gap-y:5rem]' : `fixed bg-neutral-900 ${panel_box}`}"
         in:viewer_transition|global={'in'}
         out:viewer_transition|global={'out'}>
         {#if !gallery}
-            <header class="z-80 sticky top-0 flex w-full shrink-0 justify-between gap-4 bg-neutral-900 px-5 py-10 md:px-10">
+            <header class="z-80 sticky top-0 flex w-full shrink-0 justify-between gap-4 bg-neutral-900 px-panel py-10">
                 <h1 id={heading_id}>{title}</h1>
                 <!-- while an image is open on top, the viewer's X stands in for this one at the exact same spot -->
                 <span class="-m-2" class:invisible={suspended}>{@render close('Close case study')}</span>
@@ -181,7 +181,7 @@
                 {@render children()}
             </div>
         {:else}
-            <div class="flex flex-col gap-40 px-5 pt-5 pb-10 md:px-10 md:pb-15">
+            <div class="flex flex-col gap-40 px-panel pt-5 pb-10 md:pb-15">
                 <div class="case_body flex flex-col gap-20 text-lg">
                     {@render children()}
                 </div>
@@ -191,10 +191,11 @@
     </div>
 
     {#if gallery}
-        <!-- sits at the same spot as the case study panel's X (top 32px, right 12px / 32px), outside the viewer's
-             scale animation; opened from a case study it swaps in instantly, so it reads as one X that never moves
-             (1ms, not 0: a 0ms outro would skip hiding it, leaving it visible while the viewer fades out) -->
-        <header class="z-80 fixed top-8 right-3 md:right-8"
+        <!-- sits at the same spot as the case study panel's X (its header's padding, less the button's -m-2),
+             outside the viewer's animation; opened from a case study it swaps in instantly, so it reads as one X
+             that never moves (1ms, not 0: a 0ms outro would skip hiding it, leaving it visible while the viewer
+             fades out) -->
+        <header class="z-80 fixed top-8 right-[calc(var(--spacing-panel)_-_0.5rem)]"
             in:fade|global={{ duration: nested ? 1 : duration(350) }}
             out:fade|global={{ duration: nested ? 1 : duration(350) }}>
             <h1 id={heading_id} class="sr-only">{title}</h1>

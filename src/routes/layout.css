@@ -11,6 +11,18 @@
 
     --radius-card: 0.75rem; /* pictures, cards, panels: rounded-card */
     --radius-outline: calc(var(--radius-card) + 10px); /* outlines 10px outside a card: rounded-outline */
+
+    /* spacing that grows smoothly with the screen (phone → wide desktop) instead of jumping at
+       breakpoints; each becomes a utility, e.g. px-page, gap-gutter */
+    --spacing-page: clamp(1.25rem, 6.4vw - 0.25rem, 10rem); /* the page's side margins */
+    --spacing-page-y: clamp(1.5rem, 3vw + 0.5rem, 3.5rem); /* its top and bottom */
+    --spacing-section: clamp(4rem, 5vw + 2.5rem, 7.5rem); /* between the page's big parts */
+    /* between cards side by side, and a heading and what's under it (never under 24px: the hover
+       outlines reach 10px past each card, so there's always ground between them) */
+    --spacing-gutter: clamp(1.5rem, 1.5vw + 1rem, 2.5rem);
+    --spacing-row: clamp(2rem, 1.5vw + 1.5rem, 3rem); /* between rows of cards */
+    --spacing-panel: clamp(1.25rem, 3vw + 0.5rem, 2.5rem); /* the case study panel's sides */
+    --spacing-viewer: clamp(0.75rem, 9vw - 1.5rem, 5.25rem); /* the image viewer's sides */
 }
 
 :root {
@@ -51,14 +63,11 @@
    running underneath it. Its top and bottom edges fade into the background: a mask on the scroller
    itself, so the fade always sits exactly at its edges. */
 .page_scroll {
-    --edge-fade: 1.25rem;
+    --edge-fade: clamp(1.25rem, 2vw + 0.5rem, 2rem);
     height: 100dvh;
     overflow-x: hidden;
     overflow-y: auto;
     mask-image: linear-gradient(to bottom, transparent, #000 var(--edge-fade), #000 calc(100% - var(--edge-fade)), transparent);
-}
-@media (width >= 48rem) {
-    .page_scroll { --edge-fade: 2rem; }
 }
 
 /* ── pictures loading in turn (src/lib/load_queue.js) ──

@@ -94,12 +94,12 @@
 {/snippet}
 
 <section bind:this={main_section} inert={!!(gallery_slug || active_scenario_slug)}
-    class="page_scroll w-full px-[clamp(2rem,5vw+1rem,10rem)] py-6 opacity-0 md:py-10 lg:py-14">
-    <!-- every gap steps down with the screen: phone / md / lg -->
-    <div class="flex w-full flex-col gap-16 md:gap-24 lg:gap-30">
+    class="page_scroll w-full px-page py-page-y opacity-0">
+    <!-- the spacing tokens (layout.css) grow with the screen -->
+    <div class="flex w-full flex-col gap-section">
         <Header />
 
-        <div class="flex flex-col gap-6 md:gap-8 lg:gap-10">
+        <div class="flex flex-col gap-gutter">
             <nav aria-label="Work sections" class="flex justify-between gap-x-4 gap-y-2">
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                     {@render section_link('personal-projects', 'personal projects')}
@@ -143,9 +143,9 @@
         </Category>
 
         <Category title="gallery" anchor="gallery">
-            <div class="gallery gap-y-8 md:gap-y-10 lg:gap-y-12">
+            <div class="gallery gap-y-row">
                 {#each gallery_rows as items}
-                    <div class="gallery_row gap-x-6 gap-y-8 md:gap-x-8 lg:gap-x-10">
+                    <div class="gallery_row gap-x-gutter gap-y-row">
                         {#each items as { slug, src, full_src, width, height, alt } (src)}
                             <div class="gallery_item" style:--ratio={width / height}>
                                 <ScenarioCard image_only src={full_src ?? src} thumbnail={src} {width} {height}
@@ -196,9 +196,9 @@
     /* a picture's share of its row's width is its aspect ratio, so every picture in a row is the same height */
     .gallery_row { display: flex; align-items: flex-start; }
     .gallery_item { min-width: 0; flex: var(--ratio) 1 0; }
-    /* Phones: two pictures per row. */
+    /* Phones: one picture per row. */
     @media (width < 48rem) {
-        .gallery_row { flex-wrap: wrap; column-gap: 1rem; }
-        .gallery_item { flex: 0 0 calc((100% - 1rem) / 2); }
+        .gallery_row { flex-direction: column; }
+        .gallery_item { flex: none; width: 100%; }
     }
 </style>
