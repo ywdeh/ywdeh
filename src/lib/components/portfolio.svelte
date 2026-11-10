@@ -1,24 +1,3 @@
-<script module>
-    const pattern_line_count = 64;
-    const pattern_line_spacing = 64;
-
-    function slash_drawing() {
-        const paths = [];
-        // Include the slashes entering from the preceding tile so the repeat has no seam.
-        for (let index = -3; index < pattern_line_count; index++) {
-            const line = (index + pattern_line_count) % pattern_line_count;
-            const x = index * pattern_line_spacing;
-            const upper = -Math.round(5 * Math.sin(line * 2.4 + 0.8));
-            const lower = -Math.round(5 * Math.cos(line * 1.7 + 0.5));
-            paths.push(`M${x + 4} 101C${x + 75 + lower} 69 ${x + 78 - lower} 64 ${x + 112 + lower} 50S${x + 184 + upper} 15 ${x + 220} -1`);
-        }
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${pattern_line_count * pattern_line_spacing} 100" preserveAspectRatio="none"><path d="${paths.join(' ')}" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
-        return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
-    }
-
-    const pattern_drawing = slash_drawing();
-</script>
-
 <script>
     import { onMount } from "svelte";
     import { pushState } from "$app/navigation";
@@ -134,9 +113,7 @@
             </nav>
 
             <Category title="personal projects" anchor="personal-projects">
-                <article class="patter_entry relative isolate col-span-full flex flex-col items-start gap-row"
-                    style:--pattern-drawing={pattern_drawing}
-                    style:--pattern-line-count={pattern_line_count}>
+                <article class="patter_entry relative isolate col-span-full flex flex-col items-start gap-row">
                     <div class="flex flex-col gap-gutter">
                         <h3 class="font-display text-5xl md:text-6xl">Patter</h3>
                         <div class="fg-soft flex max-w-[46ch] flex-col gap-3">
@@ -218,10 +195,10 @@
         z-index: -1;
         pointer-events: none;
         background-color: var(--color-mauve-100);
-        opacity: 0.012;
+        opacity: 0.046;
         mask:
-            var(--pattern-drawing) center / calc(var(--pattern-line-count) * clamp(2.5rem, 4vw, 4.5rem)) 100% repeat-x,
-            radial-gradient(ellipse 43% 50% at 57% 52%, #000 18%, rgb(0 0 0 / 55%) 55%, transparent 98%);
+            url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20176%20112%22%3E%3Cdefs%3E%3Cpath%20id%3D%22upper%22%20d%3D%22M15%200C20%200%2026%204%2028%2010C30%2015%2030%2022%2026%2027C23%2032%2014%2035%208%2032C2%2030%200%2024%200%2018C0%2011%203%206%208%203C10%202%2013%201%2015%200Z%22%2F%3E%3Cpath%20id%3D%22lower%22%20d%3D%22M13%200C20%200%2026%204%2028%209C30%2015%2030%2021%2026%2025C22%2029%2015%2031%209%2028C4%2026%201%2022%200%2017C0%2011%203%206%208%203C10%202%2012%201%2013%200Z%22%2F%3E%3C%2Fdefs%3E%3Cuse%20href%3D%22%23upper%22%20transform%3D%22translate%2812%2019%29%20rotate%28-18%29%20scale%28.145%29%22%20opacity%3D%220.65%22%2F%3E%3Cuse%20href%3D%22%23upper%22%20transform%3D%22translate%2864%2033%29%20rotate%2812%29%20scale%28.145%29%22%20opacity%3D%220.44%22%2F%3E%3Cuse%20href%3D%22%23lower%22%20transform%3D%22translate%28111%2015%29%20rotate%28-28%29%20scale%28.145%29%22%20opacity%3D%220.92%22%2F%3E%3Cuse%20href%3D%22%23upper%22%20transform%3D%22translate%28152%2039%29%20rotate%2835%29%20scale%28.145%29%22%20opacity%3D%220.72%22%2F%3E%3Cuse%20href%3D%22%23lower%22%20transform%3D%22translate%2829%2068%29%20rotate%28-9%29%20scale%28.145%29%22%20opacity%3D%220.60%22%2F%3E%3Cuse%20href%3D%22%23lower%22%20transform%3D%22translate%2887%2076%29%20rotate%28-35%29%20scale%28.145%29%22%20opacity%3D%220.95%22%2F%3E%3Cuse%20href%3D%22%23lower%22%20transform%3D%22translate%28146%2091%29%20rotate%288%29%20scale%28.145%29%22%20opacity%3D%220.70%22%2F%3E%3C%2Fsvg%3E") center / 176px 112px repeat,
+            radial-gradient(ellipse 43% 50% at 57% 52%, #000 35%, rgb(0 0 0 / 65%) 70%, transparent 100%);
         mask-composite: intersect;
     }
 
