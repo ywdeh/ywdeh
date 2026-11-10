@@ -7,10 +7,11 @@
     import Header from "./header.svelte";
     import Category from "./category.svelte";
     import Footer from "./footer.svelte";
-    import VisitButton from "./visit_button.svelte";
     import ScenarioCard from "./scenario_card.svelte";
     import CaseViewer from "./case_viewer.svelte";
     import ImageViewer from "./image_viewer.svelte";
+
+    const PATTER_SHOT = '/projects/patter_card.webp'; // the Patter card's picture, which also tints it
 
     // opened straight at /<slug>: that case study shows over the page once it has faded in
     let { initial_slug, initial_component: InitialCase } = $props();
@@ -114,21 +115,17 @@
             </nav>
 
             <Category title="personal projects" anchor="personal-projects">
-                <!-- text only, in one card: name and what it is on top; what it's built with and a way in below -->
-                <article class="flex flex-col justify-between gap-8 rounded-card bg-mauve-100/5 p-6">
-                    <div class="flex flex-col gap-2">
-                        <h3 class="font-display text-3xl">Patter</h3>
-                        <p class="fg-soft max-w-[36ch]">an ambient text editor: pick a scene, let its sounds play, and write with nothing else asking for your attention</p>
+                <!-- a case card that opens the project's site instead of a case study; in place of a picture,
+                     its name and what it is over the app's settings panel, which fades in from the right.
+                     The caption: what kind of project, and what it's built with -->
+                <ScenarioCard href="https://patter.hedwy.art" src={PATTER_SHOT} title="ambient text editor" client="svelte, gsap, html, css, js">
+                    <div class="flex flex-col gap-2 pt-6 pr-6 pb-10">
+                        <img src={PATTER_SHOT} alt="" aria-hidden="true"
+                            loading="lazy" decoding="async" draggable="false" class="project_scene" />
+                        <h3 class="project_tint font-display text-3xl">Patter</h3>
+                        <p class="project_tint fg-soft max-w-[50%]">an ambient text editor: pick a scene, let its sounds play, and write with nothing else asking for your attention</p>
                     </div>
-                    <div class="flex items-end justify-between gap-4">
-                        <ul aria-label="Built with" class="fg-muted flex flex-wrap gap-x-3 gap-y-1 text-sm">
-                            <li>svelte</li>
-                            <li>gsap</li>
-                            <li>html, css, js</li>
-                        </ul>
-                        <VisitButton href="https://patter.hedwy.art">Visit</VisitButton>
-                    </div>
-                </article>
+                </ScenarioCard>
             </Category>
         </div>
 
@@ -193,6 +190,29 @@
 </noscript>
 
 <style>
+    /* ── the Patter card's own content (the card itself is scenario_card.svelte) ──
+       the app's settings panel: the card's right half, fading in from nothing at its left edge so it meets the
+       text (the left half) softly; grey until the card is in color, like a card's picture */
+    .project_scene {
+        position: absolute;
+        inset: 0 0 0 auto;
+        z-index: -1;
+        width: 50%;
+        height: 100%;
+        object-fit: cover;
+        object-position: right top;
+        filter: saturate(0) sepia(0.1);
+        mask-image: linear-gradient(to right, transparent 5%, black 60%);
+        pointer-events: none;
+    }
+    :global(figure.in_color) .project_scene { filter: none; }
+    /* the name and description take the tint with the caption */
+    :global(figure:is(:hover, :focus-within)) .project_tint { color: var(--avg-text); }
+    @media (prefers-reduced-motion: no-preference) {
+        .project_scene { transition: filter 400ms; }
+        .project_tint { transition: color var(--press-time); }
+    }
+
     .gallery {
         grid-column: 1 / -1;
         display: flex;

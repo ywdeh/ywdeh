@@ -7,7 +7,9 @@
 
     // image_only: a gallery picture (zooms, natural aspect, dim name); otherwise a case study (opens, 4:3, title + client)
     // left: a wide picture resting on its left edge, panned toward the pointer
-    let { src, thumbnail = src, alt, title, client, left = false, image_only = false, width, height, onclick, preload } = $props();
+    // href: a link to another site (a personal project), opened in a new tab instead of running onclick
+    // children: the card's own content in place of the picture (src then only lends the card its tint)
+    let { src, thumbnail = src, alt, title, client, left = false, image_only = false, width, height, onclick, preload, href, children } = $props();
 
     let card_element = $state();
     let figure_element = $state();
@@ -158,8 +160,12 @@
     }}
     onpointermove={follow_pointer}
     style:--live-img-avg={image_color(src) ?? image_color(thumbnail)}
+    class:in_color={show_full}
     class="has_badge group relative">
-    <button type="button"
+    <!-- svelte-ignore a11y_no_static_element_interactions (It's always a native <a> or <button>.) -->
+    <svelte:element this={href ? 'a' : 'button'}
+        type={href ? undefined : 'button'}
+        {href} target={href ? '_blank' : undefined} rel={href ? 'noopener noreferrer' : undefined}
         bind:this={card_element}
         use:card_release={'.card_preview'}
         onfocus={() => {
@@ -174,6 +180,10 @@
         class="card_trigger relative z-10 flex w-full flex-col gap-4 text-left">
 
         <div class="relative">
+            {#if children}
+                <!-- the card's own content, on the grey block a picture would sit on -->
+                <div class="card_preview own_preview relative isolate overflow-hidden rounded-card">{@render children()}</div>
+            {:else}
             <TrailImage class="card_preview overflow-hidden rounded-card" src={thumbnail}>
                 <!-- waits its turn with the other on-screen pictures; an animation swaps in at once -->
                 <img
@@ -191,6 +201,7 @@
                     style:object-position={left ? `${pan_x}% center` : undefined}
                 />
             </TrailImage>
+            {/if}
             <!-- gallery pictures zoom, everything else opens; the badge straddles the picture's bottom edge -->
             <CardBadge kind={image_only ? 'zoom' : 'open'} />
         </div>
@@ -205,7 +216,7 @@
                 <p class="live_tint fg-muted whitespace-nowrap">{client}</p>
             </div>
         {/if}
-    </button>
+    </svelte:element>
 </figure>
 
 <style>
@@ -235,7 +246,26 @@
     .card_trigger :global(.card_preview) { clip-path: inset(0 round var(--radius-card)); }
     .card_trigger:is(:active, :global(.is_pressed)) :global(.card_preview) { clip-path: inset(var(--press-inset) round var(--radius-card)); }
     .card_trigger:is(:active, :global(.is_pressed)) img { padding: var(--press-inset); }
+    /* the card's own content moves in with the frame's top-left corner (always translated, even by 0, so it
+       stays the box its absolutely placed parts fill, pressed or not) */
+    .own_preview > :global(*) { translate: 0 0; }
+    .card_trigger:is(:active, :global(.is_pressed)) .own_preview > :global(*) { translate: var(--press-inset) var(--press-inset); }
     .card_trigger:is(:active, :global(.is_pressed)) .card_caption { padding-inline: var(--press-inset); translate: 0 calc(-1 * var(--press-inset)); }
+
+    /* the page's own color, so whatever the content leaves bare reads as page; still solid, so like a picture
+       it hides the hover outline behind it */
+    .own_preview { background-color: var(--color-neutral-900); }
+    /* and while the outline shows, it takes the outline's tint, so the two read as one */
+    .own_preview::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background: var(--avg-outline);
+        opacity: 0;
+        pointer-events: none;
+    }
+    figure:is(:hover, :focus-within) .own_preview::before { opacity: 1; }
 
     /* grey until in color */
     img { filter: saturate(0) sepia(0.1); }
@@ -245,6 +275,8 @@
     @media (prefers-reduced-motion: no-preference) {
         figure::before { transition: opacity var(--press-time) ease-in-out, inset var(--press-time) var(--press-ease), border-radius var(--press-time) var(--press-ease); }
         .card_trigger :global(.card_preview) { transition: clip-path var(--press-time) var(--press-ease); }
+        .own_preview::before { transition: opacity var(--press-time) ease-in-out; }
+        .own_preview > :global(*) { transition: translate var(--press-time) var(--press-ease); }
         /* the color-in (filter) waits --stagger so a row lights up card by card */
         img { transition: filter 400ms var(--stagger, 0ms), object-position 400ms, padding var(--press-time) var(--press-ease); }
         /* panned by the frame loop, so object-position must not transition */

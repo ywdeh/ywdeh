@@ -2,6 +2,7 @@
 // Every picture's [width, height, average color]: the size holds its space before it loads, the color
 // tints its outline, badge and caption.
 export const image_data = {
+    '/projects/patter_card.webp': [460, 420, '#1f1e24'],
     '/projects/patter_editor.webp': [1280, 420, '#1a1718'],
     '/projects/patter_editor_current.webp': [1280, 720, '#16161d'],
     '/projects/patter_lantern.webp': [2560, 1462, '#302413'],
