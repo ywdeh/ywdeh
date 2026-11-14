@@ -11,6 +11,7 @@ const badges = new Map();
 const motion = { x: null, x_goal: null, angle: 0, angle_goal: 0, turning: false, homing: false };
 let shown = $state.raw(null);
 let source = null;
+let revealed = null;
 let pointer = null;
 let frame;
 let last_time;
@@ -74,6 +75,7 @@ function show(badge, how) {
 function release() {
     const focused = keyboard_badge();
     if (focused) return show(focused, 'focus');
+    if (revealed) return show(revealed, 'reveal');
     stop();
     shown = null;
     source = null;
@@ -208,8 +210,20 @@ export const badges_state = {
         observer = new MutationObserver(recheck);
         observer.observe(document.body, { subtree: true, attributeFilter: ['inert'] });
     },
+    reveal(host, on) {
+        const badge = badges.get(host);
+        if (!badge) return;
+        if (on) {
+            revealed = badge;
+            if (!shown || source === 'reveal') show(badge, 'reveal');
+        } else if (revealed === badge) {
+            revealed = null;
+            if (shown === badge && source === 'reveal') release();
+        }
+    },
     unregister(badge) {
         if (badges.get(badge.host) === badge) badges.delete(badge.host);
+        if (revealed === badge) revealed = null;
         if (shown === badge) release();
         if (badges.size) return;
         stop();

@@ -161,6 +161,15 @@
         --project-ink: oklch(from var(--tint) 0.93 clamp(0.03, calc(c * 0.3), 0.045) h);
     }
 
+    .project.revealed :global(.arrow_link) {
+        opacity: var(--tone-hover);
+    }
+
+    .project.revealed :global(.arrow_link path) {
+        stroke-dasharray: 0.8 1;
+        translate: -1.06px 1.06px;
+    }
+
     .frame_line {
         opacity: 0.045;
     }

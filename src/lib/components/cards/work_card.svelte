@@ -1,6 +1,7 @@
 <script>
     import { center_reveal } from '$lib/actions/center_reveal.js';
     import { press } from '$lib/actions/press.js';
+    import { badges_state } from '$lib/controllers/badge.svelte.js';
     import { spring_pan } from '$lib/controllers/spring_pan.svelte.js';
     import { image_color, image_info } from '$lib/media/images.js';
     import { queued } from '$lib/media/load_queue.js';
@@ -28,6 +29,7 @@
     let figure;
     let trigger;
     let centered = $state(false);
+    let revealed = $state(false);
     let hovered = $state(false);
     let focused = $state(false);
     let stagger = $state(0);
@@ -61,23 +63,32 @@
         spring.to(Math.min(100, Math.max(0, ((x - 0.2) / 0.6) * 100)));
     }
 
-    function column_in_row() {
+    function place_in_row() {
         const item = figure.closest('.gallery_item') ?? figure;
-        if (!item.parentElement) return 0;
+        const place = { column: 0, alone: true };
+        if (!item.parentElement) return place;
         const { top, left } = item.getBoundingClientRect();
-        let column = 0;
         for (const sibling of item.parentElement.children) {
             if (sibling === item) continue;
             const bounds = sibling.getBoundingClientRect();
-            if (Math.abs(bounds.top - top) < 2 && bounds.left < left) column++;
+            if (Math.abs(bounds.top - top) >= 2) continue;
+            place.alone = false;
+            if (bounds.left < left) place.column++;
         }
-        return column;
+        return place;
     }
 
     function reveal(value) {
-        stagger = column_in_row() * STAGGER_MS;
+        const { column, alone } = place_in_row();
+        stagger = column * STAGGER_MS;
         centered = value;
+        revealed = value && alone;
+        if (revealed) preload?.();
     }
+
+    $effect(() => {
+        badges_state.reveal(figure, revealed);
+    });
 
     $effect(() => () => clearTimeout(touch_idle));
 </script>
@@ -85,7 +96,7 @@
 <figure
     bind:this={figure}
     class="work_card tinted relative"
-    class:hovered
+    class:hovered={hovered || revealed}
     style:--tint={image_color(src) ?? image_color(thumbnail)}
     onpointerenter={(event) => event.pointerType === 'mouse' && hover_start()}
     onpointerleave={(event) => event.pointerType === 'mouse' && hover_end()}
@@ -265,16 +276,16 @@
                 padding var(--duration-press) var(--ease-press);
         }
 
+        .live_tint {
+            transition: color var(--duration-press);
+        }
+
         .caption {
             transition:
                 padding-inline var(--duration-press) var(--ease-press),
                 translate var(--duration-press) var(--ease-press),
                 opacity var(--duration-press),
                 color var(--duration-press);
-        }
-
-        .live_tint {
-            transition: color var(--duration-press);
         }
 
         .reading {
