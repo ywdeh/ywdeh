@@ -1,39 +1,86 @@
-html {
-    scrollbar-gutter: stable;
-}
+@layer base {
+    html {
+        scrollbar-gutter: stable;
+        cursor: default;
+        -webkit-tap-highlight-color: transparent;
+        background-color: var(--color-surface);
+        color: var(--color-ink);
+        font-family: var(--font-sans);
+        font-weight: 300;
+    }
 
-.page {
-    min-height: 100dvh;
-    overflow-x: clip;
-}
+    html:has([role='dialog']) {
+        overflow: hidden;
+    }
 
-html:has([role='dialog']) {
-    overflow: hidden;
-}
+    ::selection {
+        background-color: oklch(from var(--color-ink) l c h / 20%);
+    }
 
-.edge_fade {
-    --edge-fade: clamp(1.25rem, 2vw + 0.5rem, 2rem);
-    position: fixed;
-    inset-inline: 0;
-    z-index: 110;
-    height: var(--edge-fade);
-    pointer-events: none;
-    background: linear-gradient(to bottom, var(--color-neutral-900), transparent);
-}
+    :where(body, body *) {
+        cursor: inherit;
+    }
 
-.edge_fade.at_top {
-    top: 0;
-}
+    * {
+        scroll-margin-top: 2.5rem;
+        scrollbar-width: thin;
+        scrollbar-color: oklch(from var(--color-ink) l c h / 12%) transparent;
+    }
 
-.edge_fade.at_bottom {
-    bottom: 0;
-    rotate: 180deg;
-}
+    *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
 
-@media (width < 48rem) {
-    .edge_fade {
+    *::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: oklch(from var(--color-ink) l c h / 12%);
+        border-radius: 9999px;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background-color: oklch(from var(--color-ink) l c h / 24%);
+    }
+
+    button {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+    }
+
+    img {
+        -webkit-user-drag: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    noscript {
         display: none;
     }
+
+    :where(*):focus-visible {
+        outline: none;
+    }
+
+    :where(a, button, [tabindex]):focus-visible {
+        border-radius: var(--radius-card);
+    }
+}
+
+:where(a, button, [tabindex]:not([tabindex='-1'])):where(:not(.own_outline)):focus-visible {
+    background-color: var(--color-focus);
+    box-shadow: 0 0 0 var(--outline-spread) var(--color-focus);
+}
+
+:where(a, button, [tabindex]:not([tabindex='-1'])):where(:not(.own_outline)):focus-visible:is(
+        :active,
+        .is_pressed
+    ) {
+    box-shadow: 0 0 0 var(--outline-press) var(--color-focus);
 }
 
 img.is_waiting {
@@ -41,107 +88,24 @@ img.is_waiting {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+    a:where(:not(.own_outline)) {
+        transition:
+            opacity var(--duration-press) var(--ease-out),
+            background-color var(--duration-press) var(--ease-out),
+            box-shadow var(--duration-press) var(--ease-out);
+    }
+
+    :where(button, [tabindex]):where(:not(.own_outline)):focus-visible {
+        transition: box-shadow var(--duration-press) var(--ease-press);
+    }
+
     img.is_revealing {
-        animation: picture_reveal 350ms var(--ease-out);
+        animation: picture-reveal var(--duration-reveal) var(--ease-out);
     }
 }
 
-@keyframes picture_reveal {
+@keyframes picture-reveal {
     from {
         opacity: 0;
     }
-}
-
-:where(*):focus-visible {
-    outline: none;
-}
-
-:where(a, button, [tabindex]:not([tabindex='-1'])):where(:not(.card_trigger, .own_outline)):focus-visible {
-    background-color: var(--focus-tint);
-    box-shadow: 0 0 0 var(--outline-spread) var(--focus-tint);
-}
-
-:where(a, button, [tabindex]:not([tabindex='-1'])):where(:not(.card_trigger, .own_outline)):focus-visible:is(
-        :active,
-        .is_pressed
-    ) {
-    box-shadow: 0 0 0 var(--outline-press) var(--focus-tint);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-    a:where(:not(.card_trigger, .own_outline)) {
-        transition:
-            opacity var(--press-time) var(--ease-out),
-            background-color var(--press-time) var(--ease-out),
-            box-shadow var(--press-time) var(--ease-out);
-    }
-    :where(button, [tabindex]):where(:not(.card_trigger, .own_outline)):focus-visible {
-        transition: box-shadow var(--press-time) var(--press-ease);
-    }
-}
-
-@layer base {
-    :where(body, body *) {
-        cursor: inherit;
-    }
-    :where(html) {
-        -webkit-tap-highlight-color: transparent;
-    }
-    :where(button) {
-        -webkit-user-select: none;
-        user-select: none;
-        -webkit-touch-callout: none;
-    }
-    :where(a, button, [tabindex]):focus-visible {
-        border-radius: var(--radius-card);
-    }
-    .case_body h2 {
-        @apply text-case-heading;
-    }
-    .case_body p {
-        opacity: 0.6;
-    }
-    .case_body img {
-        border-radius: var(--radius-card);
-    }
-    .case_body article {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-copy);
-        align-self: center;
-        width: 100%;
-        max-width: var(--container-3xl);
-    }
-}
-
-noscript {
-    display: none;
-}
-
-* {
-    scroll-margin-top: 2.5rem;
-    scrollbar-width: thin;
-    scrollbar-color: oklch(96% 0.003 325.6 / 0.12) transparent;
-}
-
-*::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-*::-webkit-scrollbar-track {
-    background: transparent;
-}
-*::-webkit-scrollbar-thumb {
-    background-color: oklch(96% 0.003 325.6 / 0.12);
-    border-radius: 9999px;
-}
-*::-webkit-scrollbar-thumb:hover {
-    background-color: oklch(96% 0.003 325.6 / 0.24);
-}
-
-img {
-    -webkit-user-drag: none;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
 }

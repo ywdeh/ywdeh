@@ -1,51 +1,37 @@
 # hedwy.art
 
-SvelteKit portfolio with personal projects, selected work, a gallery, case panels, and zoomable artwork. The design tokens and interactions are shared; content stays separate from presentation.
-
-## Development
+SvelteKit portfolio, prerendered and served from Cloudflare.
 
 ```sh
 npm ci
 npm run dev
-```
-
-```sh
 npm run check
-npm test
-npm run test:browser
 npm run build
 npm run preview
 ```
 
-Browser tests use the installed Microsoft Edge in headless mode, with desktop and mobile layouts. They do not take screenshots or videos. Set `TEST_URL` to test a running production preview. `npm run format` formats source; `npm run format:check` checks formatting.
+## Structure
 
-## Source layout
+| Path                      | Holds                                                                    |
+| ------------------------- | ------------------------------------------------------------------------ |
+| `src/lib/styles`          | Design system: `tokens.css`, `utilities.css`, `base.css`, `fonts.css`    |
+| `src/lib/content`         | Site details, projects, work metadata, gallery, one data file per case   |
+| `src/lib/components`      | `ui` primitives, `layout`, `cards`, `media`, `overlays`, `portfolio`     |
+| `src/lib/actions`         | DOM behaviours: press feedback, scrolling, swipe, pan and zoom, reveal   |
+| `src/lib/controllers`     | Stateful motion: hover badge, star drag, spring pan, image flight        |
+| `src/lib/motion`          | Timing read from tokens, intro animation, image flight                   |
+| `src/lib/media`           | Generated image manifest, loading queue, preloading, case image context  |
+| `src/lib/routing`         | URL ↔ view mapping and lazy case loading                                 |
+| `src/lib/geometry`        | Project frame, star shapes and layouts, icon strokes                     |
+| `src/routes/[...path]`    | The single route: home, `/<case>`, `/<case>/<picture>`, `/gallery/<picture>` |
 
-| Folder                | Responsibility                                                                              |
-| --------------------- | ------------------------------------------------------------------------------------------- |
-| `src/routes`          | Public URLs, route validation, prerendered entries                                          |
-| `src/lib/app`         | Homepage composition and URL-driven overlay state                                           |
-| `src/lib/content`     | Project descriptions, work metadata, gallery order, case content                            |
-| `src/lib/components`  | Layout, cards, media, overlays, decorations, icons, links                                   |
-| `src/lib/controllers` | Stateful badge, star drag, image pan, and image flight behavior                             |
-| `src/lib/actions`     | Reusable DOM gestures, press feedback, section scrolling, color reveal                      |
-| `src/lib/geometry`    | SVG frame and star calculations                                                             |
-| `src/lib/media`       | Generated dimensions/colors, responsive sources, queued loading, preloading, image registry |
-| `src/lib/motion`      | Shared timing helpers, intro animation, transform-only image flights                        |
-| `src/lib/styles`      | Tokens, typography, local fonts, utilities, base rules                                      |
-| `static`              | Original artwork, responsive variants, SVG logos, licensed fonts                            |
+## Design system
 
-## Editing content
+All colours, fonts, spacing, radii, easing, durations, opacity tones and layers live in `src/lib/styles/tokens.css`. Spacing, colour, font and radius tokens become Tailwind utilities (`px-page-x`, `gap-section`, `bg-surface`, `text-ink`, `rounded-card`). Typography and tone utilities (`text-intro`, `text-title`, `text-heading`, `text-body`, `text-ui`, `ink-soft`, `ink-muted`, `ink-faint`, `link-soft`, `link-quiet`, `tinted`) are in `utilities.css`. Scripts read durations and easing from the same tokens.
 
-- Add or edit personal projects in `src/lib/content/projects.js`. The card accepts a text name or SVG logo, year, description paragraphs, tint, and primary links.
-- Add work metadata and selected-work ordering in `src/lib/content/work.js`, then create the matching `src/lib/content/cases/<slug>.svelte` component. Existing case components demonstrate `Artwork`, `ImageSlider`, and `ExternalLink`.
-- Keep case assets in `static/<slug>/`. After adding or changing images, run `npm run images` to regenerate dimensions, average colors, and responsive variants. Originals are preserved. The content tests verify file references, dimensions, and gallery membership.
-- Change shared spacing, colors, radii, fonts, and press timing in `src/lib/styles/tokens.css`. Typography is in `typography.css`; scripted overlay and flight timing is in `src/lib/motion/settings.js`.
+## Content
 
-## Interaction boundaries
-
-Cases and images use URL state, including direct links and browser back/forward navigation. Images register with their case, so a direct image URL can select its slider before opening. There is one gallery DOM layout and one active hover badge. The loading queue limits simultaneous nearby-image loads and disconnects observers when no longer needed.
-
-External links retain trusted browser clicks so new tabs work on mobile Safari. Reduced-motion preferences bypass decorative motion. Intro failure reveals the content instead of leaving the page hidden. Fonts and animation code are served locally; analytics remains unchanged.
-
-Backups are kept in the ignored `.backups` folder and are never included in the published site.
+- Projects: `src/lib/content/projects.js`.
+- Cases: add metadata to `cases` in `src/lib/content/work.js` and a matching `src/lib/content/cases/<slug>.js` with blocks: `{ image, alt }`, `{ slider: [{ src, alt }] }`, `{ heading, text: [] }`. Text supports `**bold**` and `[label](url)`.
+- Selected work and gallery order: `selected_work`, `gallery` and `gallery_rows` in `work.js`.
+- Images live in `static/<slug>/`, named without the project prefix (`static/paladins_concept/lobby.webp`). The file name is the picture's URL. Gallery pictures share one `/gallery/` namespace, so their names must be unique and self-explanatory (`sq_heart`, `sneakers_logo`). Run `npm run images` after adding, renaming or changing them: it stops if content points to a missing file or two gallery pictures share a name, regenerates `src/lib/media/manifest.js` and the responsive variants, and removes stale variants.

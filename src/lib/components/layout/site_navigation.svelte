@@ -1,28 +1,25 @@
 <script>
-    import { press_release } from '$lib/actions/press_release.js';
+    import { press } from '$lib/actions/press.js';
     import { section_scroll } from '$lib/actions/section_scroll.js';
-    const sections = [
-        ['personal-projects', 'personal projects'],
-        ['case-studies', 'selected work'],
-        ['gallery', 'gallery'],
-    ];
+    import { site } from '$lib/content/site.js';
 </script>
 
-<nav aria-label="Work sections" class="flex flex-wrap justify-between gap-x-card-gap gap-y-control text-ui">
+{#snippet jump(id, label, class_name = '')}
+    <a
+        use:press
+        use:section_scroll={id}
+        href="#{id}"
+        class="link-quiet tap-target whitespace-nowrap {class_name}"
+    >
+        {label}
+    </a>
+{/snippet}
+
+<nav aria-label="Work sections" class="flex flex-wrap justify-between gap-x-grid gap-y-control text-ui">
     <div class="flex flex-wrap items-center gap-x-copy gap-y-inline">
-        {#each sections as [id, label]}
-            <a
-                use:press_release
-                use:section_scroll={id}
-                href="#{id}"
-                class="link-quiet tap-target whitespace-nowrap">{label}</a
-            >
+        {#each site.sections as { id, label } (id)}
+            {@render jump(id, label)}
         {/each}
     </div>
-    <a
-        use:press_release
-        use:section_scroll={'contacts'}
-        href="#contacts"
-        class="link-quiet tap-target whitespace-nowrap ml-auto">contact me</a
-    >
+    {@render jump('contacts', 'contact me', 'ml-auto')}
 </nav>

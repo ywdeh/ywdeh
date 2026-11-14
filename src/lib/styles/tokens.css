@@ -1,41 +1,73 @@
-@theme {
+@theme static {
+    --color-*: initial;
+    --color-surface: oklch(20.5% 0 0);
+    --color-surface-deep: oklch(14.5% 0 0);
+    --color-ink: oklch(96% 0.003 325.6);
+    --color-ink-dim: oklch(86.5% 0.012 325.68);
+    --color-placeholder: oklch(23.5% 0 0);
+    --color-focus: oklch(40.5% 0.006 325.6 / 12%);
+    --color-focus-strong: oklch(40.5% 0.006 325.6 / 20%);
+
+    --font-*: initial;
     --font-sans: 'Google Sans Flex', sans-serif;
     --font-hand: Yuyu, sans-serif;
     --font-display: Amarante, serif;
 
     --radius-card: 0.75rem;
-    --radius-outline: calc(var(--radius-card) + 10px);
-    --spacing-page: clamp(1.25rem, 6.4vw - 0.25rem, 10rem);
+
+    --spacing-page-x: clamp(1.25rem, 6.4vw - 0.25rem, 10rem);
     --spacing-page-y: clamp(1.5rem, 3vw + 0.5rem, 3.5rem);
     --spacing-section: clamp(4rem, 5vw + 2rem, 7rem);
-    --spacing-inline: 0.5rem;
-    --spacing-control: 0.75rem;
-    --spacing-copy: 1rem;
-    --spacing-gutter: clamp(1.5rem, 1.5vw + 1rem, 2.5rem);
     --spacing-row: clamp(2rem, 1.5vw + 1.5rem, 3rem);
+    --spacing-gutter: clamp(1.5rem, 1.5vw + 1rem, 2.5rem);
+    --spacing-grid: clamp(1.5rem, 1vw + 1rem, 1.75rem);
     --spacing-case: clamp(2.5rem, 3vw + 1rem, 5rem);
-    --spacing-card-gap: clamp(1.5rem, 1vw + 1rem, 1.75rem);
     --spacing-panel: clamp(1.25rem, 3vw + 0.5rem, 2.5rem);
     --spacing-viewer: clamp(0.75rem, 9vw - 1.5rem, 5.25rem);
+    --spacing-copy: 1rem;
+    --spacing-control: 0.75rem;
+    --spacing-inline: 0.5rem;
+
+    --ease-press: ease-in-out;
+    --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-flight: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 :root {
-    --panel-heading-space: var(--spacing-panel);
-    --viewer-gap-y: calc(var(--panel-heading-space) + 3rem);
+    --tone-soft: 0.6;
+    --tone-muted: 0.4;
+    --tone-faint: 0.3;
+    --tone-hover: 0.9;
+    --tone-line: 0.072;
+    --tone-grain: 0.04;
+
+    --duration-press: 140ms;
+    --duration-reveal: 350ms;
+    --duration-slide: 350ms;
+    --duration-overlay: 350ms;
+    --duration-tint: 400ms;
+    --duration-glide: 420ms;
+    --duration-flight: 450ms;
+
+    --press-inset: 6px;
     --outline-spread: 10px;
     --outline-press: 4px;
+    --outline-thumb: 4px;
     --ornament-gap: 6px;
-    --divider-star-inset: 3.5rem;
-    --press-inset: 6px;
-    --press-time: 140ms;
-    --press-ease: ease-in-out;
-    --focus-tint: oklch(40.5% 0.006 325.6 / 12%);
-    --line-ink: 0.072;
+    --star-inset: 3.5rem;
+    --edge-fade: clamp(1.25rem, 2vw + 0.5rem, 2rem);
+    --viewer-gap-y: calc(var(--spacing-panel) + 3rem);
+
+    --layer-panel-header: 80;
+    --layer-overlay: 90;
+    --layer-flight: 100;
+    --layer-edge: 110;
+    --layer-grain: 120;
 }
 
 @media (width < 48rem) {
     :root {
-        --spacing-page: clamp(1.25rem, 4vw, 1.75rem);
+        --spacing-page-x: clamp(1.25rem, 4vw, 1.75rem);
         --spacing-page-y: 1.5rem;
         --spacing-section: 4rem;
         --spacing-gutter: clamp(1.5rem, 5vw, 1.75rem);
@@ -44,16 +76,7 @@
     }
 }
 
-.has_badge {
-    --avg-outline: oklch(
-        from var(--live-img-avg, oklch(20.5% 0.004 325.6)) calc(l + 0.2) calc(c * 1.5) h / 12%
-    );
-    --avg-text: oklch(
-        from var(--live-img-avg, oklch(70% 0.01 325.6)) clamp(0.85, l, 0.9) max(calc(c * 0.55), 0.015) h
-    );
-}
-
-@property --project-tint-color {
+@property --project-ink {
     syntax: '<color>';
     inherits: true;
     initial-value: #ffffff;

@@ -1,80 +1,69 @@
 <script>
     import { Tween } from 'svelte/motion';
     import { cubicInOut } from 'svelte/easing';
-    import { press_release } from '$lib/actions/press_release.js';
-    import { css_time, reduced_motion } from '$lib/motion/settings.js';
-    import ArrowIcon from '$lib/components/icons/arrow_icon.svelte';
+    import { motion_ms, TOUCH_LINGER_MS } from '$lib/motion/timing.js';
     import { project_frame } from '$lib/geometry/project_frame.js';
-    let { name, href, logo, logo_ratio = 2.1, logo_height = 48, year, links, color, children } = $props();
-    const primary_links = $derived(
-        links ?? [
-            {
-                href,
-                label: href.replace(/^https?:\/\//, '').replace(/\/$/, ''),
-            },
-        ],
-    );
-    let logo_failed = $state(false);
+    import ArrowLink from '$lib/components/ui/arrow_link.svelte';
+
+    let { name, year, color, logo, links, description } = $props();
+
     let card;
-    let gap = $state({ start: 16, end: 700 });
+    let logo_failed = $state(false);
+    let link_active = $state(false);
     let size = $state({ width: 400, height: 360 });
+    let gap = $state({ start: 16, end: 700 });
+    let touch_idle;
     const fold = new Tween(0, { easing: cubicInOut });
     const outline = $derived(project_frame(size, gap, fold.current));
-    const TOUCH_LINGER_MS = 300;
-    let link_hovered = $state(false);
-    let touch_idle;
+    const year_parts = $derived(year?.split(' - ') ?? []);
+
     function set_fold(active) {
         clearTimeout(touch_idle);
-        link_hovered = active;
-        fold.set(active ? 1 : 0, { duration: reduced_motion() ? 0 : css_time(card, '--press-time') });
+        link_active = active;
+        fold.set(active ? 1 : 0, { duration: motion_ms('--duration-press', card) });
     }
+
     const link_events = {
-        onpointerenter: (event) => {
-            if (event.pointerType === 'mouse') set_fold(true);
-        },
-        onpointerleave: (event) => {
-            if (event.pointerType === 'mouse') set_fold(false);
-        },
-        onpointerdown: (event) => {
-            if (event.pointerType !== 'mouse') set_fold(true);
-        },
+        onpointerenter: (event) => event.pointerType === 'mouse' && set_fold(true),
+        onpointerleave: (event) => event.pointerType === 'mouse' && set_fold(false),
+        onpointerdown: (event) => event.pointerType !== 'mouse' && set_fold(true),
         onpointerup: (event) => {
             if (event.pointerType !== 'mouse')
                 touch_idle = setTimeout(() => set_fold(false), TOUCH_LINGER_MS);
         },
-        onpointercancel: (event) => {
-            if (event.pointerType !== 'mouse') set_fold(false);
-        },
+        onpointercancel: (event) => event.pointerType !== 'mouse' && set_fold(false),
     };
+
     $effect(() => () => clearTimeout(touch_idle));
-    function measure_outline(node) {
-        const link = node.querySelector('.project_links');
+
+    function measure(node) {
+        const label = node.querySelector('.project_links');
         const observer = new ResizeObserver(() => {
             const frame = node.getBoundingClientRect();
-            const label = link.getBoundingClientRect();
             if (!frame.width) return;
+            const box = label.getBoundingClientRect();
             size = { width: frame.width, height: frame.height };
-            node.style.setProperty('--project-link-inset', `${label.height / 2 + 5}px`);
+            node.style.setProperty('--link-inset', `${box.height / 2 + 5}px`);
             gap = {
-                start: Math.max(16, ((label.left - frame.left) / frame.width) * 1000),
-                end: Math.min(982, ((label.right - frame.left) / frame.width) * 1000),
+                start: Math.max(16, ((box.left - frame.left) / frame.width) * 1000),
+                end: Math.min(982, ((box.right - frame.left) / frame.width) * 1000),
             };
         });
         observer.observe(node);
-        observer.observe(link);
+        observer.observe(label);
         return { destroy: () => observer.disconnect() };
     }
 </script>
 
 <article
     bind:this={card}
-    use:measure_outline
-    style:--live-img-avg={color}
-    class:link_hovered
-    class="project_entry has_badge relative isolate flex flex-col items-start p-gutter"
+    use:measure
+    style:--tint={color}
+    class:link_active
+    class="project tinted relative isolate flex flex-col items-start p-gutter"
 >
     <svg
-        class="project_outline pointer-events-none absolute inset-0 -z-1 h-full w-full"
+        class="frame_line pointer-events-none absolute inset-0 -z-1 size-full"
         viewBox="0 0 1000 400"
         preserveAspectRatio="none"
         aria-hidden="true"
@@ -89,27 +78,20 @@
             vector-effect="non-scaling-stroke"
         />
     </svg>
+
     <div class="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-gutter">
         <div class="flex min-h-12 shrink-0 items-center justify-between gap-control">
             <h3 class="flex min-w-0 items-start font-display text-[2rem] leading-none">
                 {#if logo && !logo_failed}
                     <span
-                        class="project_logo"
+                        class="logo"
                         role="img"
                         aria-label={name}
-                        style:--logo-image={`url("${logo}")`}
-                        style:--logo-ratio={logo_ratio}
-                        style:--logo-height={logo_height + 'px'}
+                        style:--logo-image="url('{logo.src}')"
+                        style:--logo-ratio={logo.ratio}
+                        style:--logo-height="{logo.height}px"
                     >
-                        <img
-                            src={logo}
-                            alt=""
-                            aria-hidden="true"
-                            class="hidden"
-                            decoding="async"
-                            draggable="false"
-                            onerror={() => (logo_failed = true)}
-                        />
+                        <img src={logo.src} alt="" hidden onerror={() => (logo_failed = true)} />
                     </span>
                 {:else}
                     {name}
@@ -117,42 +99,58 @@
             </h3>
             {#if year}
                 <span
-                    class="fg-muted inline-flex shrink-0 select-none items-center self-start gap-1.5 whitespace-nowrap font-hand text-2xl leading-none"
+                    class="ink-muted inline-flex shrink-0 items-center gap-1.5 self-start font-hand text-2xl leading-none whitespace-nowrap select-none"
                     aria-label={year}
                 >
-                    {#each year.split(' - ') as part, index}
-                        {#if index > 0}<span class="year_suffix" aria-hidden="true">-</span>{/if}
-                        <span class:year_suffix={index > 0} aria-hidden="true">{part}</span>
+                    {#each year_parts as part, index (index)}
+                        {#if index > 0}<span class="raised" aria-hidden="true">-</span>{/if}
+                        <span class:raised={index > 0} aria-hidden="true">{part}</span>
                     {/each}
                 </span>
             {/if}
         </div>
-        <div class="project_description fg-soft min-h-0 w-full flex-1 text-ui">
+
+        <div class="description ink-soft min-h-0 w-full flex-1 text-ui">
             <div class="flex max-w-[46ch] flex-col gap-copy">
-                {@render children()}
+                {#each description as paragraph, index (index)}<p>{paragraph}</p>{/each}
             </div>
         </div>
     </div>
+
     <div class="project_links flex w-fit items-center gap-control px-inline text-2xl">
-        {#each primary_links as link, index (link.href)}
-            {#if index > 0}<span class="fg-faint" aria-hidden="true">-</span>{/if}
-            <a
+        {#each links as link, index (link.href)}
+            {#if index > 0}<span class="ink-faint" aria-hidden="true">-</span>{/if}
+            <ArrowLink
                 href={link.href}
-                aria-label={`${name} ${link.label}`}
-                target="_blank"
+                external
+                aria-label="{name} {link.label}"
+                class="min-w-0"
                 {...link_events}
-                rel="noopener noreferrer"
-                use:press_release
-                class="arrow_link link-soft tap-target flex min-w-0 items-center gap-inline"
             >
-                {link.label}<ArrowIcon />
-            </a>
+                {link.label}
+            </ArrowLink>
         {/each}
     </div>
 </article>
 
 <style>
-    .project_logo {
+    .project {
+        --project-ink: var(--color-ink);
+        color: var(--project-ink);
+        min-height: clamp(18rem, 26vw, 22rem);
+        padding-bottom: calc(var(--spacing-gutter) + var(--link-inset, 21px));
+    }
+
+    .project.link_active,
+    .project:has(.project_links :global(a:is(:active, .is_pressed))) {
+        --project-ink: color-mix(in oklab, var(--color-ink) 55%, var(--tint-ink));
+    }
+
+    .frame_line {
+        opacity: 0.045;
+    }
+
+    .logo {
         display: block;
         width: calc(var(--logo-height) * var(--logo-ratio));
         max-width: 100%;
@@ -160,47 +158,42 @@
         background-color: currentColor;
         mask: var(--logo-image) left center / contain no-repeat;
     }
-    .year_suffix {
+
+    .raised {
         translate: 0 -3px;
     }
-    .project_entry {
-        --project-line-opacity: 0.045;
-        --project-tint-color: var(--color-mauve-100);
-        color: var(--project-tint-color);
-        min-height: clamp(18rem, 26vw, 22rem);
-        padding-bottom: calc(var(--spacing-gutter) + var(--project-link-inset, 21px));
-    }
-    .project_entry.link_hovered,
-    .project_entry:has(.project_links a:is(:active, :global(.is_pressed))) {
-        --project-tint-color: color-mix(in oklab, var(--color-mauve-100) 55%, var(--avg-text));
-    }
-    .project_description {
+
+    .description {
         text-wrap: pretty;
     }
-    .project_outline {
-        opacity: var(--project-line-opacity);
-    }
-    @media (prefers-reduced-motion: no-preference) {
-        .project_entry {
-            transition: --project-tint-color calc(var(--press-time) * 3) var(--ease-out);
-        }
-    }
+
     .project_links {
         position: absolute;
         bottom: 5px;
-        left: calc(var(--spacing-gutter) - var(--spacing) * 2);
+        left: calc(var(--spacing-gutter) - var(--spacing-inline));
         translate: 0 50%;
         max-width: calc(100% - var(--spacing-gutter) * 2);
     }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .project {
+            transition: --project-ink calc(var(--duration-press) * 3) var(--ease-out);
+        }
+    }
+
     @media (width < 48rem) {
-        .project_entry {
+        .project {
             min-height: 0;
         }
-        .project_description {
-            overflow: visible;
-        }
+
         .project_links {
             font-size: clamp(1rem, 4.8vw, 1.25rem);
+        }
+    }
+
+    @container (width < 40rem) {
+        .project:not(:last-child) {
+            margin-bottom: var(--spacing-copy);
         }
     }
 </style>

@@ -1,15 +1,8 @@
-import { image_data } from '../media/image_data.js';
-export const work_entries = {
+export const cases = {
     routes_and_journeys: {
         title: 'illustrated logo',
         client: 'Routes & Journeys',
         alt: 'rj letters on a stone slate with ivy, in orange and green',
-        images: [
-            '/routes_and_journeys/rj.webp',
-            '/routes_and_journeys/rj_slate.webp',
-            '/routes_and_journeys/rj_branches.webp',
-            '/routes_and_journeys/rj_outline.webp',
-        ],
     },
     sq: {
         title: 'illustrated emblem',
@@ -35,47 +28,21 @@ export const work_entries = {
         title: 'game ui/ux redesign concept',
         client: 'Paladins',
         alt: 'redesigned paladins champions list with kinessa in the middle',
-        images: [
-            '/paladins_concept/paladins_menu.webp',
-            '/paladins_concept/paladins_menu_queue.webp',
-            '/paladins_concept/paladins_character_list.webp',
-            '/paladins_concept/paladins_icons.webp',
-            '/paladins_concept/paladins_menu_2.webp',
-            '/paladins_concept/paladins_currency.webp',
-            '/paladins_concept/paladins.webp',
-            '/paladins_concept/paladins_hud.webp',
-            '/paladins_concept/paladins_hud_grayscale.webp',
-            '/paladins_concept/paladins_hud_ingame.webp',
-            '/paladins_concept/paladins_selected_character.webp',
-            '/paladins_concept/paladins_lobby.webp',
-        ],
     },
     palia_concept: {
         title: 'hud elements redesign concept',
         client: 'Palia',
         alt: 'palia hotbar with an axe, gems and stones',
-        images: [
-            '/palia_concept/palia.webp',
-            '/palia_concept/palia_quest_log.webp',
-            '/palia_concept/palia_bars.webp',
-            '/palia_concept/palia_hud.webp',
-        ],
     },
     pixel_icons_pack: {
         title: '5×5 and 3×3 icon pack',
         client: 'Wintertale',
         alt: 'tiny pixel icons, arrows, gems, hearts and a skull',
-        images: ['/pixel_icons_pack/iconsvol2.png', '/pixel_icons_pack/iconsvol1.png'],
     },
     wintertale_banner: {
         title: 'illustrated banner',
         client: 'Wintertale',
         alt: 'blue winter banner, a lantern lit shelf next to a snowy window and gifts',
-        images: [
-            '/wintertale_banner/wintertale.webp',
-            '/wintertale_banner/wintertale_half_1.webp',
-            '/wintertale_banner/wintertale_half_2.webp',
-        ],
     },
     blue_animation: {
         title: 'illustrated animated character',
@@ -91,78 +58,50 @@ export const work_entries = {
         title: 'fantasy website design',
         client: 'MorroWorld',
         alt: 'morroworld landing page, a gold title on dark green',
-        images: [
-            '/morroworld/morroworld.webp',
-            '/morroworld/morroworld_block_2.webp',
-            '/morroworld/morroworld_gallery.webp',
-            '/morroworld/morroworld_login.webp',
-        ],
     },
 };
-export const picture_name = (src) =>
-    src
-        .split('/')
-        .pop()
-        .replace(/\.[^.]+$/, '');
+
 export const selected_work = [
     {
         slug: 'paladins_concept',
-        src: '/paladins_concept/paladins_character_list.webp',
-        left: true,
-        reading_minutes: 8,
+        cover: '/paladins_concept/champions.webp',
+        minutes: 8,
+        pan: true,
     },
-    { slug: 'routes_and_journeys', src: '/routes_and_journeys/rj.webp', reading_minutes: 2 },
-    { slug: 'palia_concept', src: '/palia_concept/palia.webp', reading_minutes: 1 },
-    { slug: 'morroworld', src: '/morroworld/morroworld.webp', reading_minutes: 2 },
-    { slug: 'pixel_icons_pack', src: '/pixel_icons_pack/iconsvol2.png', reading_minutes: 1 },
-    { slug: 'wintertale_banner', src: '/wintertale_banner/wintertale.webp', left: true, reading_minutes: 1 },
+    { slug: 'routes_and_journeys', cover: '/routes_and_journeys/emblem.webp', minutes: 2 },
+    { slug: 'palia_concept', cover: '/palia_concept/hotbar.webp', minutes: 1 },
+    { slug: 'morroworld', cover: '/morroworld/landing.webp', minutes: 2 },
+    { slug: 'pixel_icons_pack', cover: '/pixel_icons_pack/icons_vol2.png', minutes: 1 },
+    { slug: 'wintertale_banner', cover: '/wintertale_banner/banner.webp', minutes: 1, pan: true },
 ];
-const picture = (item) => {
-    const [width, height] = image_data[item.full_src ?? item.src] ?? [];
-    return { ...item, width, height };
-};
-const journey = picture({ slug: 'thats_what_journey_means', src: '/thats_what_journey_means/pride.png' });
-const sq = picture({ slug: 'sq', src: '/sq/sq.webp' });
-const daloras = picture({ slug: 'daloras', src: '/daloras/daloras.webp' });
-const sneakers_poster = picture({
-    slug: 'sneakers_bros',
-    src: '/sneakers_bros/sneakers_2.webp',
-    alt: 'brand names and two photos of people in sneakers',
-});
-const sneakers_logo = picture({ slug: 'sneakers_bros', src: '/sneakers_bros/sneakers.png' });
-const sneakers_banner = picture({
-    slug: 'sneakers_bros',
-    src: '/sneakers_bros/sneakers_full.webp',
-    alt: "wide sneakers bro's banner with the logo and sneaker photos",
-});
-const dino_cafe = picture({
-    slug: 'dino_cafe',
-    src: '/dino_cafe/dino_cafe.webp',
-    full_src: '/dino_cafe/dino_cafe_animated.webp',
-});
-const blue = picture({
-    slug: 'blue_animation',
-    src: '/blue_animation/blue.webp',
-    full_src: '/blue_animation/blue_animated.webp',
-});
-export const gallery_pictures = [
-    journey,
-    sq,
-    daloras,
-    sneakers_poster,
-    sneakers_logo,
-    sneakers_banner,
-    dino_cafe,
-    blue,
+
+export const gallery = [
+    { slug: 'thats_what_journey_means', src: '/thats_what_journey_means/pride.png' },
+    { slug: 'sq', src: '/sq/sq_heart.webp' },
+    { slug: 'daloras', src: '/daloras/daloras_cards.webp' },
+    {
+        slug: 'sneakers_bros',
+        src: '/sneakers_bros/sneakers_photos.webp',
+        alt: 'brand names and two photos of people in sneakers',
+    },
+    { slug: 'sneakers_bros', src: '/sneakers_bros/sneakers_logo.png' },
+    {
+        slug: 'sneakers_bros',
+        src: '/sneakers_bros/sneakers_banner.webp',
+        alt: "wide sneakers bro's banner with the logo and sneaker photos",
+    },
+    { slug: 'dino_cafe', src: '/dino_cafe/dino_logo.webp', full: '/dino_cafe/dino_logo_animated.webp' },
+    { slug: 'blue_animation', src: '/blue_animation/blue.webp', full: '/blue_animation/blue_animated.webp' },
 ];
-export const gallery_layouts = {
+
+export const gallery_rows = {
     wide: [
-        [journey, sq, daloras, sneakers_poster, sneakers_logo],
-        [sneakers_banner, dino_cafe, blue],
+        ['pride', 'sq_heart', 'daloras_cards', 'sneakers_photos', 'sneakers_logo'],
+        ['sneakers_banner', 'dino_logo', 'blue'],
     ],
     compact: [
-        [journey, sq, daloras],
-        [sneakers_banner, dino_cafe],
-        [sneakers_poster, sneakers_logo, blue],
+        ['pride', 'sq_heart', 'daloras_cards'],
+        ['sneakers_banner', 'dino_logo'],
+        ['sneakers_photos', 'sneakers_logo', 'blue'],
     ],
 };

@@ -1,30 +1,10 @@
 node_modules
 .backups/
-playwright-report/
-test-results/
-
-# Output
-.output
-.vercel
-.netlify
+.claude
+.svelte-kit
 .wrangler
-/.svelte-kit
-/build
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Env
 .env
 .env.*
-!.env.example
-!.env.test
-
-# Local tooling, and Cloudflare's generated types (made by `npm run gen`, and by every build)
-.claude
-worker-configuration.d.ts
-
-# Vite
+.DS_Store
+Thumbs.db
 vite.config.js.timestamp-*
-vite.config.ts.timestamp-*

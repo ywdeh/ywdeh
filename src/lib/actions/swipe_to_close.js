@@ -1,12 +1,21 @@
-import { reduced_motion } from '$lib/motion/settings.js';
+import { reduced_motion } from '$lib/motion/timing.js';
+
 const LEAVE_SHARE = 0.3;
 const FLICK_SPEED = 0.5;
 const FLICK_MIN = 40;
-export function swipe_to_close(panel, options) {
-    let { onclose, enabled = true } = options;
+
+export function swipe_to_close(panel, onclose) {
     let swipe = null;
+
+    const distance = () => Math.max(0, swipe.last_x - swipe.start_x);
+
+    function end() {
+        swipe = null;
+        panel.classList.remove('is_swiping');
+    }
+
     function pointerdown(event) {
-        if (!enabled || event.pointerType !== 'touch' || !event.isPrimary) return;
+        if (event.pointerType !== 'touch' || !event.isPrimary) return;
         if (event.target.closest('[data-own-swipe]')) return;
         swipe = {
             id: event.pointerId,
@@ -16,6 +25,7 @@ export function swipe_to_close(panel, options) {
             speed: 0,
         };
     }
+
     function pointermove(event) {
         if (swipe?.id !== event.pointerId) return;
         const elapsed = event.timeStamp - swipe.last_time;
@@ -25,44 +35,31 @@ export function swipe_to_close(panel, options) {
         panel.classList.add('is_swiping');
         panel.style.translate = `${distance()}px 0`;
     }
+
     function pointerup(event) {
         if (swipe?.id !== event.pointerId) return;
         const pulled = distance();
         const leaves =
             pulled > panel.offsetWidth * LEAVE_SHARE || (pulled > FLICK_MIN && swipe.speed > FLICK_SPEED);
-        swipe = null;
-        panel.classList.remove('is_swiping');
-        if (leaves) {
-            if (reduced_motion()) panel.style.translate = '';
-            onclose();
-        } else {
-            spring_back();
-        }
+        end();
+        if (!leaves || reduced_motion()) panel.style.translate = '';
+        if (leaves) onclose();
     }
+
     function pointercancel(event) {
         if (swipe?.id !== event.pointerId) return;
-        swipe = null;
-        panel.classList.remove('is_swiping');
-        spring_back();
-    }
-    function distance() {
-        return Math.max(0, swipe.last_x - swipe.start_x);
-    }
-    function spring_back() {
+        end();
         panel.style.translate = '';
     }
+
     const listeners = new AbortController();
-    const signal = listeners.signal;
-    panel.addEventListener('pointerdown', pointerdown, { signal });
-    panel.addEventListener('pointermove', pointermove, { signal });
-    panel.addEventListener('pointerup', pointerup, { signal });
-    panel.addEventListener('pointercancel', pointercancel, { signal });
+    const options = { signal: listeners.signal };
+    panel.addEventListener('pointerdown', pointerdown, options);
+    panel.addEventListener('pointermove', pointermove, options);
+    panel.addEventListener('pointerup', pointerup, options);
+    panel.addEventListener('pointercancel', pointercancel, options);
     return {
-        update(next) {
-            ({ onclose, enabled = true } = next);
-        },
-        destroy() {
-            listeners.abort();
-        },
+        update: (next) => (onclose = next),
+        destroy: () => listeners.abort(),
     };
 }

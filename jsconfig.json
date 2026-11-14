@@ -3,7 +3,6 @@
     "compilerOptions": {
         "allowJs": true,
         "checkJs": false,
-        "moduleResolution": "bundler",
-        "types": ["./worker-configuration.d.ts"]
+        "moduleResolution": "bundler"
     }
 }

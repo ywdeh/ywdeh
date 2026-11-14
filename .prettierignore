@@ -3,8 +3,6 @@
 .wrangler
 node_modules
 static
-test-results
 package-lock.json
-worker-configuration.d.ts
-src/lib/media/image_data.js
+src/lib/media/manifest.js
 license.md

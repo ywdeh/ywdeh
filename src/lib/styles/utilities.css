@@ -1,42 +1,84 @@
-@utility fg-soft {
-    opacity: 0.6;
+@utility text-intro {
+    font-family: var(--font-hand);
+    max-width: 100%;
+    font-size: clamp(2.25rem, 10vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    @variant md {
+        max-width: var(--container-3xl);
+        font-size: var(--text-7xl);
+        letter-spacing: -3px;
+    }
 }
 
-@utility fg-muted {
-    opacity: 0.4;
+@utility text-title {
+    font-size: var(--text-xl);
+    line-height: var(--text-xl--line-height);
+    @variant md {
+        font-size: var(--text-2xl);
+        line-height: var(--text-2xl--line-height);
+    }
 }
 
-@utility fg-faint {
-    opacity: 0.3;
+@utility text-heading {
+    font-size: var(--text-2xl);
+    line-height: var(--text-2xl--line-height);
+    opacity: 0.8;
+}
+
+@utility text-body {
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height);
+}
+
+@utility text-ui {
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    @variant md {
+        font-size: var(--text-base);
+        line-height: var(--text-base--line-height);
+    }
+}
+
+@utility ink-soft {
+    opacity: var(--tone-soft);
+}
+
+@utility ink-muted {
+    opacity: var(--tone-muted);
+}
+
+@utility ink-faint {
+    opacity: var(--tone-faint);
 }
 
 @utility link-quiet {
-    opacity: 0.3;
+    opacity: var(--tone-faint);
     &:focus-visible {
-        opacity: 0.9;
+        opacity: var(--tone-hover);
     }
     @media (hover: hover) {
         &:hover {
-            opacity: 0.9;
+            opacity: var(--tone-hover);
         }
     }
     &:is(:active, .is_pressed) {
-        opacity: 0.3;
+        opacity: var(--tone-faint);
     }
 }
 
 @utility link-soft {
-    opacity: 0.6;
+    opacity: var(--tone-soft);
     &:focus-visible {
-        opacity: 0.9;
+        opacity: var(--tone-hover);
     }
     @media (hover: hover) {
         &:hover {
-            opacity: 0.9;
+            opacity: var(--tone-hover);
         }
     }
     &:is(:active, .is_pressed) {
-        opacity: 0.6;
+        opacity: var(--tone-soft);
     }
 }
 
@@ -50,4 +92,11 @@
             inset-inline: min(0px, calc(50% - 1.375rem));
         }
     }
+}
+
+@utility tinted {
+    --tint-glow: oklch(from var(--tint, oklch(20.5% 0.004 325.6)) calc(l + 0.2) calc(c* 1.5) h / 12%);
+    --tint-ink: oklch(
+        from var(--tint, oklch(70% 0.01 325.6)) clamp(0.85, l, 0.9) max(calc(c* 0.55), 0.015) h
+    );
 }

@@ -1,20 +1,24 @@
-import { reduced_motion } from './settings.js';
-export function reveal_intro({ main, identity, content, ready }) {
+import { reduced_motion } from './timing.js';
+
+export function reveal_intro({ page, identity, content, ready }) {
     let disposed = false;
+    let finished = false;
     let context;
     let split;
-    let finished = false;
+
     const finish = () => {
         if (disposed || finished) return;
         finished = true;
         ready();
     };
-    const show = () => {
+
+    const show_now = () => {
         if (disposed) return;
-        for (const node of [main, identity, content]) node.style.opacity = '1';
+        for (const node of [page, identity, content]) node.style.opacity = '1';
         finish();
     };
-    if (reduced_motion()) show();
+
+    if (reduced_motion()) show_now();
     else {
         Promise.all([import('gsap'), import('gsap/SplitText')])
             .then(([{ gsap }, { SplitText }]) => {
@@ -32,8 +36,8 @@ export function reveal_intro({ main, identity, content, ready }) {
                             onComplete: finish,
                         });
                     };
-                    gsap.to(main, { opacity: 1, duration: 0.7, ease: 'power2.inOut' });
-                    split = SplitText.create(main.querySelector('.split'), {
+                    gsap.to(page, { opacity: 1, duration: 0.7, ease: 'power2.inOut' });
+                    split = SplitText.create(page.querySelector('[data-split]'), {
                         type: 'lines',
                         autoSplit: true,
                         onSplit: (self) =>
@@ -49,10 +53,11 @@ export function reveal_intro({ main, identity, content, ready }) {
                                 },
                             }),
                     });
-                }, main);
+                }, page);
             })
-            .catch(show);
+            .catch(show_now);
     }
+
     return () => {
         disposed = true;
         split?.revert();

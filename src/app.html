@@ -1,17 +1,16 @@
 <!doctype html>
-
-<html lang="en" class="selection:bg-mauve-100/20 cursor-default">
+<html lang="en">
     <head>
-        <title>hedwy</title>
-        <link rel="icon" href="/pfp.png" />
-
         <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="text-scale" content="scale" />
+        <title>hedwy</title>
         <meta
             name="description"
             content="Every project has a feeling it's reaching for. I help that feeling become visible - in web, game UIs, branding, and anywhere else"
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="text-scale" content="scale" />
+        <link rel="icon" href="/avatar.png" />
+        <link rel="canonical" href="https://hedwy.art" />
 
         <meta property="og:title" content="hedwy. graphic and visual design" />
         <meta property="og:site_name" content="hedwy" />
@@ -19,21 +18,9 @@
             property="og:description"
             content="Every project has a feeling it's reaching for. I help that feeling become visible - in web, game UIs, branding, and anywhere else"
         />
-        <meta property="og:image" content="https://hedwy.art/meta_pic.png" />
+        <meta property="og:image" content="https://hedwy.art/share.png" />
         <meta property="og:url" content="https://hedwy.art" />
         <meta property="og:type" content="website" />
-        <link rel="canonical" href="https://hedwy.art" />
-
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-6Z398VFK68"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag() {
-                dataLayer.push(arguments);
-            }
-            gtag('js', new Date());
-
-            gtag('config', 'G-6Z398VFK68');
-        </script>
 
         <link rel="preload" href="/fonts/yuyu_latin.woff2" as="font" type="font/woff2" crossorigin />
         <link
@@ -44,14 +31,20 @@
             crossorigin
         />
 
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-6Z398VFK68"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', 'G-6Z398VFK68');
+        </script>
+
         %sveltekit.head%
     </head>
 
-    <body
-        data-sveltekit-preload-data="hover"
-        ontouchstart=""
-        class="font-sans font-light bg-neutral-900 text-mauve-100"
-    >
+    <body data-sveltekit-preload-data="hover" ontouchstart="">
         <div style="display: contents">%sveltekit.body%</div>
     </body>
 </html>

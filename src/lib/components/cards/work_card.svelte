@@ -1,74 +1,69 @@
 <script>
     import { center_reveal } from '$lib/actions/center_reveal.js';
-    import { press_release } from '$lib/actions/press_release.js';
-    import { image_color } from '$lib/media/image_source.js';
+    import { press } from '$lib/actions/press.js';
+    import { spring_pan } from '$lib/controllers/spring_pan.svelte.js';
+    import { image_color, image_info } from '$lib/media/images.js';
     import { queued } from '$lib/media/load_queue.js';
-    import { image_pan } from '$lib/controllers/image_pan.svelte.js';
-    import { reduced_motion } from '$lib/motion/settings.js';
-    import Artwork from '$lib/components/media/artwork.svelte';
-    import HoverBadge from '$lib/components/cards/hover_badge.svelte';
+    import { reduced_motion, TOUCH_LINGER_MS } from '$lib/motion/timing.js';
+    import HoverBadge from '$lib/components/ui/hover_badge.svelte';
+
     let {
+        kind = 'case',
         src,
         thumbnail = src,
         alt,
         title,
         client,
-        reading_minutes,
-        left = false,
-        image_only = false,
-        width,
-        height,
+        minutes,
+        pan = false,
         onclick,
         preload,
     } = $props();
-    let card_element = $state();
-    let figure_element = $state();
-    let is_centered = $state(false);
-    let is_hovered = $state(false);
-    let is_focused = $state(false);
-    const show_full = $derived(is_centered || is_hovered || is_focused);
-    const shown = $derived(show_full ? src : thumbnail);
-    const pan = image_pan();
-    const TOUCH_LINGER_MS = 300;
+
+    const STAGGER_MS = 120;
+    const picture = $derived(kind === 'picture');
+    const info = $derived(image_info(thumbnail));
+    const spring = spring_pan();
+
+    let figure;
+    let trigger;
+    let centered = $state(false);
+    let hovered = $state(false);
+    let focused = $state(false);
+    let stagger = $state(0);
     let touch_idle;
+
+    const in_color = $derived(centered || hovered || focused);
+    const shown = $derived(in_color ? src : thumbnail);
+
     function hover_start() {
-        is_hovered = true;
+        hovered = true;
         stagger = 0;
         preload?.();
-        if (left && !reduced_motion()) pan.hold(card_element);
+        if (pan && !reduced_motion()) spring.hold(trigger);
     }
+
     function hover_end() {
-        is_hovered = false;
-        pan.reset();
+        hovered = false;
+        spring.reset();
     }
-    function touch_start() {
-        clearTimeout(touch_idle);
-        hover_start();
-    }
-    function touch_end(delay) {
+
+    function linger(delay) {
         clearTimeout(touch_idle);
         touch_idle = setTimeout(hover_end, delay);
     }
-    function follow_pointer(event) {
-        if (image_only || !left || event.pointerType !== 'mouse') return;
-        const card = event.currentTarget;
-        const bounds = card.getBoundingClientRect();
-        if (!bounds.width || !bounds.height) return;
+
+    function follow(event) {
+        if (!pan || event.pointerType !== 'mouse') return;
+        const bounds = event.currentTarget.getBoundingClientRect();
+        if (!bounds.width) return;
         const x = (event.clientX - bounds.left) / bounds.width;
-        pan.to(Math.min(100, Math.max(0, ((x - 0.2) / 0.6) * 100)));
+        spring.to(Math.min(100, Math.max(0, ((x - 0.2) / 0.6) * 100)));
     }
-    $effect(() => () => {
-        clearTimeout(touch_idle);
-    });
-    const STAGGER_MS = 120;
-    let stagger = $state(0);
-    function centered(value) {
-        stagger = column_in_row() * STAGGER_MS;
-        is_centered = value;
-    }
+
     function column_in_row() {
-        const item = figure_element?.closest('.gallery_item') ?? figure_element;
-        if (!item?.parentElement) return 0;
+        const item = figure.closest('.gallery_item') ?? figure;
+        if (!item.parentElement) return 0;
         const { top, left } = item.getBoundingClientRect();
         let column = 0;
         for (const sibling of item.parentElement.children) {
@@ -78,86 +73,83 @@
         }
         return column;
     }
+
+    function reveal(value) {
+        stagger = column_in_row() * STAGGER_MS;
+        centered = value;
+    }
+
+    $effect(() => () => clearTimeout(touch_idle));
 </script>
 
 <figure
-    bind:this={figure_element}
-    onpointerenter={(event) => {
-        if (event.pointerType === 'mouse') hover_start();
-    }}
-    onpointerleave={(event) => {
-        if (event.pointerType === 'mouse') hover_end();
-    }}
+    bind:this={figure}
+    class="work_card tinted relative"
+    class:hovered
+    style:--tint={image_color(src) ?? image_color(thumbnail)}
+    onpointerenter={(event) => event.pointerType === 'mouse' && hover_start()}
+    onpointerleave={(event) => event.pointerType === 'mouse' && hover_end()}
     onpointerdown={(event) => {
-        if (event.pointerType !== 'mouse') touch_start();
+        if (event.pointerType === 'mouse') return;
+        clearTimeout(touch_idle);
+        hover_start();
     }}
-    onpointerup={(event) => {
-        if (event.pointerType !== 'mouse') touch_end(TOUCH_LINGER_MS);
-    }}
-    onpointercancel={(event) => {
-        if (event.pointerType !== 'mouse') touch_end(0);
-    }}
-    onpointermove={follow_pointer}
-    style:--live-img-avg={image_color(src) ?? image_color(thumbnail)}
-    class:hovered={is_hovered}
-    class="has_badge group relative"
+    onpointerup={(event) => event.pointerType !== 'mouse' && linger(TOUCH_LINGER_MS)}
+    onpointercancel={(event) => event.pointerType !== 'mouse' && linger(0)}
+    onpointermove={follow}
 >
     <button
         type="button"
-        bind:this={card_element}
-        use:center_reveal={centered}
-        use:press_release={'.card_preview'}
+        bind:this={trigger}
+        use:center_reveal={reveal}
+        use:press={{ target: '.preview' }}
         onfocus={() => {
-            is_focused = true;
+            focused = true;
             stagger = 0;
             preload?.();
         }}
-        onblur={() => (is_focused = false)}
+        onblur={() => (focused = false)}
         onpointerdown={preload}
         {onclick}
-        aria-label={image_only ? title + ' — ' + client : undefined}
-        class="card_trigger relative z-10 flex w-full flex-col gap-copy text-left text-ui"
+        aria-label={picture ? `${title} — ${client}` : undefined}
+        class="trigger own_outline relative z-10 flex w-full flex-col gap-copy text-left text-ui"
     >
-        <div class="relative">
-            <Artwork class="card_preview overflow-hidden rounded-card" src={thumbnail}>
+        <span class="relative block">
+            <span class="preview frame block overflow-hidden rounded-card bg-placeholder">
                 <img
                     use:queued={shown}
-                    decoding="async"
                     {alt}
-                    {width}
-                    {height}
+                    width={info?.width}
+                    height={info?.height}
+                    decoding="async"
                     draggable="false"
-                    class="w-full object-cover {image_only ? 'h-auto' : 'aspect-4/3'}"
-                    class:object-center={!left}
-                    class:pannable={left}
-                    class:in_color={show_full}
-                    style:--stagger={stagger + 'ms'}
-                    style:aspect-ratio={image_only ? width / height : undefined}
-                    style:object-position={left ? `${pan.position}% center` : undefined}
+                    class="block w-full object-cover"
+                    class:pannable={pan}
+                    class:in_color
+                    style:aspect-ratio={picture && info ? `${info.width} / ${info.height}` : '4 / 3'}
+                    style:object-position={pan ? `${spring.position}% center` : 'center'}
+                    style:--stagger="{stagger}ms"
                 />
-            </Artwork>
+            </span>
+            <HoverBadge kind={picture ? 'zoom' : 'open'} />
+        </span>
 
-            <HoverBadge kind={image_only ? 'zoom' : 'open'} />
-        </div>
-
-        {#if image_only}
-            <p class="card_caption gallery_caption live_tint fg-muted truncate">
+        {#if picture}
+            <span class="caption fades live_tint ink-muted block truncate">
                 {client === 'personal' ? title : client}
-            </p>
+            </span>
         {:else}
-            <div class="card_caption flex justify-between gap-copy">
-                <h3 class="live_tint truncate">{title}</h3>
-                {#if reading_minutes}
-                    <p class="reading_label live_tint fg-muted whitespace-nowrap">
-                        <span>{client}</span>
-                        <span class="reading_time" aria-label={`approximately ${reading_minutes} minute read`}
-                            >~{reading_minutes}m</span
+            <span class="caption flex justify-between gap-copy">
+                <span class="live_tint truncate">{title}</span>
+                <span class="reading live_tint ink-muted whitespace-nowrap">
+                    <span>{client}</span>
+                    {#if minutes}
+                        <span class="minutes" aria-label="approximately {minutes} minute read"
+                            >~{minutes}m</span
                         >
-                    </p>
-                {:else}
-                    <p class="live_tint fg-muted whitespace-nowrap">{client}</p>
-                {/if}
-            </div>
+                    {/if}
+                </span>
+            </span>
         {/if}
     </button>
 </figure>
@@ -169,115 +161,130 @@
         inset: 0;
         z-index: 0;
         border-radius: var(--radius-card);
-        background: var(--avg-outline);
+        background: var(--tint-glow);
         opacity: 0;
         pointer-events: none;
     }
+
     figure:is(.hovered, :focus-within)::before {
         opacity: 1;
         inset: calc(-1 * var(--outline-spread));
-        border-radius: var(--radius-outline);
+        border-radius: calc(var(--radius-card) + var(--outline-spread));
     }
-    figure:has(> .card_trigger:is(:active, :global(.is_pressed)))::before {
+
+    figure:has(> .trigger:is(:active, :global(.is_pressed)))::before {
         opacity: 1;
         inset: calc(-1 * var(--outline-press));
         border-radius: calc(var(--radius-card) + var(--outline-press));
     }
-    .card_trigger :global(.card_preview) {
+
+    .preview {
         clip-path: inset(0 round var(--radius-card));
     }
-    .card_trigger:is(:active, :global(.is_pressed)) :global(.card_preview) {
+
+    .trigger:is(:active, :global(.is_pressed)) .preview {
         clip-path: inset(var(--press-inset) round var(--radius-card));
     }
-    .card_trigger:is(:active, :global(.is_pressed)) img {
-        padding: var(--press-inset);
-    }
-    .card_trigger:is(:active, :global(.is_pressed)) .card_caption {
-        padding-inline: var(--press-inset);
-        translate: 0 calc(-1 * var(--press-inset));
-    }
+
     img {
         filter: saturate(0) sepia(0.1);
     }
+
     img.in_color,
     figure:is(.hovered, :focus-within) img,
-    .card_trigger:is(:active, :global(.is_pressed)) img {
+    .trigger:is(:active, :global(.is_pressed)) img {
         filter: none;
     }
-    figure:is(.hovered, :focus-within) .live_tint,
-    .card_trigger:is(:active, :global(.is_pressed)) .live_tint {
-        color: var(--avg-text);
+
+    .trigger:is(:active, :global(.is_pressed)) img {
+        padding: var(--press-inset);
     }
-    figure:is(.hovered, :focus-within) .gallery_caption,
-    figure:has(> .card_trigger:is(:active, :global(.is_pressed))) .gallery_caption {
+
+    .trigger:is(:active, :global(.is_pressed)) .caption {
+        padding-inline: var(--press-inset);
+        translate: 0 calc(-1 * var(--press-inset));
+    }
+
+    figure:is(.hovered, :focus-within) .live_tint,
+    .trigger:is(:active, :global(.is_pressed)) .live_tint {
+        color: var(--tint-ink);
+    }
+
+    figure:is(.hovered, :focus-within) .fades,
+    figure:has(> .trigger:is(:active, :global(.is_pressed))) .fades {
         opacity: 1;
     }
-    .reading_label {
-        --reading-space: calc(3ch + var(--spacing) * 2);
-        display: flex;
-        align-items: center;
-        flex-shrink: 0;
+
+    .reading {
         position: relative;
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
     }
-    .reading_time {
+
+    .minutes {
         position: absolute;
         right: 0;
         opacity: 0;
         translate: 0.5rem;
     }
-    figure:is(.hovered, :focus-within) .reading_label {
-        padding-right: var(--reading-space);
+
+    figure:is(.hovered, :focus-within) .reading:has(.minutes) {
+        padding-right: calc(3ch + var(--spacing-inline));
     }
-    figure:is(.hovered, :focus-within) .reading_time {
+
+    figure:is(.hovered, :focus-within) .minutes {
         opacity: 1;
         translate: 0;
     }
 
     @media (prefers-reduced-motion: no-preference) {
-        .reading_time {
-            transition:
-                opacity var(--press-time) var(--press-ease),
-                translate var(--press-time) var(--press-ease);
-        }
         figure::before {
             transition:
-                opacity var(--press-time) ease-in-out,
-                inset var(--press-time) var(--press-ease),
-                border-radius var(--press-time) var(--press-ease);
+                opacity var(--duration-press) var(--ease-press),
+                inset var(--duration-press) var(--ease-press),
+                border-radius var(--duration-press) var(--ease-press);
         }
-        .card_trigger :global(.card_preview) {
-            transition: clip-path var(--press-time) var(--press-ease);
+
+        .preview {
+            transition: clip-path var(--duration-press) var(--ease-press);
         }
+
         img {
             transition:
-                filter 400ms var(--stagger, 0ms),
-                object-position 400ms,
-                padding var(--press-time) var(--press-ease);
+                filter var(--duration-tint) var(--stagger, 0ms),
+                object-position var(--duration-tint),
+                padding var(--duration-press) var(--ease-press);
         }
+
         img.pannable {
             transition:
-                filter 400ms var(--stagger, 0ms),
-                padding var(--press-time) var(--press-ease);
+                filter var(--duration-tint) var(--stagger, 0ms),
+                padding var(--duration-press) var(--ease-press);
         }
-        .card_caption {
+
+        .caption {
             transition:
-                padding-inline var(--press-time) var(--press-ease),
-                translate var(--press-time) var(--press-ease);
+                padding-inline var(--duration-press) var(--ease-press),
+                translate var(--duration-press) var(--ease-press),
+                opacity var(--duration-press),
+                color var(--duration-press);
         }
+
         .live_tint {
-            transition: color var(--press-time);
+            transition: color var(--duration-press);
         }
-        .reading_label.live_tint {
+
+        .reading {
             transition:
-                padding-right var(--press-time) var(--press-ease),
-                color var(--press-time);
+                padding-right var(--duration-press) var(--ease-press),
+                color var(--duration-press);
         }
-        .card_caption.live_tint {
+
+        .minutes {
             transition:
-                padding-inline var(--press-time) var(--press-ease),
-                translate var(--press-time) var(--press-ease),
-                opacity var(--press-time),
-                color var(--press-time);
+                opacity var(--duration-press) var(--ease-press),
+                translate var(--duration-press) var(--ease-press);
         }
     }
 </style>
