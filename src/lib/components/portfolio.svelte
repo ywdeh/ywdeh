@@ -127,7 +127,7 @@
 {/snippet}
 
 <section bind:this={main_section} inert={!!(gallery_slug || active_scenario_slug)}
-    class="page_scroll w-full px-page py-page-y opacity-0">
+    class="page w-full px-page py-page-y opacity-0">
     <div class="flex w-full flex-col gap-section">
         <div bind:this={identity} class="site_identity opacity-0">
             <Header part="identity" />
@@ -146,7 +146,7 @@
                 </nav>
 
                 <div class="personal_projects relative isolate">
-                    <Category title="personal projects" anchor="personal-projects">
+                    <Category title="personal projects" anchor="personal-projects" columns={2}>
                         <ProjectCard name="Patter" href="https://patter.hedwy.art" year="2026" color="#b3b66a">
                             <p>patter is an immersive text editor, free from advanced features and heavy ui, but with a lot of ambient customization options: background pictures, cinematic grain, blur and tint, ambient sounds, fonts, and other visual details</p>
                             <p>built with sveltekit, tailwind, and html/css/js</p>

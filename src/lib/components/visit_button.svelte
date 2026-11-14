@@ -20,6 +20,9 @@
         opacity: 0.8;
         transition: opacity var(--press-time) var(--ease-out), background-color var(--press-time) var(--ease-out);
     }
-    .visit_button:hover, .visit_button:focus-visible { opacity: 1; background: oklch(from var(--focus-tint) l c h / 20%); }
+    .visit_button:focus-visible { opacity: 1; background: oklch(from var(--focus-tint) l c h / 20%); }
+    @media (hover: hover) {
+        .visit_button:hover { opacity: 1; background: oklch(from var(--focus-tint) l c h / 20%); }
+    }
     .visit_button:is(:active, :global(.is_pressed)) { opacity: 0.8; }
 </style>

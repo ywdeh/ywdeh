@@ -67,15 +67,18 @@
 @utility fg-muted { opacity: 0.4; } /* meta: clients, stacks, captions */
 @utility fg-faint { opacity: 0.3; } /* the quiet half of the intro, resting links */
 
-/* links that brighten under the pointer or focus, and settle back to rest while pressed */
+/* links that brighten under the pointer or focus, and settle back to rest while pressed (hover only
+   where there's a real pointer: on a phone a tap would leave it stuck bright) */
 @utility link-quiet {
     opacity: 0.3;
-    &:hover, &:focus-visible { opacity: 0.9; }
+    &:focus-visible { opacity: 0.9; }
+    @media (hover: hover) { &:hover { opacity: 0.9; } }
     &:is(:active, .is_pressed) { opacity: 0.3; }
 }
 @utility link-soft {
     opacity: 0.6;
-    &:hover, &:focus-visible { opacity: 0.9; }
+    &:focus-visible { opacity: 0.9; }
+    @media (hover: hover) { &:hover { opacity: 0.9; } }
     &:is(:active, .is_pressed) { opacity: 0.6; }
 }
 
@@ -117,16 +120,32 @@
     initial-value: #ffffff;
 }
 
-/* ── the page's own scroll area ──
-   Sized to the visible viewport (dvh), so on phones it ends where the browser's toolbar begins instead of
-   running underneath it. Its top and bottom edges fade into the background: a mask on the scroller
-   itself, so the fade always sits exactly at its edges. */
-.page_scroll {
-    --edge-fade: clamp(1.25rem, 2vw + 0.5rem, 2rem);
-    height: 100dvh;
-    overflow-x: hidden;
-    overflow-y: auto;
-    mask-image: linear-gradient(to bottom, transparent, #000 var(--edge-fade), #000 calc(100% - var(--edge-fade)), transparent);
+/* ── the page ──
+   The window scrolls it, so phones behave the way they do everywhere else: Safari's toolbar shrinks away
+   as you scroll, and tapping the status bar goes back to the top. */
+html { scrollbar-gutter: stable; } /* the page doesn't shift when the scrollbar comes and goes */
+.page {
+    min-height: 100dvh;
+    overflow-x: clip;
+}
+/* an open case study or picture holds the page still behind it */
+html:has([role="dialog"]) { overflow: hidden; }
+
+/* On larger screens the window's top and bottom edges fade into the background: two strips of the
+   background color fading to clear, fixed over the edges. Phones go without: there the browser's own
+   toolbars already frame the page, and a fade under them looks out of place. */
+@media (width >= 48rem) {
+    .page::before, .page::after {
+        --edge-fade: clamp(1.25rem, 2vw + 0.5rem, 2rem);
+        content: "";
+        position: fixed;
+        inset-inline: 0;
+        z-index: 60; /* over the page's cards, under the case study panel and image viewer */
+        height: var(--edge-fade);
+        pointer-events: none;
+    }
+    .page::before { top: 0; background: linear-gradient(to bottom, var(--color-neutral-900), transparent); }
+    .page::after { bottom: 0; background: linear-gradient(to top, var(--color-neutral-900), transparent); }
 }
 
 /* ── pictures loading in turn (src/lib/load_queue.js) ──
@@ -155,6 +174,11 @@ img.is_waiting { opacity: 0; }
 
 @layer base {
     :where(body, body *) { cursor: inherit; }
+
+    /* phones: no grey/blue flash over whatever is tapped (the site has its own press feedback), and holding
+       a finger on a card presses it instead of starting a text selection or a callout menu */
+    :where(html) { -webkit-tap-highlight-color: transparent; }
+    :where(button) { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 
     /* the ring's outer corner (radius + spread) matches the card outline; anything with its own
        rounded-* utility keeps that instead */

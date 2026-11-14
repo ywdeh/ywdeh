@@ -61,7 +61,7 @@
 <div class="flex flex-col gap-row">
     <!-- the viewport clips its slides, so the zoom badge hangs off this wrapper instead -->
     <div class="slider_frame relative" class:has_badge={!!open_image} style:--live-img-avg={image_color(pictures[active_index]?.src)}>
-        <button type="button" aria-label="Enlarge current image"
+        <button type="button" aria-label="Enlarge current image" data-own-swipe
             use:release_image
             bind:this={container}
             bind:clientWidth={container_width}
@@ -122,7 +122,10 @@
     /* thumbnails: the current one is full and ringed (a ring's corners follow the card's on their own),
        the rest rest at the soft tone */
     .gallery_thumbnail { opacity: 0.6; }
-    .gallery_thumbnail:hover, .gallery_thumbnail[aria-current="true"] { opacity: 1; }
+    .gallery_thumbnail[aria-current="true"] { opacity: 1; }
+    @media (hover: hover) {
+        .gallery_thumbnail:hover { opacity: 1; }
+    }
     .gallery_thumbnail[aria-current="true"] { box-shadow: 0 0 0 4px oklch(from var(--color-mauve-100) l c h / 5%); }
     .gallery_thumbnail :global(.gallery_thumbnail_image) { clip-path: inset(0 round var(--radius-card)); }
     .gallery_thumbnail:is(:active, :global(.is_pressed)) :global(.gallery_thumbnail_image) { clip-path: inset(var(--press-inset) round var(--radius-card)); }

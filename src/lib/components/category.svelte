@@ -1,7 +1,8 @@
 <script>
     import DividerStars from "./divider_stars.svelte";
     import HandLine from "./hand_line.svelte";
-    let { children, title, anchor } = $props();
+    // columns: how many cards share a row on wide screens (2 or 3); phones always stack them
+    let { children, title, anchor, columns = 3 } = $props();
 
     // each section's divider gets its own hand-placed stars, so no two look stamped out of one mold
     const stars = {
@@ -40,7 +41,7 @@
         </div>
     </div>
 
-    <div class="category_grid grid grid-cols-1 gap-card-gap md:grid-cols-2 lg:grid-cols-3">
+    <div class="category_grid grid grid-cols-1 gap-card-gap md:grid-cols-2 {columns === 3 ? 'lg:grid-cols-3' : ''}">
         {@render children?.()}
     </div>
 </div>

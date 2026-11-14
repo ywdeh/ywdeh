@@ -17,9 +17,9 @@ const pending = new Map(); // img → the src it's waiting to load
 const near = new Set(); // waiting pictures near the screen
 const loading = new Map(); // pictures whose turn it is → their stall timer
 
-// the page and the case study panel each scroll on their own, so "near the screen" is measured against
+// the window and the case study panel each scroll on their own, so "near the screen" is measured against
 // whichever one a picture is in (a margin only reaches past its own observer's edges)
-const observers = new WeakMap(); // scroller (or the document) → its observer
+const observers = new WeakMap(); // the panel (or the document, for the window) → its observer
 const watched_by = new Map(); // img → the observer watching it
 
 function on_change(entries) {
@@ -31,7 +31,7 @@ function on_change(entries) {
 }
 
 function watch(image) {
-    const root = image.closest('.page_scroll, [role="dialog"]');
+    const root = image.closest('[role="dialog"]');
     const key = root ?? document;
     if (!observers.has(key)) observers.set(key, new IntersectionObserver(on_change, { root, rootMargin: NEAR_SCREEN }));
     watched_by.set(image, observers.get(key));

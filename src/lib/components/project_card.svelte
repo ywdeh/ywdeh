@@ -37,9 +37,30 @@
         return `M${gap.start} 395L16 395Q4 395 5 382C8 270 2 140 5 18Q5 5 16 5C180 2 300 8 500 5S820 3 984 5Q996 5 995 18C993 130 998 265 995 ${382 + 13 * p - fy - jy}Q995 ${top - jy} ${right} ${top - jy}${diagonal}L${gap.end} 395${p > 0.001 ? crease : ''}`;
     });
 
+    // a mouse over a link, or a finger on it, folds the corner and tints the card. A finger works from the
+    // touch itself: on iPhone, reacting to the "mouse enter" Safari fakes after a tap makes it take the
+    // tap for a hover and the link doesn't open
+    const TOUCH_LINGER_MS = 300; // after lifting, the fold stays while the press plays out
+    let link_hovered = $state(false);
+    let touch_idle;
+
     function set_fold(active) {
+        clearTimeout(touch_idle);
+        link_hovered = active;
         fold.set(active ? 1 : 0, { duration: reduced_motion() ? 0 : css_time(card, '--press-time') });
     }
+
+    const link_events = {
+        onpointerenter: (event) => { if (event.pointerType === 'mouse') set_fold(true); },
+        onpointerleave: (event) => { if (event.pointerType === 'mouse') set_fold(false); },
+        onpointerdown: (event) => { if (event.pointerType !== 'mouse') set_fold(true); },
+        // lifted (lingers a moment) or turned into a scroll (unfolds at once)
+        onpointerup: (event) => {
+            if (event.pointerType !== 'mouse') touch_idle = setTimeout(() => set_fold(false), TOUCH_LINGER_MS);
+        },
+        onpointercancel: (event) => { if (event.pointerType !== 'mouse') set_fold(false); },
+    };
+    $effect(() => () => clearTimeout(touch_idle));
 
     function measure_outline(node) {
         const link = node.querySelector('.project_links');
@@ -60,7 +81,7 @@
     }
 </script>
 
-<article bind:this={card} use:measure_outline style:--live-img-avg={color}
+<article bind:this={card} use:measure_outline style:--live-img-avg={color} class:link_hovered
     class="project_entry has_badge relative isolate flex flex-col items-start p-gutter">
     <svg class="project_outline pointer-events-none absolute inset-0 -z-1 h-full w-full"
         viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true">
@@ -103,7 +124,7 @@
         {#each primary_links as link, index (link.href)}
             {#if index > 0}<span class="fg-faint" aria-hidden="true">-</span>{/if}
             <a href={link.href} aria-label={`${name} ${link.label}`} target="_blank"
-                onmouseenter={() => set_fold(true)} onmouseleave={() => set_fold(false)}
+                {...link_events}
                 rel="noopener noreferrer" use:card_release class="arrow_link link-soft flex min-w-0 items-center gap-inline">
                 {link.label}<ArrowIcon />
             </a>
@@ -129,7 +150,9 @@
         /* the links sit across the outline, so leave room for their inward half as well as the gutter */
         padding-bottom: calc(var(--spacing-gutter) + var(--project-link-inset, 21px));
     }
-    .project_entry:has(.project_links a:hover) {
+    /* while a link is under the mouse, or pressed, the card takes on the project's color */
+    .project_entry.link_hovered,
+    .project_entry:has(.project_links a:is(:active, :global(.is_pressed))) {
         --project-tint-color: color-mix(in oklab, var(--color-mauve-100) 55%, var(--avg-text));
     }
     .project_description {

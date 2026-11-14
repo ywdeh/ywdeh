@@ -7,6 +7,7 @@
     import { unzoom_before_close } from "$lib/image_pan_zoom.js";
     import { fly, flight_duration, picture_box, when_painted } from "$lib/image_flight.js";
     import { reduced_motion } from "$lib/motion.js";
+    import { swipe_to_close } from "$lib/swipe_to_close.js";
 
     // origin: for the image viewer, the <img> on the page it was opened from; the picture flies out of that
     // spot to the middle of the screen (and back into it on close), leaving its grey block meanwhile
@@ -174,6 +175,7 @@
         class:z-0={!gallery}
         class:panel={!gallery}
         class="dialog_box flex flex-col overflow-y-auto font-normal scrollbar-none! overscroll-contain {gallery ? 'pointer-events-none absolute inset-0 px-viewer py-(--viewer-gap-y)' : `fixed bg-neutral-900 ${panel_box}`}"
+        use:swipe_to_close={{ onclose: request_close, enabled: !gallery }}
         in:viewer_transition|global={'in'}
         out:viewer_transition|global={'out'}>
         {#if !gallery}
@@ -224,6 +226,9 @@
         stroke-dashoffset: 0;
     }
 
+    /* the case study panel scrolls up and down; sideways moves are its swipe to close */
+    .dialog_box.panel { touch-action: pan-y pinch-zoom; }
+
     @media (prefers-reduced-motion: no-preference) {
         .close_button path {
             transition: stroke-dasharray var(--press-time) var(--press-ease), stroke-dashoffset var(--press-time) var(--press-ease);
@@ -241,6 +246,8 @@
            Uses translate, not transform, so it adds to the slide animation instead of fighting it */
         .dialog_box { transition: translate var(--press-time) var(--press-ease); }
         .overlay_root:has(> .backdrop:active) > .dialog_box.panel { translate: 16px 0; }
+        /* following a finger (swipe_to_close.js): no easing in the way */
+        .dialog_box:global(.is_swiping) { transition: none; }
 
         .close_button:is(:active, :global(.is_pressed)) path {
             stroke-dasharray: 0.6 1;

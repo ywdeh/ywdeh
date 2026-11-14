@@ -223,7 +223,7 @@
     {@const initial_position = single_star ? star_position : index === 0
         ? 'calc(' + star_position + ' - clamp(13px, 1.6vw, 20px))'
         : 'calc(' + star_position + ' + clamp(30px, 3.4vw, 45px))'}
-    <div class="divider_star" class:small={index === 1} class:dragging={drag?.index === index}
+    <div class="divider_star" data-own-swipe class:small={index === 1} class:dragging={drag?.index === index}
         use:measure_star={index}
         style:--star-position={positions[index] === undefined ? initial_position : positions[index] + '%'}
         style:--star-safe-start={start_inset + 'px'}

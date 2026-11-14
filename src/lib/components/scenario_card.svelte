@@ -97,6 +97,37 @@
         pan_frame = requestAnimationFrame(step_pan);
     }
 
+    // ── hover: a mouse over the card, or a finger on it ──
+    // A finger gets the same look as a mouse, but from the touch itself: on iPhone, reacting to the
+    // "mouse enter" Safari fakes after a tap makes it take the tap for a hover and drop the click.
+    const TOUCH_LINGER_MS = 300; // after lifting, the hover look stays while the press plays out
+    let touch_idle;
+
+    function hover_start() {
+        is_hovered = true;
+        stagger = 0; // hover reacts right away
+        preload?.();
+        if (left && !reduced_motion()) hold_pan_for_outline();
+    }
+
+    function hover_end() {
+        is_hovered = false;
+        clearTimeout(pan_delay);
+        pan_ready = true;
+        pan_to(PAN_REST);
+    }
+
+    function touch_start() {
+        clearTimeout(touch_idle);
+        hover_start();
+    }
+
+    // lifted (lingers a moment) or turned into a scroll (ends at once)
+    function touch_end(delay) {
+        clearTimeout(touch_idle);
+        touch_idle = setTimeout(hover_end, delay);
+    }
+
     function follow_pointer(event) {
         if (image_only || !left || event.pointerType !== 'mouse') return;
         const card = event.currentTarget;
@@ -110,6 +141,7 @@
     $effect(() => () => {
         stop_pan_loop();
         clearTimeout(pan_delay);
+        clearTimeout(touch_idle);
     });
 
     // ── color in while crossing the middle of the screen ──
@@ -144,20 +176,14 @@
 
 <figure
     bind:this={figure_element}
-    onmouseenter={() => {
-        is_hovered = true;
-        stagger = 0; // hover reacts right away
-        preload?.();
-        if (left && !reduced_motion()) hold_pan_for_outline();
-    }}
-    onmouseleave={() => {
-        is_hovered = false;
-        clearTimeout(pan_delay);
-        pan_ready = true;
-        pan_to(PAN_REST);
-    }}
+    onpointerenter={(event) => { if (event.pointerType === 'mouse') hover_start(); }}
+    onpointerleave={(event) => { if (event.pointerType === 'mouse') hover_end(); }}
+    onpointerdown={(event) => { if (event.pointerType !== 'mouse') touch_start(); }}
+    onpointerup={(event) => { if (event.pointerType !== 'mouse') touch_end(TOUCH_LINGER_MS); }}
+    onpointercancel={(event) => { if (event.pointerType !== 'mouse') touch_end(0); }}
     onpointermove={follow_pointer}
     style:--live-img-avg={image_color(src) ?? image_color(thumbnail)}
+    class:hovered={is_hovered}
     class="has_badge group relative">
     <button type="button"
         bind:this={card_element}
@@ -218,7 +244,8 @@
 
 <style>
     /* the hover outline: the picture's tint, --outline-spread past the card, its corners following the
-       card's (outer radius = card radius + distance) */
+       card's (outer radius = card radius + distance). "Hovered" is .hovered: a mouse over the card or a
+       finger on it (hover_start), never Safari's leftover hover after a tap */
     figure::before {
         content: "";
         position: absolute;
@@ -229,12 +256,14 @@
         opacity: 0;
         pointer-events: none;
     }
-    figure:is(:hover, :focus-within)::before {
+    figure:is(.hovered, :focus-within)::before {
         opacity: 1;
         inset: calc(-1 * var(--outline-spread));
         border-radius: var(--radius-outline);
     }
+    /* pressed (a click, or a finger held on it): the outline shows even without hover, and pulls in */
     figure:has(> .card_trigger:is(:active, :global(.is_pressed)))::before {
+        opacity: 1;
         inset: calc(-1 * var(--outline-press));
         border-radius: calc(var(--radius-card) + var(--outline-press));
     }
@@ -247,9 +276,11 @@
 
     /* grey until in color */
     img { filter: saturate(0) sepia(0.1); }
-    img.in_color, figure:is(:hover, :focus-within) img { filter: none; }
-    figure:is(:hover, :focus-within) .live_tint { color: var(--avg-text); }
-    figure:is(:hover, :focus-within) .gallery_caption,
+    img.in_color, figure:is(.hovered, :focus-within) img,
+    .card_trigger:is(:active, :global(.is_pressed)) img { filter: none; }
+    figure:is(.hovered, :focus-within) .live_tint,
+    .card_trigger:is(:active, :global(.is_pressed)) .live_tint { color: var(--avg-text); }
+    figure:is(.hovered, :focus-within) .gallery_caption,
     figure:has(> .card_trigger:is(:active, :global(.is_pressed))) .gallery_caption { opacity: 1; }
     .reading_label {
         --reading-space: calc(3ch + var(--spacing) * 2);
@@ -266,8 +297,8 @@
         opacity: 0;
         translate: 0.5rem;
     }
-    figure:is(:hover, :focus-within) .project_name { translate: 0; }
-    figure:is(:hover, :focus-within) .reading_time { opacity: 1; translate: 0; }
+    figure:is(.hovered, :focus-within) .project_name { translate: 0; }
+    figure:is(.hovered, :focus-within) .reading_time { opacity: 1; translate: 0; }
 
     @media (prefers-reduced-motion: no-preference) {
         .project_name { transition: translate var(--press-time) var(--press-ease); }

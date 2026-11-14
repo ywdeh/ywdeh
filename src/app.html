@@ -60,7 +60,8 @@
 		%sveltekit.head%
 	</head>
 
-	<body data-sveltekit-preload-data="hover" class="font-sans font-light bg-neutral-900 text-mauve-100">
+	<!-- ontouchstart: Safari on iPhone only shows :active (the cards' press-in) when the page listens for touches -->
+	<body data-sveltekit-preload-data="hover" ontouchstart="" class="font-sans font-light bg-neutral-900 text-mauve-100">
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 
