@@ -1,46 +1,51 @@
-// Run `npm run images` after adding or changing pictures. It:
-// - writes src/lib/image_data.js: every picture in static/scenario and static/projects with its size (so its
-//   space is held before it loads) and its average color (the tint its outline, badge and caption take)
-// - makes a few sizes of every picture shown on a card (static/sizes). A card lists them all (srcset) and
-//   the browser takes the one that's sharp on that screen, so a card never decodes a 2800px original it
-//   shows at a few hundred pixels (that's what made scrolling into the gallery stutter), and never looks
-//   soft either. Big screens and dense displays still get the original.
 import sharp from 'sharp';
-import { existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { case_studies, gallery_rows } from '../src/lib/scenario.js';
-
-const FOLDERS = ['projects', 'scenario'];
+import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { selected_work, gallery_pictures, work_entries } from '../src/lib/content/work.js';
+const FOLDERS = ['projects', ...Object.keys(work_entries).filter((slug) => existsSync(`static/${slug}`))];
 const PICTURE = /\.(webp|png|jpe?g|gif|avif)$/i;
-const WIDTHS = [640, 960, 1280, 1920]; // the sizes made, where the original is wider
-const ANIMATION_WIDTHS = [480, 960]; // every frame of an animation is decoded as it plays: fewer, smaller
-const PIXEL_ART = /iconsvol/; // tiny flat files that blur when resized: the original only
+const WIDTHS = [640, 960, 1280, 1920];
+const ANIMATION_WIDTHS = [480, 960];
+const PIXEL_ART = /iconsvol/;
 const hex = (value) => Math.round(value).toString(16).padStart(2, '0');
-
 const lines = [];
 const known = {};
 for (const folder of FOLDERS) {
-    for (const name of readdirSync(`static/${folder}`).filter((file) => PICTURE.test(file)).sort()) {
+    for (const name of readdirSync(`static/${folder}`)
+        .filter((file) => PICTURE.test(file))
+        .sort()) {
         const file = `static/${folder}/${name}`;
         const { width, height, pageHeight } = await sharp(file).metadata();
-        // averaged over a small copy, leaving out see-through pixels (an animation's first frame)
-        const { data } = await sharp(file).resize(32, 32, { fit: 'fill' }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-        let red = 0, green = 0, blue = 0, count = 0;
+        const { data } = await sharp(file)
+            .resize(32, 32, { fit: 'fill' })
+            .ensureAlpha()
+            .raw()
+            .toBuffer({ resolveWithObject: true });
+        let red = 0,
+            green = 0,
+            blue = 0,
+            count = 0;
         for (let i = 0; i < data.length; i += 4) {
             if (data[i + 3] === 0) continue;
-            red += data[i]; green += data[i + 1]; blue += data[i + 2]; count++;
+            red += data[i];
+            green += data[i + 1];
+            blue += data[i + 2];
+            count++;
         }
         const color = count ? `#${hex(red / count)}${hex(green / count)}${hex(blue / count)}` : null;
         known[`/${folder}/${name}`] = width;
-        lines.push(`    '/${folder}/${name}': [${width}, ${pageHeight ?? height}, ${color ? `'${color}'` : 'null'}],`);
+        lines.push(
+            `    '/${folder}/${name}': [${width}, ${pageHeight ?? height}, ${color ? `'${color}'` : 'null'}],`,
+        );
     }
 }
-
-// card pictures → their sizes (remade only when the original is newer)
-const animations = gallery_rows.flat().map(({ full_src }) => full_src).filter(Boolean);
-const BACKDROPS = ['/projects/patter_lantern.webp']; // shown blurred behind a card: small sizes do
-const card_pictures = [...new Set([...case_studies.map(({ src }) => src), ...gallery_rows.flat().map(({ src }) => src), ...animations, ...BACKDROPS])]
-    .filter((src) => !PIXEL_ART.test(src));
-rmSync('static/thumbs', { recursive: true, force: true }); // the single small copies these replace
+const animations = gallery_pictures.map(({ full_src }) => full_src).filter(Boolean);
+const card_pictures = [
+    ...new Set([
+        ...selected_work.map(({ src }) => src),
+        ...gallery_pictures.map(({ src }) => src),
+        ...animations,
+    ]),
+].filter((src) => !PIXEL_ART.test(src));
 const size_lines = [];
 for (const src of card_pictures) {
     const original = `static${src}`;
@@ -53,27 +58,23 @@ for (const src of card_pictures) {
         const file = `static${path}`;
         if (existsSync(file) && statSync(file).mtimeMs > statSync(original).mtimeMs) continue;
         mkdirSync(file.slice(0, file.lastIndexOf('/')), { recursive: true });
-        await sharp(original, { animated }).resize({ width }).webp({ quality: animated ? 80 : 88 }).toFile(file);
+        await sharp(original, { animated })
+            .resize({ width })
+            .webp({ quality: animated ? 80 : 88 })
+            .toFile(file);
     }
     size_lines.push(`    '${src}': [${made.join(', ')}],`);
 }
-
-writeFileSync('src/lib/image_data.js', `// Generated by scripts/image_data.mjs (npm run images); don't edit by hand.
-// Every picture's [width, height, average color]: the size holds its space before it loads, the color
-// tints its outline, badge and caption.
-export const image_data = {
+writeFileSync(
+    'src/lib/media/image_data.js',
+    `export const image_data = {
 ${lines.join('\n')}
 };
 
-// the smaller sizes made of each card picture: [path, width]
 export const sizes = {
 ${size_lines.join('\n')}
 };
 
-/** a picture's average color, or undefined if it isn't listed */
-export const image_color = (src) => image_data[src]?.[2] ?? undefined;
-/** every size of a picture, the original included, for an <img srcset> */
-export const srcset_of = (src) => [...(sizes[src] ?? []), [src, image_data[src]?.[0]]]
-    .filter(([, width]) => width).map(([path, width]) => \`\${path} \${width}w\`).join(', ');
-`);
+`,
+);
 console.log(`image_data.js: ${lines.length} pictures, ${card_pictures.length} with extra sizes`);

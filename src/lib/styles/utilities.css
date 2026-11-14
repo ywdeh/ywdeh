@@ -1,0 +1,53 @@
+@utility fg-soft {
+    opacity: 0.6;
+}
+
+@utility fg-muted {
+    opacity: 0.4;
+}
+
+@utility fg-faint {
+    opacity: 0.3;
+}
+
+@utility link-quiet {
+    opacity: 0.3;
+    &:focus-visible {
+        opacity: 0.9;
+    }
+    @media (hover: hover) {
+        &:hover {
+            opacity: 0.9;
+        }
+    }
+    &:is(:active, .is_pressed) {
+        opacity: 0.3;
+    }
+}
+
+@utility link-soft {
+    opacity: 0.6;
+    &:focus-visible {
+        opacity: 0.9;
+    }
+    @media (hover: hover) {
+        &:hover {
+            opacity: 0.9;
+        }
+    }
+    &:is(:active, .is_pressed) {
+        opacity: 0.6;
+    }
+}
+
+@utility tap-target {
+    @media (pointer: coarse) {
+        position: relative;
+        &::after {
+            content: '';
+            position: absolute;
+            inset-block: min(0px, calc(50% - 1.375rem));
+            inset-inline: min(0px, calc(50% - 1.375rem));
+        }
+    }
+}

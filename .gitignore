@@ -1,4 +1,7 @@
 node_modules
+.backups/
+playwright-report/
+test-results/
 
 # Output
 .output

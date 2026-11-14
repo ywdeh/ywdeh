@@ -1,12 +1,8 @@
-import { scenario } from '$lib/scenario.js';
-import { error } from '@sveltejs/kit';
-
+import { work_entries } from '$lib/content/work.js';
+import { load_case } from '$lib/routing/load_case.js';
 export function entries() {
-    return Object.keys(scenario).map((slug) => ({ slug }));
+    return Object.keys(work_entries).map((slug) => ({ slug }));
 }
-
-export async function load({ params }) {
-    if (!Object.hasOwn(scenario, params.slug)) throw error(404, 'Not found');
-    const module = await scenario[params.slug].component();
-    return { slug: params.slug, Component: module.default };
+export function load({ params }) {
+    return load_case(params.slug);
 }

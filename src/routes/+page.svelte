@@ -1,5 +1,5 @@
 <script>
-    import Portfolio from "$lib/components/portfolio.svelte";
+    import Portfolio from '$lib/app/portfolio.svelte';
 </script>
 
 <Portfolio />
