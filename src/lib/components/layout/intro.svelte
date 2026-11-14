@@ -3,7 +3,7 @@
     <span class="ink-faint">with motion, patterns and textures, lights and shadows -</span> in web, game UIs,
     branding<span class="ink-faint"
         >, and anywhere <span class="relative inline-block"
-            >else <img src="/smile.gif" alt="" class="inline-block h-7.5 md:h-8.5" /></span
+            >else <img src="/smile.gif" alt="" class="inline-block h-[0.472em]" /></span
         ></span
     >
 </p>
