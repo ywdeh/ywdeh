@@ -161,7 +161,11 @@ function press(event) {
 }
 
 function lift(event) {
-    if (event.pointerType !== 'mouse' && source === 'touch') release();
+    if (event.pointerType === 'pen' && source === 'touch') release();
+}
+
+function lift_touch(event) {
+    if (!event.touches.length && source === 'touch') release();
 }
 
 function leave_window(event) {
@@ -184,6 +188,8 @@ const listeners = () => [
     [document, 'pointerdown', press],
     [document, 'pointerup', lift],
     [document, 'pointercancel', lift],
+    [document, 'touchend', lift_touch],
+    [document, 'touchcancel', lift_touch],
     [document, 'pointerout', leave_window],
     [document, 'focusin', focus_in],
     [document, 'focusout', focus_out],

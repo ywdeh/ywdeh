@@ -94,8 +94,10 @@
         clearTimeout(touch_idle);
         hover_start();
     }}
-    onpointerup={(event) => event.pointerType !== 'mouse' && linger(TOUCH_LINGER_MS)}
-    onpointercancel={(event) => event.pointerType !== 'mouse' && linger(0)}
+    onpointerup={(event) => event.pointerType === 'pen' && linger(TOUCH_LINGER_MS)}
+    onpointercancel={(event) => event.pointerType === 'pen' && linger(0)}
+    ontouchend={() => linger(TOUCH_LINGER_MS)}
+    ontouchcancel={() => linger(0)}
     onpointermove={follow}
 >
     <button

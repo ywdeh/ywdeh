@@ -2,6 +2,7 @@
     import { Tween } from 'svelte/motion';
     import { cubicInOut } from 'svelte/easing';
     import { motion_ms, TOUCH_LINGER_MS } from '$lib/motion/timing.js';
+    import { center_reveal } from '$lib/actions/center_reveal.js';
     import { project_frame } from '$lib/geometry/project_frame.js';
     import ArrowLink from '$lib/components/ui/arrow_link.svelte';
 
@@ -10,29 +11,39 @@
     let card;
     let logo_failed = $state(false);
     let link_active = $state(false);
+    let centered = $state(false);
+    let one_per_row = $state(false);
     let size = $state({ width: 400, height: 360 });
     let gap = $state({ start: 16, end: 700 });
     let touch_idle;
     const fold = new Tween(0, { easing: cubicInOut });
+    const revealed = $derived(centered && one_per_row);
     const outline = $derived(project_frame(size, gap, fold.current));
     const year_parts = $derived(year?.split(' - ') ?? []);
+
+    $effect(() => {
+        fold.set(link_active || revealed ? 1 : 0, { duration: motion_ms('--duration-press', card) });
+    });
 
     function set_fold(active) {
         clearTimeout(touch_idle);
         link_active = active;
-        fold.set(active ? 1 : 0, { duration: motion_ms('--duration-press', card) });
     }
 
     const link_events = {
         onpointerenter: (event) => event.pointerType === 'mouse' && set_fold(true),
         onpointerleave: (event) => event.pointerType === 'mouse' && set_fold(false),
         onpointerdown: (event) => event.pointerType !== 'mouse' && set_fold(true),
-        onpointerup: (event) => {
-            if (event.pointerType !== 'mouse')
-                touch_idle = setTimeout(() => set_fold(false), TOUCH_LINGER_MS);
-        },
-        onpointercancel: (event) => event.pointerType !== 'mouse' && set_fold(false),
+        onpointerup: (event) => event.pointerType === 'pen' && unfold(TOUCH_LINGER_MS),
+        onpointercancel: (event) => event.pointerType === 'pen' && unfold(0),
+        ontouchend: () => unfold(TOUCH_LINGER_MS),
+        ontouchcancel: () => unfold(0),
     };
+
+    function unfold(delay) {
+        clearTimeout(touch_idle);
+        touch_idle = setTimeout(() => set_fold(false), delay);
+    }
 
     $effect(() => () => clearTimeout(touch_idle));
 
@@ -43,6 +54,7 @@
             if (!frame.width) return;
             const box = label.getBoundingClientRect();
             size = { width: frame.width, height: frame.height };
+            one_per_row = frame.width >= node.parentElement.clientWidth - 1;
             node.style.setProperty('--link-inset', `${box.height / 2 + 5}px`);
             gap = {
                 start: Math.max(16, ((box.left - frame.left) / frame.width) * 1000),
@@ -58,7 +70,9 @@
 <article
     bind:this={card}
     use:measure
+    use:center_reveal={(value) => (centered = value)}
     style:--tint={color}
+    class:revealed
     class:link_active
     class="project tinted relative isolate flex flex-col items-start p-gutter"
 >
@@ -142,8 +156,9 @@
     }
 
     .project.link_active,
+    .project.revealed,
     .project:has(.project_links :global(a:is(:active, .is_pressed))) {
-        --project-ink: color-mix(in oklab, var(--color-ink) 55%, var(--tint-ink));
+        --project-ink: oklch(from var(--tint) 0.93 clamp(0.03, calc(c * 0.3), 0.045) h);
     }
 
     .frame_line {
