@@ -5,12 +5,14 @@
 // thread is busy mounting the viewer or decoding the full-size image. The stand-in is always laid out at
 // the big size and scaled down, so it's never blurry from being scaled up.
 
+import { reduced_motion } from './motion.js';
+
 const DURATION = 450; // ms
 const EASING = 'cubic-bezier(0.65, 0, 0.35, 1)'; // ease in-out
-const RADIUS = 12; // px: the pictures' corner radius (rounded-xl)
+const RADIUS = 12; // px: the pictures' corner radius (--radius-card, 0.75rem)
 
 export function flight_duration() {
-    return matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : DURATION;
+    return reduced_motion() ? 0 : DURATION;
 }
 
 // the picture itself, without padding (a pressed card insets its picture with 6px of padding)

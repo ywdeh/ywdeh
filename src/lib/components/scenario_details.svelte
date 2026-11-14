@@ -6,6 +6,7 @@
     import { setContext, untrack } from "svelte";
     import { unzoom_before_close } from "$lib/image_pan_zoom.js";
     import { fly, flight_duration, picture_box, when_painted } from "$lib/image_flight.js";
+    import { reduced_motion } from "$lib/motion.js";
 
     // origin: for the image viewer, the <img> on the page it was opened from; the picture flies out of that
     // spot to the middle of the screen (and back into it on close), leaving its grey block meanwhile
@@ -22,7 +23,7 @@
     setContext('case_image_viewer', untrack(() => open_image));
 
     function duration(ms) {
-        return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : ms;
+        return reduced_motion() ? 0 : ms;
     }
 
     // ── the image viewer's picture flies out of its spot on the page and back (see image_flight.js) ──
@@ -172,12 +173,12 @@
     <div bind:this={dialog} role="dialog" aria-modal="true" aria-labelledby={heading_id}
         class:z-0={!gallery}
         class:panel={!gallery}
-        class="dialog_box flex flex-col overflow-y-auto font-normal scrollbar-none! overscroll-contain {gallery ? 'pointer-events-none absolute inset-0 px-viewer py-(--viewer-gap-y) [--viewer-gap-y:5rem]' : `fixed bg-neutral-900 ${panel_box}`}"
+        class="dialog_box flex flex-col overflow-y-auto font-normal scrollbar-none! overscroll-contain {gallery ? 'pointer-events-none absolute inset-0 px-viewer py-(--viewer-gap-y)' : `fixed bg-neutral-900 ${panel_box}`}"
         in:viewer_transition|global={'in'}
         out:viewer_transition|global={'out'}>
         {#if !gallery}
-            <header class="z-80 sticky top-0 flex w-full shrink-0 justify-between gap-4 bg-neutral-900 px-panel py-10">
-                <h1 id={heading_id}>{title}</h1>
+            <header class="z-80 sticky top-0 flex w-full shrink-0 justify-between gap-copy bg-neutral-900 px-panel py-(--panel-heading-space)">
+                <h1 id={heading_id} class="text-case-heading">{title}</h1>
                 <!-- while an image is open on top, the viewer's X stands in for this one at the exact same spot -->
                 <span class="-m-2" class:invisible={suspended}>{@render close('Close case study')}</span>
             </header>
@@ -188,11 +189,11 @@
                 {@render children()}
             </div>
         {:else}
-            <div class="flex flex-col gap-40 px-panel pt-5 pb-10 md:pb-15">
-                <div class="case_body flex flex-col gap-20 text-lg">
+            <div class="flex flex-col gap-section px-panel pb-row">
+                <div class="case_body flex flex-col gap-case text-lg">
                     {@render children()}
                 </div>
-                <Footer cta="have a role in mind?" />
+                <Footer />
             </div>
         {/if}
     </div>
@@ -202,10 +203,10 @@
              outside the viewer's animation; opened from a case study it swaps in instantly, so it reads as one X
              that never moves (1ms, not 0: a 0ms outro would skip hiding it, leaving it visible while the viewer
              fades out) -->
-        <header class="z-80 fixed top-8 right-[calc(var(--spacing-panel)_-_0.5rem)]"
+        <header class="z-80 fixed top-[calc(var(--panel-heading-space)_-_0.5rem)] right-[calc(var(--spacing-panel)_-_0.5rem)]"
             in:fade|global={{ duration: nested ? 1 : duration(350) }}
             out:fade|global={{ duration: nested ? 1 : duration(350) }}>
-            <h1 id={heading_id} class="sr-only">{title}</h1>
+            <h1 id={heading_id} class="text-case-heading sr-only">{title}</h1>
             {@render close('Close image')}
         </header>
     {/if}
@@ -245,12 +246,5 @@
             stroke-dasharray: 0.6 1;
             stroke-dashoffset: -0.2;
         }
-    }
-
-    /* the panel's title, styled like the headings inside the case study (.case_body h1 in layout.css) */
-    h1 {
-        font-size: var(--text-2xl);
-        line-height: var(--text-2xl--line-height);
-        opacity: 0.8;
     }
 </style>

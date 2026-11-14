@@ -140,13 +140,16 @@ export const scenario = {
     },
 
 };
+
+// the "selected work" cards, in order. left: a wide picture panned toward the pointer;
+// reading_minutes: at 200 words a minute, plus 10 seconds for each picture
 export const case_studies = [
-    { slug: 'paladins_concept', src: '/scenario/paladins_character_list.webp', left: true },
-    { slug: 'routes_and_journeys', src: '/scenario/rj.webp' },
-    { slug: 'palia_concept', src: '/scenario/palia.webp' },
-    { slug: 'morroworld', src: '/scenario/morroworld.webp' },
-    { slug: 'pixel_icons_pack', src: '/scenario/iconsvol2.png' },
-    { slug: 'wintertale_banner', src: '/scenario/wintertale.webp', left: true },
+    { slug: 'paladins_concept', src: '/scenario/paladins_character_list.webp', left: true, reading_minutes: 8 },
+    { slug: 'routes_and_journeys', src: '/scenario/rj.webp', reading_minutes: 2 },
+    { slug: 'palia_concept', src: '/scenario/palia.webp', reading_minutes: 1 },
+    { slug: 'morroworld', src: '/scenario/morroworld.webp', reading_minutes: 2 },
+    { slug: 'pixel_icons_pack', src: '/scenario/iconsvol2.png', reading_minutes: 1 },
+    { slug: 'wintertale_banner', src: '/scenario/wintertale.webp', left: true, reading_minutes: 1 },
 ];
 
 // hand-made rows; each spans the full width, its pictures sharing it by aspect ratio so they all

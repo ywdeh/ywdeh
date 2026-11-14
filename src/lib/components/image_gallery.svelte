@@ -58,7 +58,7 @@
 </script>
 
 <!-- gap leaves room for the badge hanging 20px below the frame before the thumbnails start -->
-<div class="flex flex-col gap-6">
+<div class="flex flex-col gap-row">
     <!-- the viewport clips its slides, so the zoom badge hangs off this wrapper instead -->
     <div class="slider_frame relative" class:has_badge={!!open_image} style:--live-img-avg={image_color(pictures[active_index]?.src)}>
         <button type="button" aria-label="Enlarge current image"
@@ -101,7 +101,7 @@
     </div>
 
     {#if pictures.length > 1}
-        <div class="flex flex-wrap gap-3">
+        <div class="flex flex-wrap gap-control">
             {#each pictures as img, i}
                 <button type="button"
                     use:card_release={'.gallery_thumbnail_image'}

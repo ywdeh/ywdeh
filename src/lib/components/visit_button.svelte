@@ -13,9 +13,9 @@
     .visit_button {
         display: inline-flex;
         align-items: center;
-        gap: calc(var(--spacing) * 2);
+        gap: var(--spacing-inline);
         width: fit-content;
-        padding: calc(var(--spacing) * 3) calc(var(--spacing) * 5);
+        padding: var(--spacing-control) var(--spacing-copy);
         background: var(--focus-tint);
         opacity: 0.8;
         transition: opacity var(--press-time) var(--ease-out), background-color var(--press-time) var(--ease-out);

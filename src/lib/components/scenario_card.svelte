@@ -1,13 +1,14 @@
 <script>
-    import { card_release } from '$lib/card_release.js';
-    import { image_color } from '$lib/image_data.js';
-    import { queued } from '$lib/load_queue.js';
+    import { card_release } from "$lib/card_release.js";
+    import { image_color } from "$lib/image_data.js";
+    import { queued } from "$lib/load_queue.js";
+    import { reduced_motion } from "$lib/motion.js";
     import TrailImage from "./trail_image.svelte";
     import CardBadge from "./card_badge.svelte";
 
     // image_only: a gallery picture (zooms, natural aspect, dim name); otherwise a case study (opens, 4:3, title + client)
     // left: a wide picture resting on its left edge, panned toward the pointer
-    let { src, thumbnail = src, alt, title, client, left = false, image_only = false, width, height, onclick, preload } = $props();
+    let { src, thumbnail = src, alt, title, client, reading_minutes, left = false, image_only = false, width, height, onclick, preload } = $props();
 
     let card_element = $state();
     let figure_element = $state();
@@ -20,7 +21,6 @@
     // a different src (an animation) takes over while the card is in color; either way the card loads
     // the size of it that's sharp on this screen (load_queue.js)
     const shown = $derived(show_full ? src : thumbnail);
-    const reduced_motion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // ── wide pictures pan toward whichever side the pointer is on ──
     // a critically damped spring chases the target: it speeds up gently and settles gently (ease-in-out),
@@ -171,7 +171,7 @@
         onpointerdown={preload}
         {onclick}
         aria-label={image_only ? title + " — " + client : undefined}
-        class="card_trigger relative z-10 flex w-full flex-col gap-4 text-left">
+        class="card_trigger relative z-10 flex w-full flex-col gap-copy text-left text-ui">
 
         <div class="relative">
             <TrailImage class="card_preview overflow-hidden rounded-card" src={thumbnail}>
@@ -197,12 +197,20 @@
 
         {#if image_only}
             <!-- gallery pictures just get a dim name: who it's for, or what it is for personal work -->
-            <p class="card_caption live_tint truncate" class:fg-muted={!show_full}>{client === 'personal' ? title : client}</p>
+            <p class="card_caption gallery_caption live_tint fg-muted truncate">{client === 'personal' ? title : client}</p>
         {:else}
-            <!-- always one line: on a narrow card the title shortens with an ellipsis, the client stays whole -->
-            <div class="card_caption flex justify-between gap-4">
+            <!-- always one line: on a narrow card the title shortens with an ellipsis, the client stays whole;
+                 on hover the client steps aside for the reading time -->
+            <div class="card_caption flex justify-between gap-copy">
                 <h3 class="live_tint truncate">{title}</h3>
-                <p class="live_tint fg-muted whitespace-nowrap">{client}</p>
+                {#if reading_minutes}
+                    <p class="reading_label live_tint fg-muted whitespace-nowrap">
+                        <span class="project_name">{client}</span>
+                        <span class="reading_time" aria-label={`approximately ${reading_minutes} minute read`}>~{reading_minutes}m</span>
+                    </p>
+                {:else}
+                    <p class="live_tint fg-muted whitespace-nowrap">{client}</p>
+                {/if}
             </div>
         {/if}
     </button>
@@ -241,10 +249,32 @@
     img { filter: saturate(0) sepia(0.1); }
     img.in_color, figure:is(:hover, :focus-within) img { filter: none; }
     figure:is(:hover, :focus-within) .live_tint { color: var(--avg-text); }
+    figure:is(:hover, :focus-within) .gallery_caption,
+    figure:has(> .card_trigger:is(:active, :global(.is_pressed))) .gallery_caption { opacity: 1; }
+    .reading_label {
+        --reading-space: calc(3ch + var(--spacing) * 2);
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        padding-right: var(--reading-space);
+        position: relative;
+    }
+    .project_name { translate: var(--reading-space); }
+    .reading_time {
+        position: absolute;
+        right: 0;
+        opacity: 0;
+        translate: 0.5rem;
+    }
+    figure:is(:hover, :focus-within) .project_name { translate: 0; }
+    figure:is(:hover, :focus-within) .reading_time { opacity: 1; translate: 0; }
 
     @media (prefers-reduced-motion: no-preference) {
+        .project_name { transition: translate var(--press-time) var(--press-ease); }
+        .reading_time { transition: opacity var(--press-time) var(--press-ease), translate var(--press-time) var(--press-ease); }
         figure::before { transition: opacity var(--press-time) ease-in-out, inset var(--press-time) var(--press-ease), border-radius var(--press-time) var(--press-ease); }
-        .card_trigger :global(.card_preview) { transition: clip-path var(--press-time) var(--press-ease); }        /* the color-in (filter) waits --stagger so a row lights up card by card */
+        .card_trigger :global(.card_preview) { transition: clip-path var(--press-time) var(--press-ease); }
+        /* the color-in (filter) waits --stagger so a row lights up card by card */
         img { transition: filter 400ms var(--stagger, 0ms), object-position 400ms, padding var(--press-time) var(--press-ease); }
         /* panned by the frame loop, so object-position must not transition */
         img.pannable { transition: filter 400ms var(--stagger, 0ms), padding var(--press-time) var(--press-ease); }

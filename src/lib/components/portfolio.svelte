@@ -3,6 +3,7 @@
     import { pushState } from "$app/navigation";
     import { page } from "$app/state";
     import { card_release } from "$lib/card_release.js";
+    import { reduced_motion } from "$lib/motion.js";
     import { case_studies, gallery_rows, scenario } from "$lib/scenario.js";
     import Header from "./header.svelte";
     import Category from "./category.svelte";
@@ -10,11 +11,17 @@
     import ScenarioCard from "./scenario_card.svelte";
     import CaseViewer from "./case_viewer.svelte";
     import ImageViewer from "./image_viewer.svelte";
-    import ArrowIcon from "./arrow_icon.svelte";
+    import ProjectCard from "./project_card.svelte";
+
+    // gsap and SplitText are globals, loaded from a CDN in app.html
+
     // opened straight at /<slug>: that case study shows over the page once it has faded in
     let { initial_slug, initial_component: InitialCase } = $props();
 
     let main_section;
+    let site_content;
+    let identity;
+    let content_ready = $state(true);
     let mounted = $state(false);
     const active_scenario_slug = $derived(page.state.scenarioSlug === undefined && mounted
         ? initial_slug
@@ -60,35 +67,58 @@
     function scroll_to(node, target_id) {
         function click(event) {
             event.preventDefault();
-            document.getElementById(target_id)?.scrollIntoView({
-                behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
-            });
+            document.getElementById(target_id)?.scrollIntoView({ behavior: reduced_motion() ? 'instant' : 'smooth' });
         }
         node.addEventListener('click', click);
         return { destroy: () => node.removeEventListener('click', click) };
     }
 
     onMount(() => {
-        gsap.to(main_section, {
+        if (reduced_motion()) {
+            gsap.set([main_section, identity, site_content], { opacity: 1 });
+            content_ready = mounted = true;
+            return;
+        }
+        content_ready = false;
+
+        let content_reveal;
+        function reveal_content() {
+            if (content_reveal) return;
+            content_reveal = gsap.to([identity, site_content], {
+                opacity: 1,
+                duration: 0.5,
+                ease: 'power2.inOut',
+                onComplete: () => { content_ready = mounted = true; },
+            });
+        }
+
+        const entrance = gsap.to(main_section, {
             opacity: 1,
             duration: 0.7,
-            ease: "power2.inOut",
-            onComplete: () => { mounted = true; },
+            ease: 'power2.inOut',
         });
 
         // the intro's lines rise in one after another
-        SplitText.create(".split", {
-            type: "lines",
+        const intro = SplitText.create(main_section.querySelector('.split'), {
+            type: 'lines',
             autoSplit: true,
             onSplit: (self) => gsap.from(self.lines, {
                 y: 30,
                 opacity: 0,
                 delay: 0.2,
                 stagger: 0.1,
-                ease: "power1.inOut",
-                onComplete: () => self.revert(),
+                ease: 'power1.inOut',
+                onComplete: () => {
+                    self.revert();
+                    reveal_content();
+                },
             }),
         });
+        return () => {
+            entrance.kill();
+            content_reveal?.kill();
+            intro.revert();
+        };
     });
 </script>
 
@@ -98,67 +128,73 @@
 
 <section bind:this={main_section} inert={!!(gallery_slug || active_scenario_slug)}
     class="page_scroll w-full px-page py-page-y opacity-0">
-    <!-- the spacing tokens (layout.css) grow with the screen -->
     <div class="flex w-full flex-col gap-section">
-        <Header />
-
-        <div class="flex flex-col gap-gutter">
-            <nav aria-label="Work sections" class="flex justify-between gap-x-4 gap-y-2">
-                <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-                    {@render section_link('personal-projects', 'personal projects')}
-                    {@render section_link('case-studies', 'case studies')}
-                    {@render section_link('gallery', 'gallery')}
-                </div>
-                {@render section_link('contacts', 'contact me')}
-            </nav>
-
-            <Category title="personal projects" anchor="personal-projects">
-                <article class="patter_entry relative isolate col-span-full flex flex-col items-start gap-row">
-                    <div class="flex flex-col gap-gutter">
-                        <h3 class="font-display text-5xl md:text-6xl">Patter</h3>
-                        <div class="fg-soft flex max-w-[46ch] flex-col gap-3">
-                            <p>an ambient text editor: pick a scene, let its sounds play, and write with nothing else asking for your attention</p>
-                            <p>built with sveltekit, gsap, html, css, and javascript</p>
-                        </div>
-                    </div>
-                    <a href="https://patter.hedwy.art" target="_blank" rel="noopener noreferrer" use:card_release
-                        class="arrow_link link-soft flex w-fit items-center gap-2 text-2xl">patter.hedwy.art<ArrowIcon /></a>
-                </article>
-            </Category>
+        <div bind:this={identity} class="site_identity opacity-0">
+            <Header part="identity" />
         </div>
+        <Header part="intro" />
 
-        <Category title="case studies" anchor="case-studies">
-            {#each case_studies as { slug, src, left } (slug)}
-                <ScenarioCard
-                    onclick={() => enter_scenario(slug)}
-                    preload={() => preload_case(slug)}
-                    {src}
-                    {left}
-                    alt={scenario[slug].alt || scenario[slug].title}
-                    title={scenario[slug].title}
-                    client={scenario[slug].client}
-                />
-            {/each}
-        </Category>
-
-        <Category title="gallery" anchor="gallery">
-            <div class="gallery gap-y-row">
-                {#each gallery_rows as items}
-                    <div class="gallery_row gap-x-gutter gap-y-row">
-                        {#each items as { slug, src, full_src, width, height, alt } (src)}
-                            <div class="gallery_item" style:--ratio={width / height}>
-                                <ScenarioCard image_only src={full_src ?? src} thumbnail={src} {width} {height}
-                                    title={scenario[slug].title} client={scenario[slug].client} alt={alt ?? scenario[slug].alt}
-                                    preload={() => preload(full_src ?? src)}
-                                    onclick={(event) => open_gallery(src, event.currentTarget)} />
-                            </div>
-                        {/each}
+        <div bind:this={site_content} inert={!content_ready} class="site_content flex w-full flex-col gap-section opacity-0">
+            <div class="flex flex-col gap-gutter">
+                <nav aria-label="Work sections" class="flex flex-wrap justify-between gap-x-card-gap gap-y-control text-ui">
+                    <div class="flex flex-wrap items-center gap-x-copy gap-y-inline">
+                        {@render section_link('personal-projects', 'personal projects')}
+                        {@render section_link('case-studies', 'selected work')}
+                        {@render section_link('gallery', 'gallery')}
                     </div>
-                {/each}
-            </div>
-        </Category>
+                    {@render section_link('contacts', 'contact me')}
+                </nav>
 
-        <Footer cta="have a role in mind?" />
+                <div class="personal_projects relative isolate">
+                    <Category title="personal projects" anchor="personal-projects">
+                        <ProjectCard name="Patter" href="https://patter.hedwy.art" year="2026" color="#b3b66a">
+                            <p>patter is an immersive text editor, free from advanced features and heavy ui, but with a lot of ambient customization options: background pictures, cinematic grain, blur and tint, ambient sounds, fonts, and other visual details</p>
+                            <p>built with sveltekit, tailwind, and html/css/js</p>
+                        </ProjectCard>
+                        <ProjectCard name="Wintertale" href="https://wintertale.hedwy.art" year="2021 - present" color="#7faeca"
+                            logo="/projects/wintertale_logo.svg"
+                            links={[{ label: 'github', href: 'https://github.com/ywdeh/wintertale-downpour' }]}>
+                            <p>wintertale is a game community and dedicated server with up to 40 concurrent players and almost 1000 people on discord</p>
+                            <p>I wanted a comfortable space for people to feel at home; over time I learned a scripting language and wrote over 100 custom features to improve the base game's immersion, look and feel</p>
+                        </ProjectCard>
+                    </Category>
+                </div>
+            </div>
+
+            <Category title="selected work" anchor="case-studies">
+                {#each case_studies as { slug, src, left, reading_minutes } (slug)}
+                    <ScenarioCard
+                        onclick={() => enter_scenario(slug)}
+                        preload={() => preload_case(slug)}
+                        {src}
+                        {left}
+                        {reading_minutes}
+                        alt={scenario[slug].alt || scenario[slug].title}
+                        title={scenario[slug].title}
+                        client={scenario[slug].client}
+                    />
+                {/each}
+            </Category>
+
+            <Category title="gallery" anchor="gallery">
+                <div class="gallery gap-card-gap">
+                    {#each gallery_rows as items}
+                        <div class="gallery_row gap-card-gap">
+                            {#each items as { slug, src, full_src, width, height, alt } (src)}
+                                <div class="gallery_item" style:--ratio={width / height}>
+                                    <ScenarioCard image_only src={full_src ?? src} thumbnail={src} {width} {height}
+                                        title={scenario[slug].title} client={scenario[slug].client} alt={alt ?? scenario[slug].alt}
+                                        preload={() => preload(full_src ?? src)}
+                                        onclick={(event) => open_gallery(src, event.currentTarget)} />
+                                </div>
+                            {/each}
+                        </div>
+                    {/each}
+                </div>
+            </Category>
+
+            <Footer />
+        </div>
     </div>
 </section>
 
@@ -183,25 +219,11 @@
 
 <noscript>
     <style>
-        section { opacity: 1 !important; }
+        section, .site_content, .site_identity { opacity: 1 !important; }
     </style>
 </noscript>
 
 <style>
-    .patter_entry::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        pointer-events: none;
-        background-color: currentColor;
-        opacity: 0.046;
-        mask:
-            url("/projects/patter_dots.svg") center / max(100%, 2560px) max(100%, 420px) no-repeat,
-            radial-gradient(ellipse 43% 50% at 57% 52%, #000 35%, rgb(0 0 0 / 65%) 70%, transparent 100%);
-        mask-composite: intersect;
-    }
-
     .gallery {
         grid-column: 1 / -1;
         display: flex;

@@ -16,22 +16,43 @@
        breakpoints; each becomes a utility, e.g. px-page, gap-gutter */
     --spacing-page: clamp(1.25rem, 6.4vw - 0.25rem, 10rem); /* the page's side margins */
     --spacing-page-y: clamp(1.5rem, 3vw + 0.5rem, 3.5rem); /* its top and bottom */
-    --spacing-section: clamp(4rem, 5vw + 2.5rem, 7.5rem); /* between the page's big parts */
+    --spacing-section: clamp(4rem, 5vw + 2rem, 7rem); /* between the page's big parts */
+    --spacing-inline: 0.5rem; /* icon and label */
+    --spacing-control: 0.75rem; /* compact groups and thumbnail controls */
+    --spacing-copy: 1rem; /* paragraphs, captions and related links */
     /* between cards side by side, and a heading and what's under it (never under 24px: the hover
        outlines reach 10px past each card, so there's always ground between them) */
     --spacing-gutter: clamp(1.5rem, 1.5vw + 1rem, 2.5rem);
     --spacing-row: clamp(2rem, 1.5vw + 1.5rem, 3rem); /* between rows of cards */
+    --spacing-case: clamp(2.5rem, 3vw + 1rem, 5rem); /* images and text blocks inside cases */
+    --spacing-card-gap: clamp(1.5rem, 1vw + 1rem, 1.75rem); /* compact card gaps, clear of the hover outlines */
     --spacing-panel: clamp(1.25rem, 3vw + 0.5rem, 2.5rem); /* the case study panel's sides */
     --spacing-viewer: clamp(0.75rem, 9vw - 1.5rem, 5.25rem); /* the image viewer's sides */
 }
 
 :root {
+    --panel-heading-space: var(--spacing-panel);
+    --viewer-gap-y: calc(var(--panel-heading-space) + 3rem); /* room for the close button plus an 8px gap */
     --outline-spread: 10px; /* hover outlines and focus rings reach this far past an element */
     --outline-press: 4px; /* …and shrink to this while it's pressed */
+    --ornament-gap: 6px; /* clear space between decorative ink and the divider behind it */
+    --divider-star-inset: 3.5rem; /* matching first/last star centers at either end of a divider */
     --press-inset: 6px; /* a pressed card's picture sinks in by this much */
     --press-time: 140ms; /* press, hover and outline feedback */
     --press-ease: ease-in-out;
     --focus-tint: oklch(40.5% 0.006 325.6 / 12%); /* light mauve, like the rest of the site */
+    --line-ink: 0.072; /* how strongly the hand-drawn lines and stars show */
+}
+
+@media (width < 48rem) {
+    :root {
+        --spacing-page: clamp(1.25rem, 4vw, 1.75rem);
+        --spacing-page-y: 1.5rem;
+        --spacing-section: 4rem;
+        --spacing-gutter: clamp(1.5rem, 5vw, 1.75rem);
+        --spacing-row: 2rem;
+        --spacing-panel: 1.5rem;
+    }
 }
 
 /* the tint a picture lends its card (its outline, badge and caption): set --live-img-avg on any
@@ -56,6 +77,44 @@
     opacity: 0.6;
     &:hover, &:focus-visible { opacity: 0.9; }
     &:is(:active, .is_pressed) { opacity: 0.6; }
+}
+
+/* ── type ── */
+/* the big handwritten lines: the intro, and the 404 page */
+@utility text-intro {
+    font-family: var(--font-hand);
+    max-width: 100%;
+    font-size: clamp(2.25rem, 10vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    @variant md {
+        max-width: var(--container-3xl);
+        font-size: var(--text-7xl);
+        letter-spacing: -3px;
+    }
+}
+/* every small line of the page: the nav, card titles and captions, project descriptions, the header's
+   name and the footer's links */
+@utility text-ui {
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    @variant md {
+        font-size: var(--text-base);
+        line-height: var(--text-base--line-height);
+    }
+}
+/* a case study's title and the headings inside it */
+@utility text-case-heading {
+    font-size: var(--text-2xl);
+    line-height: var(--text-2xl--line-height);
+    opacity: 0.8;
+}
+
+/* a project card's tint (project_card.svelte), registered as a color so it can fade between shades */
+@property --project-tint-color {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #ffffff;
 }
 
 /* ── the page's own scroll area ──
@@ -102,13 +161,13 @@ img.is_waiting { opacity: 0; }
     :where(a, button, [tabindex]):focus-visible { border-radius: var(--radius-card); }
 
     /* ── case study copy ── */
-    .case_body h1 { font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); opacity: 0.8; }
+    .case_body h1 { @apply text-case-heading; }
     .case_body p { opacity: 0.6; }
     .case_body img { border-radius: var(--radius-card); }
     .case_body article {
         display: flex;
         flex-direction: column;
-        gap: calc(var(--spacing) * 5);
+        gap: var(--spacing-copy);
         align-self: center;
         width: 100%;
         max-width: var(--container-3xl);
