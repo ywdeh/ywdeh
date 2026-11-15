@@ -4,7 +4,7 @@ export const site = {
     signature: 'hedwy',
     avatar: '/avatar.png',
     email: 'itshedwy@icloud.com',
-    resume: 'https://linkedin.com/in/hedwy',
+    resume: '/resume',
     call_to_action: 'have a role in mind?',
     sections: [
         { id: 'personal-projects', label: 'personal projects' },

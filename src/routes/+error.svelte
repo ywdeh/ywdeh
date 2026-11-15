@@ -3,6 +3,10 @@
     import SiteFooter from '$lib/components/layout/site_footer.svelte';
 </script>
 
+<svelte:head>
+    <title>hedwy</title>
+</svelte:head>
+
 <main class="flex min-h-dvh w-full flex-col justify-center overflow-x-clip px-page-x py-page-y">
     <div class="flex w-full flex-col gap-section">
         <div class="text-intro">

@@ -36,4 +36,11 @@
             display: none;
         }
     }
+
+    @media print {
+        .edge,
+        .grain {
+            display: none;
+        }
+    }
 </style>

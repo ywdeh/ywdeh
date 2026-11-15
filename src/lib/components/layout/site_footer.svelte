@@ -11,7 +11,7 @@
         <p>{site.call_to_action}</p>
         <div class="flex flex-col gap-copy md:flex-row md:items-center md:justify-between">
             <ArrowLink href="mailto:{site.email}" class="w-fit">{site.email}</ArrowLink>
-            <ArrowLink href={site.resume} external class="w-fit">check résumé</ArrowLink>
+            <ArrowLink href={site.resume} class="w-fit">check résumé</ArrowLink>
         </div>
     </div>
 

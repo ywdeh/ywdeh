@@ -76,6 +76,42 @@
     }
 }
 
+@property --color-surface {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: oklch(20.5% 0 0);
+}
+
+@property --color-ink {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: oklch(96% 0.003 325.6);
+}
+
+@property --tone-soft {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0.6;
+}
+
+@property --tone-muted {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0.4;
+}
+
+@property --tone-faint {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0.3;
+}
+
+@property --tone-line {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0.072;
+}
+
 @property --project-ink {
     syntax: '<color>';
     inherits: true;
