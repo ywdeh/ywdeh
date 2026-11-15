@@ -55,14 +55,27 @@ function stop() {
     frame = settle_timer = rest_timer = undefined;
 }
 
+function centre() {
+    const width = shown?.element.offsetParent?.getBoundingClientRect().width;
+    return width ? width / 2 : null;
+}
+
 function show(badge, how) {
     if (badge === shown && how === source) return;
+    const same = badge === shown;
     cancelAnimationFrame(frame);
     frame = undefined;
     shown = badge;
     source = how;
     if (how === 'mouse' && pointer) {
-        motion.x = motion.x_goal = along_edge(pointer.x);
+        motion.x_goal = along_edge(pointer.x);
+        if (!same) motion.x = motion.x_goal;
+        else motion.x ??= centre();
+    } else if (same && motion.x !== null) {
+        motion.x_goal = centre();
+        motion.angle_goal = 0;
+        motion.turning = false;
+        motion.homing = true;
     } else {
         motion.x = motion.x_goal = null;
         motion.angle = motion.angle_goal = 0;
