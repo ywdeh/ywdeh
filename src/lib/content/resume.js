@@ -16,7 +16,7 @@ export const resume = {
             role: 'freelance designer & web developer',
             dates: ['aug 2019', 'present'],
             points: [
-                'website mock-ups and live websites, taken from design to code on my own',
+                '10+ websites taken from mock-up to live on my own, for a tour operator, a barbershop, a flower shop, a video surveillance service and more',
                 'logos, full branding and rebranding',
                 'game UI/UX, illustrations and illustrated assets for games',
                 'motion design, print and advertising materials',
