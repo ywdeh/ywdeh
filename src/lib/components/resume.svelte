@@ -32,7 +32,7 @@
     </div>
 {/snippet}
 
-<main class="resume flex min-h-dvh w-full flex-col gap-row px-page-x py-page-y">
+<main class="resume fade flex min-h-dvh w-full flex-col gap-row px-page-x py-page-y">
     <header class="flex flex-row-reverse justify-between gap-copy md:flex-col">
         <div
             class="flex items-center gap-copy self-start md:flex-row-reverse md:justify-between md:self-auto"
@@ -107,7 +107,6 @@
             </button>
         </div>
     </div>
-
     <section class="flex flex-col gap-gutter" aria-label="skills">
         {@render heading('skills', 'personal-projects')}
         <dl class="flex flex-col gap-control text-ui">
@@ -173,6 +172,18 @@
     .lead {
         max-width: 60ch;
         text-wrap: pretty;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .fade {
+            animation: fade 500ms ease-in-out both;
+        }
+    }
+
+    @keyframes fade {
+        from {
+            opacity: 0;
+        }
     }
 
     .entry {
@@ -348,6 +359,10 @@
             --spacing-row: 1.5rem;
             --spacing-gutter: 1rem;
             --spacing-control: 0.375rem;
+        }
+
+        .fade {
+            animation: none;
         }
 
         .resume {
