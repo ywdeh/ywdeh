@@ -161,9 +161,13 @@
         if (peek && player) requestAnimationFrame(sample);
     });
 
-    function pick() {
-        const others = tracks.filter((item) => item !== track);
-        return others[Math.floor(Math.random() * others.length)];
+    // each visit starts somewhere random in the list, then next walks it in order and wraps
+    function random_track() {
+        return tracks[Math.floor(Math.random() * tracks.length)];
+    }
+
+    function following() {
+        return tracks[(tracks.indexOf(track) + 1) % tracks.length];
     }
 
     // plain average of the cover, like scripts/images.mjs does for the site's own pictures
@@ -268,7 +272,7 @@
 
     function next() {
         const keep_playing = !paused || play_when_ready;
-        show(pick());
+        show(following());
         glance();
         if (!controller) return;
         play_when_ready = keep_playing;
@@ -276,7 +280,7 @@
     }
 
     onMount(() => {
-        show(pick());
+        show(random_track());
         return () => {
             gone = true;
             clearTimeout(peek_timer);
@@ -357,11 +361,9 @@
             onclick={toggle}
         >
             <svg class="progress absolute inset-0" viewBox="0 0 72 72" aria-hidden="true">
-                <circle cx="36" cy="36" r="35" class="progress_track" vector-effect="non-scaling-stroke" />
-                <circle
-                    cx="36"
-                    cy="36"
-                    r="35"
+                <path d={strokes.disc_ring[0]} class="progress_track" vector-effect="non-scaling-stroke" />
+                <path
+                    d={strokes.disc_ring[0]}
                     class="progress_fill"
                     class:moving={playing}
                     class:empty={progress === 0}
@@ -370,8 +372,8 @@
                     style:stroke-dashoffset={1 - progress}
                 />
             </svg>
-            <span bind:this={vinyl} class="vinyl absolute rounded-full">
-                <span class="label absolute rounded-full bg-placeholder">
+            <span bind:this={vinyl} class="vinyl absolute">
+                <span class="label absolute bg-placeholder">
                     <!-- key inside the if: local transitions only run when their nearest block changes -->
                     {#if cover}
                         {#key cover}
@@ -387,6 +389,7 @@
                         {/key}
                     {/if}
                 </span>
+                <span class="hole absolute rounded-full"></span>
             </span>
             <span
                 class="state absolute inset-0 flex items-center justify-center"
@@ -550,8 +553,9 @@
         inset: calc(4px + var(--press-inset));
     }
 
-    .disc:is(:active, :global(.is_pressed)) circle {
-        r: calc(35px - var(--press-inset));
+    /* the same loop drawn 6px (the press inset) further in */
+    .disc:is(:active, :global(.is_pressed)) .progress path {
+        d: path('M64.9 36C64.9 41 63.1 45.8 60.6 50.2C58 54.6 54.7 58.4 50.4 60.9C46 63.3 41 64.3 36 64.3C31 64.3 25.9 63.4 21.6 60.9C17.3 58.5 13.7 54.7 11.2 50.3C8.8 45.9 7.6 41 7.6 36C7.6 31 8.5 25.9 11 21.5C13.5 17.2 17.4 13.8 21.7 11.3C26.1 8.8 31 7.2 36 7.2C41 7.2 45.8 9 50.2 11.5C54.5 14 58.3 17.3 60.9 21.6C63.4 26 64.9 31 64.9 36Z');
     }
 
     .progress {
@@ -579,9 +583,11 @@
         opacity: 0;
     }
 
-    /* the ring takes the outer 2px, then 2px of air */
+    /* the ring takes the outer 2px, then a little air before the record */
     .vinyl {
         inset: 4px;
+        border-radius: 50%;
+        /* the live site's record: fine grooves, a faint ring round the label and a drop shadow */
         background:
             radial-gradient(circle, transparent 30%, oklch(100% 0 0 / 6%) 31%, transparent 33%),
             repeating-radial-gradient(circle, oklch(16% 0 0) 0 1.5px, oklch(19% 0 0) 1.5px 3px);
@@ -591,6 +597,13 @@
     .label {
         inset: 28%;
         overflow: hidden;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M99 50C98.9 58.5 96 66.6 91.7 74.1C87.3 81.5 81.8 88.1 74.5 92.3C67.1 96.6 58.6 98.4 50 98.4C41.4 98.4 32.8 96.8 25.5 92.5C18.1 88.3 12.4 81.6 8.2 74.2C3.9 66.7 1.4 58.5 1.3 50C1.2 41.5 3.2 32.8 7.6 25.5C11.9 18.2 18.5 12.5 25.9 8.3C33.3 4 41.5 1.2 50 1.2C58.5 1.2 66.7 3.9 74.2 8.2C81.6 12.4 88 18.2 92.3 25.5C96.7 32.9 99.1 41.5 99 50Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+    }
+
+    /* the spindle hole, in the page colour as on the live site */
+    .hole {
+        inset: calc(50% - 4px);
+        background-color: var(--color-surface);
     }
 
     .label img {
@@ -684,20 +697,20 @@
         }
 
         .progress_track {
-            transition: r var(--duration-press) var(--ease-press);
+            transition: d var(--duration-press) var(--ease-press);
         }
 
         .progress_fill {
             transition:
                 stroke-dashoffset var(--duration-glide) var(--ease-settle),
                 opacity var(--duration-glide) var(--ease-settle),
-                r var(--duration-press) var(--ease-press);
+                d var(--duration-press) var(--ease-press);
         }
 
         .progress_fill.moving {
             transition:
                 stroke-dashoffset 1s linear,
-                r var(--duration-press) var(--ease-press);
+                d var(--duration-press) var(--ease-press);
         }
     }
 
