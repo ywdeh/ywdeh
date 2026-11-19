@@ -14,7 +14,7 @@ export default [
     },
     {
         image: '/ollie/mobile.webp',
-        alt: 'three tilted phones: the hero, a stack of photos and the ticket banner',
+        alt: 'three phones side by side: the hero, a stack of photos and the ticket banner',
     },
     {
         image: '/ollie/outline.webp',

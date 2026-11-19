@@ -43,7 +43,7 @@ export const manifest = {
     "/ollie/cover.webp": {"width":2400,"height":1800,"color":"#2c0b15","variants":[["/sizes/ollie/cover-640.webp",640],["/sizes/ollie/cover-960.webp",960],["/sizes/ollie/cover-1280.webp",1280],["/sizes/ollie/cover-1920.webp",1920]]},
     "/ollie/full.webp": {"width":2800,"height":1575,"color":"#1f1317"},
     "/ollie/hero.webp": {"width":2400,"height":1417,"color":"#2c0b15"},
-    "/ollie/mobile.webp": {"width":2104,"height":1302,"color":"#28191d"},
+    "/ollie/mobile.webp": {"width":1928,"height":1431,"color":"#26181c"},
     "/ollie/outline.webp": {"width":2800,"height":2100,"color":"#1e1e1e"},
     "/ollie/tour.webp": {"width":2400,"height":1767,"color":"#190d10"},
     "/hedwy_portfolio/portfolio_kit.webp": {"width":1299,"height":1267,"color":"#252120","variants":[["/sizes/hedwy_portfolio/portfolio_kit-640.webp",640],["/sizes/hedwy_portfolio/portfolio_kit-960.webp",960],["/sizes/hedwy_portfolio/portfolio_kit-1280.webp",1280]]},
