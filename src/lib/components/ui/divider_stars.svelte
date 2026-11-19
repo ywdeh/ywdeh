@@ -57,6 +57,7 @@
 <style>
     .star {
         --star-ink: var(--tone-line);
+        --boil: var(--duration-boil);
         --star-width: clamp(40px, 4.7vw, 60px);
         --star-end-gap: 12px;
         --star-end: min(50%, calc(var(--star-right, var(--star-width) / 2) + var(--star-end-gap)));
@@ -68,12 +69,12 @@
             )
         );
         position: absolute;
-        z-index: 1;
+        z-index: var(--level-raised);
         top: 50%;
         left: clamp(var(--star-start), var(--star-position), calc(100% - var(--star-end)));
         width: var(--star-width);
         translate: -50% -50%;
-        color: var(--project-ink, var(--color-ink));
+        color: var(--color-ink);
         overflow: visible;
         cursor: grab;
         touch-action: pan-y;
@@ -82,17 +83,17 @@
 
     .star.small {
         --star-width: clamp(34px, 4.3vw, 55px);
-        z-index: 0;
+        z-index: var(--level-base);
     }
 
     .star.dragging {
-        z-index: 2;
+        z-index: var(--level-float);
         cursor: grabbing;
     }
 
     @media (hover: hover) {
         .star:hover {
-            --star-ink: 0.14;
+            --star-ink: var(--tone-line-hover);
         }
     }
 
@@ -118,7 +119,7 @@
     .ink {
         fill: none;
         stroke: currentColor;
-        stroke-width: 4;
+        stroke-width: calc(var(--stroke) * 2);
         stroke-opacity: var(--star-ink);
     }
 
@@ -134,23 +135,23 @@
         }
 
         .ink {
-            transition: stroke-opacity 180ms ease-out;
+            transition: stroke-opacity var(--duration-quick) ease-out;
         }
 
         .drawing {
-            animation: star-boil 780ms step-end infinite;
+            animation: star-boil var(--boil) step-end infinite;
         }
 
         .drawing + .drawing {
-            animation-delay: -390ms;
+            animation-delay: calc(var(--boil) * -0.5);
         }
 
         .small .drawing {
-            animation-delay: -210ms;
+            animation-delay: calc(var(--boil) * -0.27);
         }
 
         .small .drawing + .drawing {
-            animation-delay: -600ms;
+            animation-delay: calc(var(--boil) * -0.77);
         }
     }
 

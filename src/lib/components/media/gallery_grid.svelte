@@ -7,29 +7,34 @@
     let { open } = $props();
 
     const WIDE_FROM = 1440;
+    let root;
     let width = $state(0);
     const rows = $derived(width >= WIDE_FROM ? gallery_rows.wide : gallery_rows.compact);
+
+    export const cell = (name) => root?.querySelector(`[data-picture="${name}"]`) ?? null;
+    export const image = (name) => cell(name)?.querySelector('img') ?? null;
 </script>
 
-<div class="gallery flex flex-col gap-grid" bind:clientWidth={width}>
+<div bind:this={root} class="gallery flex flex-col gap-grid" bind:clientWidth={width}>
     {#each rows as names, row (row)}
         <div class="row flex items-start gap-grid">
             {#each names as name (name)}
                 {@const item = gallery_item(name)}
                 {@const info = image_info(item.src)}
                 {@const entry = cases[item.slug]}
-                <div class="gallery_item" data-picture={name} style:--ratio={info.width / info.height}>
-                    <WorkCard
-                        kind="picture"
-                        src={item.full ?? item.src}
-                        thumbnail={item.src}
-                        alt={item.alt ?? entry.alt}
-                        title={entry.title}
-                        client={entry.client}
-                        preload={() => preload_image(item.full ?? item.src)}
-                        onclick={() => open(name)}
-                    />
-                </div>
+                <WorkCard
+                    class="gallery_item"
+                    data-picture={name}
+                    style="--ratio: {info.width / info.height}"
+                    kind="picture"
+                    src={item.full ?? item.src}
+                    thumbnail={item.src}
+                    alt={item.alt ?? entry.alt}
+                    title={entry.title}
+                    client={entry.client}
+                    preload={() => preload_image(item.full ?? item.src)}
+                    onclick={() => open(name)}
+                />
             {/each}
         </div>
     {/each}
@@ -40,7 +45,7 @@
         container-type: inline-size;
     }
 
-    .gallery_item {
+    .row > :global(.gallery_item) {
         min-width: 0;
         flex: var(--ratio) 1 0;
     }
@@ -50,7 +55,7 @@
             flex-direction: column;
         }
 
-        .gallery_item {
+        .row > :global(.gallery_item) {
             flex: none;
             width: 100%;
         }

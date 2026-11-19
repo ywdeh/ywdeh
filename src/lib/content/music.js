@@ -1,6 +1,3 @@
-// Picked from Spotify liked songs as cozy background for the site: warm, gentle, mostly
-// acoustic indie folk in the vein of Sufjan Stevens, Novo Amor and Oh Wonder
-// id is the part after open.spotify.com/track/
 export const tracks = [
     { id: '1XZPtZVqcOzzxbYIR7MjQw', title: 'Ontario', artist: 'Novo Amor, Lowswimmer' },
     { id: '7qH9Z4dJEN0l9bidizW7fq', title: 'Anchor', artist: 'Novo Amor' },

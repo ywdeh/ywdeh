@@ -1,343 +1,116 @@
 <script>
     import { onMount } from 'svelte';
-    import { press } from '$lib/actions/press.js';
-    import { strokes } from '$lib/geometry/strokes.js';
-    import { tracks } from '$lib/content/music.js';
-    import { spotify_controller } from '$lib/media/spotify.js';
     import { cubicOut } from 'svelte/easing';
-    import { motion_ms, reduced_motion } from '$lib/motion/timing.js';
+    import { press } from '$lib/actions/press.js';
+    import { labels } from '$lib/content/labels.js';
+    import { tracks } from '$lib/content/music.js';
+    import { light_under } from '$lib/controllers/light_under.svelte.js';
+    import { playback } from '$lib/controllers/playback.svelte.js';
+    import { vinyl_spin } from '$lib/controllers/vinyl_spin.svelte.js';
+    import { disc, pinched, strokes } from '$lib/geometry/strokes.js';
+    import { css_path, mask_url } from '$lib/geometry/svg.js';
+    import { track_url } from '$lib/media/spotify.js';
+    import { motion_ms, token_ms } from '$lib/motion/timing.js';
+    import Icon from '$lib/components/ui/icon.svelte';
 
-    const TURN_MS = 4000;
-    const SPIN_EASE_MS = 700;
-
-    // switching songs moves like the info's own reveal: the old title rises and fades while
-    // the new one rises in from below, and the new cover fades in over the old one
     const SHIFT_REM = 0.5;
 
-    function song_in() {
-        return {
-            duration: motion_ms('--duration-glide'),
-            easing: cubicOut,
-            css: (t, u) => `opacity: ${t}; translate: 0 ${u * SHIFT_REM}rem`,
-        };
-    }
-
-    function song_out() {
-        return {
-            duration: motion_ms('--duration-reveal'),
-            easing: cubicOut,
-            css: (t, u) => `opacity: ${t}; translate: 0 ${-u * SHIFT_REM}rem`,
-        };
-    }
-
-    function cover_in() {
-        return { duration: motion_ms('--duration-reveal'), easing: cubicOut, css: (t) => `opacity: ${t}; z-index: 1` };
-    }
-
-    // the old cover just waits underneath until the new one has fully come in
-    function cover_out() {
-        return { duration: motion_ms('--duration-reveal'), css: () => 'z-index: 0' };
-    }
-
-    // the triangles are closed, so they can't trim their ends like the other icons; instead
-    // their corners pull in while the sides bow out, keeping the same size (hover, then press)
-    const PINCHED = {
-        [strokes.play[0]]: [
-            'M8.45 6.34Q14.08 8.21 17.72 12.1Q13.65 15.88 8.63 17.77Q7.28 12.1 8.45 6.34Z',
-            'M8.8 6.97Q14.27 7.93 17.04 12.09Q13.8 16.16 8.96 17.13Q6.96 12.1 8.8 6.97Z',
-        ],
-        [strokes.next[0]]: [
-            'M6.57 6.96Q10.84 8.76 13.59 12Q10.73 15.24 6.75 17.13Q5.65 12.1 6.57 6.96Z',
-            'M6.83 7.53Q10.98 8.52 13.07 12.01Q10.86 15.48 7 16.57Q5.41 12.11 6.83 7.53Z',
-        ],
-    };
-
-    let track = $state.raw();
-    let cover = $state();
-    let tint = $state();
-    let host = $state();
+    const music = playback(tracks);
+    let player = $state();
+    let info = $state();
     let vinyl = $state();
-    let controller = $state.raw();
-    let ready = $state(false);
-    let paused = $state(true);
-    let buffering = $state(false);
-    let position = $state(0);
-    let duration = $state(0);
+    let host = $state();
     let peek = $state(false);
-    let ended = $state(false);
-    let connecting = $state(false);
-    let loaded;
-    let gone = false;
-    let play_when_ready = false;
     let peek_timer;
 
-    const covers = new Map();
-    const progress = $derived(duration && !ended ? Math.min(position / duration, 1) : 0);
-    const playing = $derived(!paused && !buffering && duration > 0 && position < duration);
-
-    // the record spins up when sound starts and slows to a stop when it ends
-    let angle = 0;
-    let speed = 0;
-    let frame;
-    let last;
-
-    function spin(now) {
-        const dt = last === undefined ? 0 : now - last;
-        last = now;
-        const target = playing ? 360 / TURN_MS : 0;
-        speed += (target - speed) * (1 - Math.exp(-dt / (SPIN_EASE_MS / 3)));
-        if (!playing && speed < 0.0005) speed = 0;
-        angle = (angle + speed * dt) % 360;
-        if (vinyl) vinyl.style.rotate = `${angle}deg`;
-        if (speed === 0 && !playing) {
-            frame = undefined;
-            last = undefined;
-            return;
-        }
-        frame = requestAnimationFrame(spin);
-    }
-
-    $effect(() => {
-        if (playing && !frame && !reduced_motion()) frame = requestAnimationFrame(spin);
+    const light = light_under({
+        get element() {
+            return player;
+        },
+        get area() {
+            return info;
+        },
     });
 
-    // over bright pictures the song text brightens a little so it stays readable, judged by
-    // the same average colours that tint the cards; over the plain dark page it has none
-    let player = $state();
-    let shade = $state(0);
-    let pixel;
-
-    function brightness(color) {
-        pixel ??= document.createElement('canvas').getContext('2d', { willReadFrequently: true });
-        pixel.clearRect(0, 0, 1, 1);
-        pixel.fillStyle = color;
-        pixel.fillRect(0, 0, 1, 1);
-        const [r, g, b] = pixel.getImageData(0, 0, 1, 1).data;
-        return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    }
-
-    function picture_below(x, y) {
-        const element = document.elementsFromPoint(x, y).find((node) => !player.contains(node));
-        if (element?.tagName !== 'IMG') return 0;
-        const tint = getComputedStyle(element.closest('.tinted') ?? element).getPropertyValue('--tint').trim();
-        return tint ? brightness(tint) : 0;
-    }
-
-    function sample() {
-        const box = player?.querySelector('.info')?.getBoundingClientRect();
-        if (!box) return;
-        let light = 0;
-        for (const y of [box.top + box.height * 0.3, box.top + box.height * 0.75])
-            for (const x of [box.left + 8, box.left + box.width * 0.4, box.left + box.width * 0.8])
-                light = Math.max(light, picture_below(x, y));
-        shade = Math.min(Math.max((light - 0.15) / 0.3, 0), 1);
-    }
-
-    $effect(() => {
-        if (!player) return;
-        let frame;
-        const later = () => {
-            cancelAnimationFrame(frame);
-            frame = requestAnimationFrame(sample);
-        };
-        later();
-        addEventListener('scroll', later, { passive: true, capture: true });
-        // once more when scrolling settles, in case the last frame's check was skipped
-        addEventListener('scrollend', sample, { capture: true });
-        addEventListener('resize', later);
-        player.addEventListener('pointerenter', later);
-        player.addEventListener('focusin', later);
-        return () => {
-            cancelAnimationFrame(frame);
-            removeEventListener('scroll', later, { capture: true });
-            removeEventListener('scrollend', sample, { capture: true });
-            removeEventListener('resize', later);
-            player.removeEventListener('pointerenter', later);
-            player.removeEventListener('focusin', later);
-        };
+    vinyl_spin({
+        get playing() {
+            return music.playing;
+        },
+        get element() {
+            return vinyl;
+        },
     });
 
-    $effect(() => {
-        if (peek && player) requestAnimationFrame(sample);
+    const state_label = $derived(music.ended ? labels.replay : music.paused ? labels.play : labels.pause);
+    const state_icon = $derived(music.ended ? strokes.replay : music.paused ? strokes.play : strokes.pause);
+
+    const rise = (direction, duration) => ({
+        duration: motion_ms(duration),
+        easing: cubicOut,
+        css: (t, u) => `opacity: ${t}; translate: 0 ${direction * u * SHIFT_REM}rem`,
     });
 
-    // each visit starts somewhere random in the list, then next walks it in order and wraps
-    function random_track() {
-        return tracks[Math.floor(Math.random() * tracks.length)];
-    }
-
-    function following() {
-        return tracks[(tracks.indexOf(track) + 1) % tracks.length];
-    }
-
-    // plain average of the cover, like scripts/images.mjs does for the site's own pictures
-    async function average_color(url) {
-        const image = new Image();
-        image.crossOrigin = 'anonymous';
-        image.src = url;
-        await image.decode();
-        const size = 24;
-        const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = size;
-        const context = canvas.getContext('2d', { willReadFrequently: true });
-        context.drawImage(image, 0, 0, size, size);
-        const { data } = context.getImageData(0, 0, size, size);
-        const sum = [0, 0, 0];
-        for (let i = 0; i < data.length; i += 4) for (let c = 0; c < 3; c++) sum[c] += data[i + c];
-        const pixels = data.length / 4;
-        return `rgb(${sum.map((value) => Math.round(value / pixels)).join(' ')})`;
-    }
-
-    async function load_cover(item) {
-        if (!covers.has(item.id)) {
-            covers.set(
-                item.id,
-                fetch(`https://open.spotify.com/oembed?url=https://open.spotify.com/track/${item.id}`)
-                    .then((response) => response.json())
-                    .then(async ({ thumbnail_url }) => ({
-                        url: thumbnail_url,
-                        color: await average_color(thumbnail_url).catch(() => undefined),
-                    }))
-                    .catch(() => ({})),
-            );
-        }
-        const found = await covers.get(item.id);
-        if (track !== item) return;
-        cover = found.url;
-        tint = found.color;
-    }
-
-    function show(item) {
-        // the old cover stays until the new one is ready, so the label can cross over to it
-        track = item;
-        position = 0;
-        duration = 0;
-        ended = false;
-        load_cover(item);
-    }
+    const song_in = () => rise(1, '--duration-glide');
+    const song_out = () => rise(-1, '--duration-reveal');
+    const cover_in = () => ({
+        duration: motion_ms('--duration-reveal'),
+        easing: cubicOut,
+        css: (t) => `opacity: ${t}; z-index: var(--level-raised)`,
+    });
+    const cover_out = () => ({ duration: motion_ms('--duration-reveal'), css: () => 'z-index: var(--level-base)' });
 
     function glance() {
         peek = true;
         clearTimeout(peek_timer);
-        peek_timer = setTimeout(() => (peek = false), 2500);
-    }
-
-    function load(item) {
-        loaded = item;
-        ready = false;
-        controller.loadUri(`spotify:track:${item.id}`);
-    }
-
-    // spotify's script and player load only once someone asks for music
-    function connect() {
-        if (connecting || controller) return;
-        connecting = true;
-        loaded = track;
-        spotify_controller(host, `spotify:track:${track.id}`)
-            .then((created) => {
-                if (gone) return created.destroy();
-                controller = created;
-                controller.addListener('ready', () => {
-                    if (loaded !== track) return load(track);
-                    ready = true;
-                    if (play_when_ready) {
-                        play_when_ready = false;
-                        controller.play();
-                    }
-                });
-                controller.addListener('playback_update', ({ data }) => {
-                    // at the end spotify stays "playing" with the position stuck on the full length
-                    ended = data.duration > 0 && data.position >= data.duration - 250;
-                    paused = data.isPaused || ended;
-                    buffering = data.isBuffering;
-                    position = data.position;
-                    duration = data.duration;
-                });
-            })
-            .catch(() => (play_when_ready = false))
-            .finally(() => (connecting = false));
+        peek_timer = setTimeout(() => (peek = false), token_ms('--duration-peek'));
     }
 
     function toggle() {
         glance();
-        if (!controller) {
-            play_when_ready = true;
-            connect();
-        } else if (!ready) play_when_ready = true;
-        else if (ended) {
-            ended = false;
-            controller.restart();
-        } else controller.togglePlay();
+        music.toggle(host);
     }
 
     function next() {
-        const keep_playing = !paused || play_when_ready;
-        show(following());
+        music.next();
         glance();
-        if (!controller) return;
-        play_when_ready = keep_playing;
-        load(track);
     }
 
+    $effect(() => {
+        if (peek && player) requestAnimationFrame(light.sample);
+    });
+
     onMount(() => {
-        show(random_track());
+        music.start();
         return () => {
-            gone = true;
             clearTimeout(peek_timer);
-            cancelAnimationFrame(frame);
-            controller?.destroy();
+            music.destroy();
         };
     });
 </script>
 
-{#snippet icon(paths)}
-    <svg
-        class="size-6 shrink-0"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-    >
-        {#each paths as d (d)}
-            {#if PINCHED[d]}
-                <path
-                    {d}
-                    class="pinch"
-                    style:--d={`path('${d}')`}
-                    style:--d-hover={`path('${PINCHED[d][0]}')`}
-                    style:--d-press={`path('${PINCHED[d][1]}')`}
-                />
-            {:else}
-                <path {d} class="trim" pathLength="1" />
-            {/if}
-        {/each}
-    </svg>
-{/snippet}
-
-{#if track}
+{#if music.track}
+    {@const track = music.track}
     <aside
         bind:this={player}
         class="music tinted fixed flex items-center gap-control text-ui"
         class:peek
-        style:--tint={tint}
-        style:--shade={shade}
-        aria-label="Music"
+        style:--tint={music.tint}
+        style:--shade={light.shade}
+        style:--ring-press={css_path(disc.ring_pressed)}
+        style:--label-mask={mask_url(disc.label, disc.label_box)}
+        aria-label={labels.music}
     >
-        <!-- title and artist, then next, all on the disc's centre line -->
-        <div class="info flex items-center gap-control">
+        <div bind:this={info} class="info flex items-center gap-control">
             <div class="songs grid min-w-0">
                 {#key track}
                     <div class="song flex min-w-0 flex-col items-end" in:song_in out:song_out>
                         <a
                             use:press
-                            href="https://open.spotify.com/track/{track.id}"
+                            href={track_url(track.id)}
                             target="_blank"
                             rel="noopener noreferrer"
                             class="max-w-full truncate font-normal"
-                            title="Open in Spotify">{track.title}</a
+                            title={labels.open_in_spotify}>{track.title}</a
                         >
                         <span class="ink-muted max-w-full truncate">{track.artist}</span>
                     </div>
@@ -346,39 +119,40 @@
             <button
                 use:press
                 type="button"
-                class="skip link-soft tap-target shrink-0"
-                aria-label="Another song"
-                onclick={next}>{@render icon(strokes.next)}</button
+                class="icon-host link-soft tap-target shrink-0"
+                aria-label={labels.next_song}
+                onclick={next}
             >
+                <Icon paths={strokes.next} morphs={pinched} class="size-6" />
+            </button>
         </div>
 
         <button
             use:press
             type="button"
-            class="disc relative shrink-0 rounded-full"
-            aria-label="{ended ? 'Replay' : paused ? 'Play' : 'Pause'} {track.title} by {track.artist}"
-            aria-busy={connecting}
+            class="disc icon-host relative level-raised shrink-0 rounded-full"
+            aria-label={labels.playback(state_label, track)}
+            aria-busy={music.connecting}
             onclick={toggle}
         >
-            <svg class="progress absolute inset-0" viewBox="0 0 72 72" aria-hidden="true">
-                <path d={strokes.disc_ring[0]} class="progress_track" vector-effect="non-scaling-stroke" />
+            <svg class="progress absolute inset-0" viewBox="0 0 {disc.box} {disc.box}" aria-hidden="true">
+                <path d={disc.ring} class="progress_track" vector-effect="non-scaling-stroke" />
                 <path
-                    d={strokes.disc_ring[0]}
+                    d={disc.ring}
                     class="progress_fill"
-                    class:moving={playing}
-                    class:empty={progress === 0}
+                    class:moving={music.playing}
+                    class:empty={music.progress === 0}
                     vector-effect="non-scaling-stroke"
                     pathLength="1"
-                    style:stroke-dashoffset={1 - progress}
+                    style:stroke-dashoffset={1 - music.progress}
                 />
             </svg>
             <span bind:this={vinyl} class="vinyl absolute">
                 <span class="label absolute bg-placeholder">
-                    <!-- key inside the if: local transitions only run when their nearest block changes -->
-                    {#if cover}
-                        {#key cover}
+                    {#if music.cover}
+                        {#key music.cover}
                             <img
-                                src={cover}
+                                src={music.cover}
                                 alt=""
                                 width="300"
                                 height="300"
@@ -391,12 +165,8 @@
                 </span>
                 <span class="hole absolute rounded-full"></span>
             </span>
-            <span
-                class="state absolute inset-0 flex items-center justify-center"
-                class:shown={ended}
-                aria-hidden="true"
-            >
-                {@render icon(ended ? strokes.replay : paused ? strokes.play : strokes.pause)}
+            <span class="state absolute inset-0 flex items-center justify-center" class:shown={music.ended}>
+                <Icon paths={state_icon} morphs={pinched} class="size-6" />
             </span>
         </button>
 
@@ -405,7 +175,6 @@
 {/if}
 
 <style>
-    /* how bright the picture under the text is, 0 to 1; registered so the text eases over */
     @property --shade {
         syntax: '<number>';
         inherits: true;
@@ -414,35 +183,38 @@
 
     .music {
         --disc: 4.5rem;
-        /* the same distance from both screen edges, so the disc sits square in the corner */
+        --disc-gap: 4px;
+        --info-width: 16rem;
+        --info-offset: 0.75rem;
+        --glow-x: 18rem;
+        --glow-y: 15rem;
+        --groove: 1.5px;
+        --vinyl: oklch(16% 0 0);
+        --vinyl-groove: oklch(19% 0 0);
+        --vinyl-ring: oklch(100% 0 0 / 6%);
         --corner: max(1rem, calc(var(--spacing-page-y) / 2));
+        --shown: 0;
         right: var(--corner);
         bottom: var(--corner);
         z-index: var(--layer-music);
-        max-width: calc(100vw - 2rem);
-        /* text, icons and the progress line take the cover's colour instead of plain white */
+        max-width: calc(100vw - 2 * var(--corner));
         color: var(--tint-ink);
-        --shown: 0;
     }
 
-    /* phones get the page to themselves: no room for a floating player beside the work */
     @media (width < 48rem) {
         .music {
             display: none;
         }
     }
 
-    /* a soft shade from the screen corner, so the open player sits on a calm patch of page */
     .music::before {
         content: '';
         position: absolute;
         right: calc(-1 * var(--corner));
         bottom: calc(-1 * var(--corner));
-        z-index: -1;
-        width: calc(100% + 18rem);
-        height: calc(100% + 15rem);
-        /* the page's own colour with eased stops, like light falling off, so it reads as the
-           page settling rather than a dark patch with an edge */
+        z-index: var(--level-below);
+        width: calc(100% + var(--glow-x));
+        height: calc(100% + var(--glow-y));
         background: radial-gradient(
             farthest-side at 100% 100%,
             oklch(from var(--color-surface) l c h / 85%),
@@ -455,10 +227,11 @@
             oklch(from var(--color-surface) l c h / 2%) 91%,
             transparent
         );
-        /* same grey-out as the case and viewer backdrops, fading out with the shade */
-        -webkit-backdrop-filter: saturate(0) sepia(0.1);
-        backdrop-filter: saturate(0) sepia(0.1);
-        mask-image: radial-gradient(
+        -webkit-backdrop-filter: var(--filter-muted);
+        backdrop-filter: var(--filter-muted);
+        -webkit-mask-image: var(--glow-mask);
+        mask-image: var(--glow-mask);
+        --glow-mask: radial-gradient(
             farthest-side at 100% 100%,
             black 20%,
             rgb(0 0 0 / 85%) 38%,
@@ -472,47 +245,20 @@
         pointer-events: none;
     }
 
-    @media (prefers-reduced-motion: no-preference) {
-        .music {
-            transition:
-                color var(--duration-tint) var(--ease-out),
-                --shade var(--duration-tint) var(--ease-out);
-        }
-
-        /* the shade comes in quickly so it doesn't seem to grow, and leaves at the platform's pace */
-        .music::before {
-            transition: opacity var(--duration-reveal) var(--ease-out);
-        }
-
-        .music:is(.peek, :focus-within)::before {
-            transition-duration: var(--duration-press);
-        }
-
-        @media (hover: hover) and (pointer: fine) {
-            .music:hover::before {
-                transition-duration: var(--duration-press);
-            }
-        }
-    }
-
-    /* the song info sits straight on the corner shade; over bright pictures its ink edges
-       towards white and the dimmed artist and next button come up, so it keeps its contrast
-       without looking like a different colour */
     .info {
         color: oklch(
             from var(--tint-ink) calc(l + (0.99 - l) * var(--shade)) calc(c * (1 - 0.6 * var(--shade))) h
         );
         --tone-muted: calc(0.4 + 0.4 * var(--shade));
         --tone-soft: calc(0.6 + 0.3 * var(--shade));
-        max-width: 16rem;
+        max-width: var(--info-width);
         text-align: right;
         text-transform: lowercase;
         opacity: var(--shown);
-        translate: 0.75rem 0;
+        translate: var(--info-offset) 0;
         pointer-events: none;
     }
 
-    /* the leaving and arriving songs share one cell while they cross */
     .song {
         grid-area: 1 / 1;
     }
@@ -538,7 +284,6 @@
     }
 
     .disc {
-        z-index: 1;
         width: var(--disc);
         height: var(--disc);
     }
@@ -547,15 +292,12 @@
         cursor: progress;
     }
 
-    /* pressed, the whole disc sinks in by the site's press inset, like the pictures do: the
-       ring and the record both draw in, keeping their 2px of air; the icon stays put */
     .disc:is(:active, :global(.is_pressed)) .vinyl {
-        inset: calc(4px + var(--press-inset));
+        inset: calc(var(--disc-gap) + var(--press-inset));
     }
 
-    /* the same loop drawn 6px (the press inset) further in */
     .disc:is(:active, :global(.is_pressed)) .progress path {
-        d: path('M64.9 36C64.9 41 63.1 45.8 60.6 50.2C58 54.6 54.7 58.4 50.4 60.9C46 63.3 41 64.3 36 64.3C31 64.3 25.9 63.4 21.6 60.9C17.3 58.5 13.7 54.7 11.2 50.3C8.8 45.9 7.6 41 7.6 36C7.6 31 8.5 25.9 11 21.5C13.5 17.2 17.4 13.8 21.7 11.3C26.1 8.8 31 7.2 36 7.2C41 7.2 45.8 9 50.2 11.5C54.5 14 58.3 17.3 60.9 21.6C63.4 26 64.9 31 64.9 36Z');
+        d: var(--ring-press);
     }
 
     .progress {
@@ -565,7 +307,7 @@
         overflow: visible;
         fill: none;
         stroke: currentColor;
-        stroke-width: 2px;
+        stroke-width: var(--stroke);
         stroke-linecap: round;
     }
 
@@ -578,31 +320,32 @@
         stroke-dasharray: 1;
     }
 
-    /* an empty line would still draw its round end as a dot at the top */
     .progress_fill.empty {
         opacity: 0;
     }
 
-    /* the ring takes the outer 2px, then a little air before the record */
     .vinyl {
-        inset: 4px;
+        inset: var(--disc-gap);
         border-radius: 50%;
-        /* the live site's record: fine grooves, a faint ring round the label and a drop shadow */
         background:
-            radial-gradient(circle, transparent 30%, oklch(100% 0 0 / 6%) 31%, transparent 33%),
-            repeating-radial-gradient(circle, oklch(16% 0 0) 0 1.5px, oklch(19% 0 0) 1.5px 3px);
-        box-shadow: 0 0.5rem 1.5rem oklch(0% 0 0 / 35%);
+            radial-gradient(circle, transparent 30%, var(--vinyl-ring) 31%, transparent 33%),
+            repeating-radial-gradient(
+                circle,
+                var(--vinyl) 0 var(--groove),
+                var(--vinyl-groove) var(--groove) calc(2 * var(--groove))
+            );
+        box-shadow: var(--shadow-lift);
     }
 
     .label {
         inset: 28%;
         overflow: hidden;
-        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M99 50C98.9 58.5 96 66.6 91.7 74.1C87.3 81.5 81.8 88.1 74.5 92.3C67.1 96.6 58.6 98.4 50 98.4C41.4 98.4 32.8 96.8 25.5 92.5C18.1 88.3 12.4 81.6 8.2 74.2C3.9 66.7 1.4 58.5 1.3 50C1.2 41.5 3.2 32.8 7.6 25.5C11.9 18.2 18.5 12.5 25.9 8.3C33.3 4 41.5 1.2 50 1.2C58.5 1.2 66.7 3.9 74.2 8.2C81.6 12.4 88 18.2 92.3 25.5C96.7 32.9 99.1 41.5 99 50Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+        -webkit-mask: var(--label-mask) center / 100% 100% no-repeat;
+        mask: var(--label-mask) center / 100% 100% no-repeat;
     }
 
-    /* the spindle hole, in the page colour as on the live site */
     .hole {
-        inset: calc(50% - 4px);
+        inset: calc(50% - var(--disc-gap));
         background-color: var(--color-surface);
     }
 
@@ -617,7 +360,7 @@
 
     .state {
         opacity: 0;
-        filter: drop-shadow(0 0 4px oklch(0% 0 0 / 60%));
+        filter: drop-shadow(var(--shadow-glyph));
     }
 
     .state.shown,
@@ -632,53 +375,26 @@
         }
     }
 
-    /* icons answer hover like the rest of the site: open strokes trim in from both ends,
-       closed triangles pinch their corners, a little on hover and more on press */
-    .trim {
-        stroke-dasharray: 1 1;
-        stroke-dashoffset: 0;
-    }
-
-    .pinch {
-        d: var(--d);
-    }
-
     @media (prefers-reduced-motion: no-preference) {
-        .trim {
+        .music {
             transition:
-                stroke-dasharray var(--duration-press) var(--ease-press),
-                stroke-dashoffset var(--duration-press) var(--ease-press);
+                color var(--duration-tint) var(--ease-out),
+                --shade var(--duration-tint) var(--ease-out);
+            animation: arrive var(--duration-glide) var(--delay-arrival) var(--ease-settle) backwards;
         }
 
-        .pinch {
-            transition: d var(--duration-press) var(--ease-press);
+        .music::before {
+            transition: opacity var(--duration-reveal) var(--ease-out);
+        }
+
+        .music:is(.peek, :focus-within)::before {
+            transition-duration: var(--duration-press);
         }
 
         @media (hover: hover) and (pointer: fine) {
-            :is(.disc, .skip):hover .trim {
-                stroke-dasharray: 0.8 1;
-                stroke-dashoffset: -0.1;
+            .music:hover::before {
+                transition-duration: var(--duration-press);
             }
-
-            :is(.disc, .skip):hover .pinch {
-                d: var(--d-hover);
-            }
-        }
-
-        :is(.disc, .skip):is(:active, :global(.is_pressed)) .trim {
-            stroke-dasharray: 0.6 1;
-            stroke-dashoffset: -0.2;
-        }
-
-        :is(.disc, .skip):is(:active, :global(.is_pressed)) .pinch {
-            d: var(--d-press);
-        }
-    }
-
-    @media (prefers-reduced-motion: no-preference) {
-        .music {
-            /* backwards, not both: a held opacity would cut the shade's grey-out off from the page */
-            animation: arrive var(--duration-glide) 800ms var(--ease-settle) backwards;
         }
 
         .info {
@@ -686,7 +402,6 @@
                 opacity var(--duration-reveal) var(--ease-out),
                 translate var(--duration-glide) var(--ease-settle);
         }
-
 
         .vinyl {
             transition: inset var(--duration-press) var(--ease-press);
@@ -717,7 +432,7 @@
     @keyframes arrive {
         from {
             opacity: 0;
-            translate: 0 0.75rem;
+            translate: 0 var(--info-offset);
         }
     }
 

@@ -2,7 +2,9 @@
     import { onMount } from 'svelte';
     import { pushState } from '$app/navigation';
     import { page } from '$app/state';
+    import { labels } from '$lib/content/labels.js';
     import { projects } from '$lib/content/projects.js';
+    import { section } from '$lib/content/site.js';
     import { cases, selected_work } from '$lib/content/work.js';
     import { image_info, preload_image } from '$lib/media/images.js';
     import { reveal_intro } from '$lib/motion/intro.js';
@@ -18,15 +20,20 @@
     import SiteNavigation from '$lib/components/layout/site_navigation.svelte';
     import CaseBody from '$lib/components/media/case_body.svelte';
     import GalleryGrid from '$lib/components/media/gallery_grid.svelte';
-    import CasePanel from '$lib/components/overlays/case_panel.svelte';
+    import CasePanel, { panel_content_width } from '$lib/components/overlays/case_panel.svelte';
     import ImageViewer from '$lib/components/overlays/image_viewer.svelte';
     import MusicPlayer from '$lib/components/ui/music_player.svelte';
 
     let { arrival } = $props();
 
+    const PRELOADED_PICTURES = 2;
+    const ZOOM_HEADROOM = 1.2;
+
     let main;
     let identity;
+    let intro = $state();
     let content;
+    let gallery = $state();
     let mounted = $state(false);
     let content_ready = $state(true);
     let arrival_timer;
@@ -36,9 +43,7 @@
     const case_entry = $derived(view.slug && cases[view.slug]);
     const case_blocks = $derived(view.slug && loaded_case(view.slug));
     const picture = $derived(view.gallery && gallery_item(view.gallery));
-    const gallery_image = $derived(
-        picture && document.querySelector(`.gallery_item[data-picture="${view.gallery}"] img`),
-    );
+    const gallery_image = $derived(picture && gallery?.image(view.gallery));
 
     function go(next) {
         const target = { ...HOME, ...next };
@@ -46,16 +51,12 @@
         pushState(view_path(target), { view: target });
     }
 
-    function gallery_scroll_target() {
-        return document.querySelector(`.gallery_item[data-picture="${arrival.gallery}"]`);
-    }
-
     function arrive() {
         content_ready = mounted = true;
         if (!arrival.gallery) return;
         arrival_timer = setTimeout(
             () =>
-                gallery_scroll_target()?.scrollIntoView({
+                gallery?.cell(arrival.gallery)?.scrollIntoView({
                     block: 'center',
                     behavior: reduced_motion() ? 'instant' : 'smooth',
                 }),
@@ -64,17 +65,17 @@
     }
 
     function preload_case(slug) {
-        const width = Math.min(innerWidth, Math.max(768, innerWidth / 2)) - 80;
         load_case(slug)
             .then((blocks) => {
-                for (const { src } of case_pictures(blocks).slice(0, 2)) preload_image(src, width);
+                for (const { src } of case_pictures(blocks).slice(0, PRELOADED_PICTURES))
+                    preload_image(src, panel_content_width());
             })
             .catch(() => {});
     }
 
     onMount(() => {
         content_ready = false;
-        const dispose = reveal_intro({ page: main, identity, content, ready: arrive });
+        const dispose = reveal_intro({ page: main, identity, text: intro, content, ready: arrive });
         return () => {
             dispose();
             clearTimeout(arrival_timer);
@@ -84,6 +85,7 @@
 
 <main
     bind:this={main}
+    data-reveal
     inert={!!(picture || view.slug)}
     class="min-h-dvh w-full overflow-x-clip px-page-x py-page-y opacity-0"
 >
@@ -91,7 +93,7 @@
         <div bind:this={identity} data-reveal class="opacity-0">
             <Identity />
         </div>
-        <Intro />
+        <Intro bind:element={intro} />
 
         <div
             bind:this={content}
@@ -101,14 +103,14 @@
         >
             <div class="flex flex-col gap-row">
                 <SiteNavigation />
-                <Section id="personal-projects" title="personal projects" columns={2}>
+                <Section {...section('personal-projects')}>
                     {#each projects as project (project.name)}
                         <ProjectCard {...project} />
                     {/each}
                 </Section>
             </div>
 
-            <Section id="case-studies" title="selected work">
+            <Section {...section('case-studies')}>
                 {#each selected_work as { slug, cover, minutes, pan } (slug)}
                     <WorkCard
                         src={cover}
@@ -123,8 +125,8 @@
                 {/each}
             </Section>
 
-            <Section id="gallery" title="gallery" columns={1}>
-                <GalleryGrid open={(name) => go({ gallery: name })} />
+            <Section {...section('gallery')}>
+                <GalleryGrid bind:this={gallery} open={(name) => go({ gallery: name })} />
             </Section>
 
             <SiteFooter />
@@ -143,7 +145,7 @@
         width={image_info(src)?.width}
         height={image_info(src)?.height}
         title={entry.title}
-        zoom_width={Math.ceil((gallery_image?.clientWidth ?? 0) * 1.2)}
+        zoom_width={Math.ceil((gallery_image?.clientWidth ?? 0) * ZOOM_HEADROOM)}
         origin={arrived ? undefined : gallery_image}
         close={() => go(HOME)}
     />
@@ -159,16 +161,13 @@
                 <CaseBody blocks={case_blocks} />
             {:else}
                 {#await load_case(view.slug)}
-                    <p class="ink-soft text-ui" role="status">loading…</p>
+                    <p class="ink-soft text-ui" role="status">{labels.case_loading}</p>
                 {:then blocks}
                     <CaseBody {blocks} />
                 {:catch}
                     <p class="ink-soft text-ui">
-                        couldn't load this project. <a
-                            href={view_path(view)}
-                            data-sveltekit-reload
-                            class="underline">try again</a
-                        >
+                        {labels.case_failed}
+                        <a href={view_path(view)} data-sveltekit-reload class="underline">{labels.case_retry}</a>
                     </p>
                 {/await}
             {/if}
@@ -178,7 +177,6 @@
 
 <noscript>
     <style>
-        main,
         [data-reveal] {
             opacity: 1 !important;
         }

@@ -1,6 +1,7 @@
 <script>
     import { fade } from 'svelte/transition';
     import { pan_zoom, unzoom_before_close } from '$lib/actions/pan_zoom.js';
+    import { labels } from '$lib/content/labels.js';
     import { image_flight } from '$lib/controllers/image_flight.svelte.js';
     import { strokes } from '$lib/geometry/strokes.js';
     import { overlay_pace } from '$lib/motion/timing.js';
@@ -8,10 +9,13 @@
 
     let { src, alt = '', width, height, title, zoom_width, origin, tinted = true, close, ongone } = $props();
 
+    const WIDE_RATIO = 2;
+    const ICON_GRID = 24;
+
     const heading = $props.id();
-    const wide = $derived(width / height > 2);
-    let dialog;
-    let viewport;
+    const wide = $derived(width / height > WIDE_RATIO);
+    let viewport = $state();
+    let frame = $state();
     let close_button = $state();
     let closing = false;
 
@@ -25,10 +29,16 @@
         get ongone() {
             return ongone;
         },
+        get frame() {
+            return frame;
+        },
+        get viewport() {
+            return viewport;
+        },
     });
 
     function travel(node, direction) {
-        if (flight.launch(node, direction)) return flight.pace(direction);
+        if (flight.launch(direction)) return flight.pace(direction);
         return { ...overlay_pace(), css: (t) => `transform: scale(${0.9 + 0.1 * t}); opacity: ${t}` };
     }
 
@@ -59,16 +69,14 @@
 <div class="overlay fixed inset-0 flex items-center justify-center">
     <button
         type="button"
-        aria-label="Close overlay"
+        aria-label={labels.close_overlay}
         tabindex="-1"
         onclick={() => close_button?.click()}
-        class="backdrop fixed inset-0"
-        class:tinted
+        class="fixed inset-0 {tinted ? 'scrim mute-blur-behind' : 'blur-behind'}"
         transition:fade|global={overlay_pace()}
     ></button>
 
     <div
-        bind:this={dialog}
         role="dialog"
         aria-modal="true"
         aria-labelledby={heading}
@@ -80,13 +88,13 @@
             <div
                 bind:this={viewport}
                 use:pan_zoom
-                class="viewer_viewport"
+                class="viewport"
                 role="button"
                 tabindex="0"
-                aria-label="Image viewer. Enter to toggle zoom, arrows to pan, or scroll and drag."
+                aria-label={labels.image_viewer}
             >
                 <div class="layer">
-                    <div class="viewer_frame frame">
+                    <div bind:this={frame} class="frame">
                         <img {src} data-src={src} {alt} {width} {height} decoding="async" draggable="false" />
                     </div>
                 </div>
@@ -94,28 +102,23 @@
         </figure>
     </div>
 
-    <header class="close fixed" in:reveal_close|global={'in'} out:reveal_close|global={'out'}>
+    <header class="close fixed level-raised" in:reveal_close|global={'in'} out:reveal_close|global={'out'}>
         <h1 id={heading} class="sr-only">{title}</h1>
         <svg class="absolute size-0" aria-hidden="true">
             <mask id="{heading}-x" maskContentUnits="objectBoundingBox">
                 <g
-                    class="x_lines"
-                    transform="scale(0.041667)"
+                    transform="scale({1 / ICON_GRID})"
                     fill="none"
                     stroke="white"
-                    stroke-width="2"
+                    stroke-width="1.5"
                     stroke-linecap="round"
                 >
-                    {#each strokes.close as d (d)}<path {d} pathLength="1" />{/each}
+                    {#each strokes.close as d (d)}<path {d} pathLength="1" class="stroke-trim" />{/each}
                 </g>
             </mask>
         </svg>
-        <span
-            class="negative"
-            aria-hidden="true"
-            style="mask: url(#{heading}-x); -webkit-mask: url(#{heading}-x)"
-        ></span>
-        <CloseButton bind:element={close_button} label="Close image" onclick={request_close} />
+        <span class="negative" aria-hidden="true" style:--x-mask="url(#{heading}-x)"></span>
+        <CloseButton bind:element={close_button} label={labels.close_image} onclick={request_close} />
     </header>
 </div>
 
@@ -124,25 +127,16 @@
         z-index: var(--layer-overlay);
     }
 
-    .backdrop {
-        backdrop-filter: blur(8px);
-    }
-
-    .backdrop.tinted {
-        background-color: oklch(from var(--color-surface-deep) l c h / 70%);
-        backdrop-filter: blur(8px) saturate(0) sepia(0.1);
-    }
-
-    .viewer_viewport {
+    .viewport {
         height: calc(100dvh - 2 * var(--viewer-gap-y));
         touch-action: none;
     }
 
-    .viewer_viewport:focus-visible {
+    .viewport:focus-visible {
         background-color: transparent;
     }
 
-    .viewer_viewport:global(.is_grabbing) {
+    .viewport:global(.is_grabbing) {
         cursor: grabbing;
     }
 
@@ -154,7 +148,7 @@
         transform-origin: top left;
     }
 
-    .viewer_frame {
+    .frame {
         width: fit-content;
         max-width: 100%;
         min-width: min(var(--zoom-width, 0px), 100%);
@@ -178,71 +172,58 @@
         --negative: 1;
         --shown: 1;
         --x-strength: 0.85;
-        top: calc(var(--spacing-panel) - 0.5rem);
-        right: calc(var(--spacing-panel) - 0.5rem);
-        z-index: var(--layer-panel-header);
-    }
-
-    .close :global(.close_button svg) {
-        opacity: calc(var(--shown) * (1 - var(--negative)));
+        --icon-opacity: calc(var(--shown) * (1 - var(--negative)));
+        top: calc(var(--spacing-panel) - var(--spacing-inline));
+        right: calc(var(--spacing-panel) - var(--spacing-inline));
     }
 
     .negative {
         position: absolute;
-        top: 0.5rem;
-        left: 0.5rem;
+        top: var(--spacing-inline);
+        left: var(--spacing-inline);
         width: 2rem;
         height: 2rem;
         pointer-events: none;
+        -webkit-mask: var(--x-mask);
+        mask: var(--x-mask);
         -webkit-backdrop-filter: grayscale(1) contrast(6) invert(1);
         backdrop-filter: grayscale(1) contrast(6) invert(1);
         opacity: calc(var(--shown) * var(--negative) * var(--x-strength));
     }
 
-    .close:has(:global(.close_button:focus-visible)) {
+    .close:has(:focus-visible) {
         --x-strength: 1;
     }
 
     @media (hover: hover) {
-        .close:has(:global(.close_button:hover)) {
+        .close:has(:global(.icon-host:hover)) {
             --x-strength: 1;
         }
     }
 
-    .close:has(:global(.close_button:is(:active, .is_pressed))) {
+    .close:has(:global(.icon-host:is(:active, .is_pressed))) {
         --x-strength: 0.85;
-    }
-
-    .x_lines path {
-        stroke-dasharray: 1 1;
-        stroke-dashoffset: 0;
     }
 
     @media (prefers-reduced-motion: no-preference) {
         .layer:global(.is_zooming) {
-            transition: transform 180ms var(--ease-out);
+            transition: transform var(--duration-quick) var(--ease-out);
         }
 
         .layer:global(.is_settling) {
-            transition: transform 450ms var(--ease-settle);
-        }
-
-        .x_lines path {
-            transition:
-                stroke-dasharray var(--duration-press) var(--ease-press),
-                stroke-dashoffset var(--duration-press) var(--ease-press);
+            transition: transform var(--duration-settle) var(--ease-settle);
         }
 
         @media (hover: hover) and (pointer: fine) {
-            .close:has(:global(.close_button:hover)) .x_lines path {
-                stroke-dasharray: 0.8 1;
-                stroke-dashoffset: -0.1;
+            .close:has(:global(.icon-host:hover)) {
+                --icon-trim: var(--trim-hover);
+                --icon-shift: var(--trim-shift-hover);
             }
         }
 
-        .close:has(:global(.close_button:is(:active, .is_pressed))) .x_lines path {
-            stroke-dasharray: 0.6 1;
-            stroke-dashoffset: -0.2;
+        .close:has(:global(.icon-host:is(:active, .is_pressed))) {
+            --icon-trim: var(--trim-press);
+            --icon-shift: var(--trim-shift-press);
         }
     }
 </style>

@@ -6,7 +6,7 @@
         background-color: var(--color-surface);
         color: var(--color-ink);
         font-family: var(--font-sans);
-        font-weight: 300;
+        font-weight: var(--font-weight-body);
     }
 
     html:has([role='dialog']) {
@@ -88,6 +88,14 @@ img.is_waiting {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+    :root {
+        transition-property:
+            --color-surface, --color-ink, --tone-soft, --tone-muted, --tone-faint, --tone-line,
+            --font-weight-body, --font-weight-normal;
+        transition-duration: var(--duration-theme);
+        transition-timing-function: var(--ease-press);
+    }
+
     a:where(:not(.own_outline)) {
         transition:
             opacity var(--duration-press) var(--ease-out),

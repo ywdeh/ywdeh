@@ -1,9 +1,10 @@
+import { motion_ms } from '$lib/motion/timing.js';
 import { image_info, srcset_of } from './images.js';
 
 const AT_ONCE = 2;
 const STALL_MS = 4000;
-const REVEAL_MS = 400;
 const NEAR_MARGIN = '200px';
+const SCROLLING = new Set(['auto', 'scroll']);
 
 const pending = new Map();
 const near = new Set();
@@ -11,10 +12,16 @@ const loading = new Map();
 const groups = new Map();
 const group_of = new Map();
 const versions = new WeakMap();
-const reveals = new WeakMap();
+
+function scroll_root(node) {
+    for (let parent = node.parentElement; parent && parent !== document.body; parent = parent.parentElement) {
+        if (SCROLLING.has(getComputedStyle(parent).overflowY)) return parent;
+    }
+    return null;
+}
 
 function watch(image) {
-    const root = image.closest('[role="dialog"]');
+    const root = scroll_root(image);
     const key = root ?? document;
     let group = groups.get(key);
     if (!group) {
@@ -69,12 +76,10 @@ async function show(image, src) {
     assign(image, src);
     await image.decode().catch(() => {});
     if (!image.isConnected || versions.get(image) !== version) return;
-    image.classList.replace('is_waiting', 'is_revealing');
-    clearTimeout(reveals.get(image));
-    reveals.set(
-        image,
-        setTimeout(() => image.classList.remove('is_revealing'), REVEAL_MS),
-    );
+    if (!image.classList.replace('is_waiting', 'is_revealing')) return;
+    const settle = () => image.classList.remove('is_revealing');
+    if (!motion_ms('--duration-reveal', image)) return settle();
+    image.addEventListener('animationend', settle, { once: true });
 }
 
 function earliest() {
@@ -119,7 +124,6 @@ export function queued(image, src) {
         },
         destroy() {
             versions.set(image, (versions.get(image) ?? 0) + 1);
-            clearTimeout(reveals.get(image));
             forget(image);
             finish(image);
         },

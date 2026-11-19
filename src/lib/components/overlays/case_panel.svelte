@@ -1,20 +1,35 @@
+<script module>
+    const PANEL_MIN = 768;
+    const PANEL_PADDING = 80;
+
+    export const panel_content_width = () =>
+        Math.min(innerWidth, Math.max(PANEL_MIN, innerWidth / 2)) - PANEL_PADDING;
+</script>
+
 <script>
     import { tick } from 'svelte';
     import { fade } from 'svelte/transition';
     import { swipe_to_close } from '$lib/actions/swipe_to_close.js';
+    import { labels } from '$lib/content/labels.js';
     import { provide_case } from '$lib/media/case_context.js';
     import { image_info, picture_name } from '$lib/media/images.js';
-    import { overlay_pace } from '$lib/motion/timing.js';
+    import { overlay_pace, token_ms } from '$lib/motion/timing.js';
+    import { strokes } from '$lib/geometry/strokes.js';
     import CloseButton from '$lib/components/ui/close_button.svelte';
+    import IconButton from '$lib/components/ui/icon_button.svelte';
     import SiteFooter from '$lib/components/layout/site_footer.svelte';
     import ImageViewer from '$lib/components/overlays/image_viewer.svelte';
 
     let { title, picture, show_picture, close, children } = $props();
 
+    const ZOOM_HEADROOM = 1.2;
+
     const heading = $props.id();
     let viewed = $state();
     let viewing = $state(false);
     let covering = $state(false);
+    let copied = $state(false);
+    let copied_timer;
     let pressed;
 
     const context = provide_case((image) => {
@@ -31,7 +46,7 @@
             alt: image.alt,
             width: info?.width ?? image.naturalWidth,
             height: info?.height ?? image.naturalHeight,
-            zoom_width: Math.ceil(image.clientWidth * 1.2),
+            zoom_width: Math.ceil(image.clientWidth * ZOOM_HEADROOM),
             origin: from_spot && image.complete && image.naturalWidth ? image : undefined,
         };
     }
@@ -53,18 +68,28 @@
         entry.reveal();
         tick().then(() => {
             if (!current || !entry.node.isConnected) return;
-            (entry.node.closest('.stage') ?? entry.node).scrollIntoView({
-                block: 'center',
-                behavior: 'instant',
-            });
+            (entry.anchor() ?? entry.node).scrollIntoView({ block: 'center', behavior: 'instant' });
             view(entry.node, false);
         });
         return () => (current = false);
     });
 
-    function slide(node) {
+    function slide() {
         return { ...overlay_pace(), css: (t) => `transform: translateX(${(1 - t) * 100}%)` };
     }
+
+    async function copy_link() {
+        try {
+            await navigator.clipboard.writeText(location.href);
+        } catch {
+            return;
+        }
+        copied = true;
+        clearTimeout(copied_timer);
+        copied_timer = setTimeout(() => (copied = false), token_ms('--duration-confirm'));
+    }
+
+    $effect(() => () => clearTimeout(copied_timer));
 
     function keydown(event) {
         if (viewing || event.key !== 'Escape' || event.defaultPrevented) return;
@@ -78,10 +103,10 @@
 <div class="overlay fixed inset-0 flex items-center justify-center" inert={viewing}>
     <button
         type="button"
-        aria-label="Close overlay"
+        aria-label={labels.close_overlay}
         tabindex="-1"
         onclick={close}
-        class="backdrop dim fixed inset-0"
+        class="backdrop scrim mute-blur-behind fixed inset-0"
         transition:fade|global={overlay_pace()}
     ></button>
 
@@ -89,16 +114,21 @@
         role="dialog"
         aria-modal="true"
         aria-labelledby={heading}
-        class="panel fixed inset-y-0 right-0 z-0 flex w-full flex-col overflow-y-auto overscroll-contain bg-surface font-normal md:w-[85%] md:rounded-l-card lg:w-1/2 lg:min-w-3xl"
+        class="panel sheet fixed inset-y-0 right-0 level-base flex flex-col overflow-y-auto overscroll-contain bg-surface font-normal"
         use:swipe_to_close={close}
         transition:slide|global
     >
         <header
-            class="header sticky top-0 flex w-full shrink-0 justify-between gap-copy bg-surface/95 p-panel backdrop-blur-md"
+            class="sticky top-0 level-sticky flex w-full shrink-0 justify-between gap-copy bg-surface/95 p-panel backdrop-blur-md"
         >
             <h1 id={heading} class="text-heading">{title}</h1>
-            <span class="-m-2" class:invisible={viewing || covering}>
-                <CloseButton label="Close case study" onclick={close} />
+            <span class="-m-2 flex" class:invisible={viewing || covering}>
+                <IconButton
+                    label={copied ? labels.link_copied : labels.copy_link}
+                    paths={copied ? strokes.check : strokes.link}
+                    onclick={copy_link}
+                />
+                <CloseButton label={labels.close_case} onclick={close} />
             </span>
         </header>
 
@@ -113,7 +143,7 @@
     {#if viewing}
         <div
             aria-hidden="true"
-            class="dim pointer-events-none fixed inset-y-0 right-0 z-10 w-full md:w-[85%] md:rounded-l-card lg:w-1/2 lg:min-w-3xl"
+            class="sheet scrim mute-behind pointer-events-none fixed inset-y-0 right-0 level-raised"
             transition:fade|global={overlay_pace()}
         ></div>
     {/if}
@@ -134,17 +164,23 @@
         z-index: var(--layer-overlay);
     }
 
-    .dim {
-        background-color: oklch(from var(--color-surface-deep) l c h / 70%);
-        backdrop-filter: saturate(0) sepia(0.1);
+    .sheet {
+        width: 100%;
     }
 
-    .backdrop.dim {
-        backdrop-filter: blur(8px) saturate(0) sepia(0.1);
+    @media (width >= 48rem) {
+        .sheet {
+            width: 85%;
+            border-start-start-radius: var(--radius-card);
+            border-end-start-radius: var(--radius-card);
+        }
     }
 
-    .header {
-        z-index: var(--layer-panel-header);
+    @media (width >= 64rem) {
+        .sheet {
+            width: 50%;
+            min-width: 48rem;
+        }
     }
 
     .panel {
@@ -162,7 +198,7 @@
         }
 
         .overlay:has(> .backdrop:active) > .panel {
-            translate: 16px 0;
+            translate: var(--press-shift) 0;
         }
 
         .panel:global(.is_swiping) {

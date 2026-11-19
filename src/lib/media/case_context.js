@@ -8,9 +8,9 @@ export function provide_case(open) {
     const images = new SvelteMap();
     const context = {
         open,
-        register(node, reveal) {
+        register(node, { reveal, anchor }) {
             const src = node.dataset.src;
-            const entry = { node, reveal };
+            const entry = { node, reveal, anchor };
             images.set(src, entry);
             return {
                 destroy() {

@@ -1,14 +1,22 @@
+import { site } from './site.js';
+
 export const resume = {
+    page_title: 'hedwy: resume',
+    headings: {
+        skills: { title: 'skills', stars: 'personal-projects' },
+        experience: { title: 'experience', stars: 'case-studies' },
+        projects: { title: 'personal projects', stars: 'gallery' },
+        work: { title: 'selected work on site', stars: 'footer_end' },
+    },
     name: 'Danya (Hedwy) Smirnov',
     role: 'graphic & product designer',
     location: 'Novi Sad, Serbia',
     lead: 'Freelancing my way through life since 2019. The digital space is all dry, so I bring atmosphere and a little cinematic touch to it',
     links: [
-        { label: 'hedwy.art', href: 'https://hedwy.art' },
-        { label: 'itshedwy@icloud.com', href: 'mailto:itshedwy@icloud.com' },
+        { label: new URL(site.url).host, href: site.url },
+        { label: site.email, href: `mailto:${site.email}` },
         { label: '+381 65 345 3806', href: 'tel:+381653453806' },
-        { label: 'linkedin', href: 'https://linkedin.com/in/hedwy' },
-        { label: 'github', href: 'https://github.com/ywdeh' },
+        ...site.socials.filter(({ label }) => ['linkedin', 'github'].includes(label)),
     ],
     experience: [
         {

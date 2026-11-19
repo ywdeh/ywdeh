@@ -1,27 +1,22 @@
 import { reduced_motion } from '$lib/motion/timing.js';
 
-const TILT_PER_PX = 1.4;
-const SETTLE_MS = 140;
-const REST_MS = 1000;
 const FOLLOW_RATE = 14;
-const TURN_RATE = 12;
-const HOME_RATE = 5;
+const MAX_FRAME_MS = 50;
+const REST_DISTANCE = 0.3;
 
 const badges = new Map();
-const motion = { x: null, x_goal: null, angle: 0, angle_goal: 0, turning: false, homing: false };
+const motions = new Map();
 let shown = $state.raw(null);
 let source = null;
 let revealed = null;
 let pointer = null;
 let frame;
 let last_time;
-let settle_timer;
-let rest_timer;
 let observer;
 
 function badge_for(element) {
-    for (let host = element?.closest?.('.tinted'); host; host = host.parentElement?.closest('.tinted')) {
-        if (badges.has(host)) return badges.get(host);
+    for (let node = element instanceof Element ? element : null; node; node = node.parentElement) {
+        if (badges.has(node)) return badges.get(node);
     }
     return null;
 }
@@ -31,57 +26,64 @@ function keyboard_badge() {
     return focused?.matches(':focus-visible') ? badge_for(focused) : null;
 }
 
-const radius = () => shown.element.offsetWidth / 2;
+function motion_of(badge) {
+    if (!motions.has(badge)) motions.set(badge, { x: null, x_goal: null });
+    return motions.get(badge);
+}
 
-function along_edge(client_x) {
-    const bounds = shown?.element.offsetParent?.getBoundingClientRect();
+const radius = (badge) => badge.element.offsetWidth / 2;
+
+function along_edge(badge, client_x) {
+    const bounds = badge.element.offsetParent?.getBoundingClientRect();
     if (!bounds?.width) return null;
-    const inset = Math.min(radius(), bounds.width / 2);
+    const inset = Math.min(radius(badge), bounds.width / 2);
     return Math.min(bounds.width - inset, Math.max(inset, client_x - bounds.left));
 }
 
-function place() {
-    if (!shown) return;
-    const { element, icon, kind } = shown;
-    element.style.left = motion.x === null ? '' : '0px';
-    element.style.transform = motion.x === null ? '' : `translateX(${motion.x - radius()}px)`;
-    icon.style.rotate = kind === 'open' ? `${motion.angle}deg` : '';
+function centre(badge) {
+    const width = badge.element.offsetParent?.getBoundingClientRect().width;
+    return width ? width / 2 : null;
+}
+
+function place(badge) {
+    const { x } = motion_of(badge);
+    const { element } = badge;
+    element.style.left = x === null ? '' : '0px';
+    element.style.transform = x === null ? '' : `translateX(${x - radius(badge)}px)`;
 }
 
 function stop() {
     cancelAnimationFrame(frame);
-    clearTimeout(settle_timer);
-    clearTimeout(rest_timer);
-    frame = settle_timer = rest_timer = undefined;
+    frame = undefined;
 }
 
-function centre() {
-    const width = shown?.element.offsetParent?.getBoundingClientRect().width;
-    return width ? width / 2 : null;
+function glide_out(badge) {
+    const motion = motions.get(badge);
+    if (!motion || motion.x === null || !pointer) return;
+    motion.x_goal = along_edge(badge, pointer.x) ?? motion.x;
+}
+
+function aim(badge) {
+    if (pointer) motion_of(badge).x_goal = along_edge(badge, pointer.x);
+    wake();
 }
 
 function show(badge, how) {
     if (badge === shown && how === source) return;
     const same = badge === shown;
-    cancelAnimationFrame(frame);
-    frame = undefined;
+    if (!same && shown) glide_out(shown);
     shown = badge;
     source = how;
+    const motion = motion_of(badge);
     if (how === 'mouse' && pointer) {
-        motion.x_goal = along_edge(pointer.x);
-        if (!same) motion.x = motion.x_goal;
-        else motion.x ??= centre();
+        motion.x_goal = along_edge(badge, pointer.x);
+        motion.x ??= same ? centre(badge) : motion.x_goal;
     } else if (same && motion.x !== null) {
-        motion.x_goal = centre();
-        motion.angle_goal = 0;
-        motion.turning = false;
-        motion.homing = true;
+        motion.x_goal = centre(badge);
     } else {
         motion.x = motion.x_goal = null;
-        motion.angle = motion.angle_goal = 0;
-        motion.turning = motion.homing = false;
     }
-    place();
+    place(badge);
     wake();
 }
 
@@ -89,74 +91,48 @@ function release() {
     const focused = keyboard_badge();
     if (focused) return show(focused, 'focus');
     if (revealed) return show(revealed, 'reveal');
-    stop();
+    if (shown) glide_out(shown);
     shown = null;
     source = null;
-    if (motion.turning) settle();
-}
-
-function settle() {
-    motion.turning = false;
-    motion.homing = false;
-    motion.angle_goal = motion.angle_goal <= -45 ? -90 : 0;
     wake();
 }
 
-function turn(delta) {
-    if (shown?.kind !== 'open' || !delta) return;
-    clearTimeout(rest_timer);
-    rest_timer = undefined;
-    if (!motion.turning) motion.angle_goal = motion.angle;
-    motion.turning = true;
-    motion.homing = false;
-    motion.angle_goal = Math.max(-90, Math.min(0, motion.angle_goal + delta * TILT_PER_PX));
-    clearTimeout(settle_timer);
-    settle_timer = setTimeout(settle, SETTLE_MS);
-}
-
 function wake() {
-    if (!shown || frame !== undefined) return;
+    if (frame !== undefined || !motions.size) return;
     if (reduced_motion()) {
-        motion.x = motion.x_goal;
-        motion.angle = motion.angle_goal = 0;
-        return place();
+        for (const [badge, motion] of motions) {
+            motion.x = motion.x_goal;
+            place(badge);
+        }
+        return;
     }
     last_time = performance.now();
     frame = requestAnimationFrame(step);
 }
 
 function step(now) {
-    const seconds = Math.min(Math.max(now - last_time, 0), 50) / 1000;
+    const seconds = Math.min(Math.max(now - last_time, 0), MAX_FRAME_MS) / 1000;
     last_time = now;
-    const ease = (rate) => 1 - Math.exp(-seconds * rate);
-    if (motion.x === null || motion.x_goal === null) motion.x = motion.x_goal;
-    else motion.x += (motion.x_goal - motion.x) * ease(FOLLOW_RATE);
-    motion.angle += (motion.angle_goal - motion.angle) * ease(motion.homing ? HOME_RATE : TURN_RATE);
-    const placed = motion.x === null || Math.abs(motion.x_goal - motion.x) < 0.3;
-    const turned = Math.abs(motion.angle_goal - motion.angle) < 0.1;
-    if (placed) motion.x = motion.x_goal;
-    if (turned) motion.angle = motion.angle_goal;
-    place();
-    if (turned && !motion.turning && motion.angle !== 0 && rest_timer === undefined) {
-        rest_timer = setTimeout(() => {
-            motion.homing = true;
-            motion.angle_goal = 0;
-            wake();
-        }, REST_MS);
+    let moving = false;
+    for (const [badge, motion] of motions) {
+        if (motion.x === null || motion.x_goal === null) motion.x = motion.x_goal;
+        else motion.x += (motion.x_goal - motion.x) * (1 - Math.exp(-seconds * FOLLOW_RATE));
+        const placed = motion.x === null || Math.abs(motion.x_goal - motion.x) < REST_DISTANCE;
+        if (placed) motion.x = motion.x_goal;
+        place(badge);
+        if (!placed) moving = true;
+        else if (badge !== shown) motions.delete(badge);
     }
-    frame = placed && turned ? undefined : requestAnimationFrame(step);
+    frame = moving ? requestAnimationFrame(step) : undefined;
 }
 
 function follow(event) {
     if (event.pointerType !== 'mouse') return;
-    const delta = pointer ? event.clientX - pointer.x : 0;
     pointer = { x: event.clientX, y: event.clientY };
     const badge = badge_for(event.target);
     if (!badge) return shown && source !== 'focus' && release();
     show(badge, 'mouse');
-    turn(delta);
-    motion.x_goal = along_edge(pointer.x);
-    wake();
+    aim(badge);
 }
 
 function recheck() {
@@ -164,8 +140,7 @@ function recheck() {
     const badge = badge_for(document.elementFromPoint(pointer.x, pointer.y));
     if (badge) {
         show(badge, 'mouse');
-        motion.x_goal = along_edge(pointer.x);
-        wake();
+        aim(badge);
     } else if (source === 'mouse') release();
 }
 
@@ -216,7 +191,8 @@ export const badges_state = {
         return shown;
     },
     register(badge) {
-        badges.set(badge.host, badge);
+        badge.registered = badge.host;
+        badges.set(badge.registered, badge);
         if (badges.size > 1) return;
         for (const [target, type, listener] of listeners())
             target.addEventListener(type, listener, { capture: true, passive: true });
@@ -235,7 +211,8 @@ export const badges_state = {
         }
     },
     unregister(badge) {
-        if (badges.get(badge.host) === badge) badges.delete(badge.host);
+        if (badges.get(badge.registered) === badge) badges.delete(badge.registered);
+        motions.delete(badge);
         if (revealed === badge) revealed = null;
         if (shown === badge) release();
         if (badges.size) return;

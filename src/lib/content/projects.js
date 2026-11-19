@@ -2,7 +2,6 @@ export const projects = [
     {
         name: 'Patter',
         year: '2026 - present',
-        color: '#f0b43c',
         logo: { src: '/projects/patter_logo.svg', ratio: 3.22, height: 32 },
         links: [{ label: 'patter.hedwy.art', href: 'https://patter.hedwy.art' }],
         description: [
@@ -13,7 +12,6 @@ export const projects = [
     {
         name: 'Wintertale',
         year: '2021 - present',
-        color: '#8aa6e0',
         logo: { src: '/projects/wintertale_logo.svg', ratio: 2.1, height: 48 },
         links: [{ label: 'github', href: 'https://github.com/ywdeh/wintertale-downpour' }],
         description: [

@@ -1,7 +1,9 @@
 import { cubicOut } from 'svelte/easing';
 import { Tween } from 'svelte/motion';
-import { reduced_motion } from '$lib/motion/timing.js';
+import { reduced_motion, token_ms } from '$lib/motion/timing.js';
 
+const VELOCITY_SMOOTHING_MS = 24;
+const GLIDE_DECAY_MS = 65;
 const EDGE_ZONE = 76;
 const GLIDE_REACH = 150;
 const GLIDE_MAX = 120;
@@ -42,7 +44,8 @@ export function star_drag(options) {
     let positions = $state([undefined, undefined]);
     let drag = $state();
     let stretch_index = $state();
-    const tip_stretch = new Tween(0, { duration: 140, easing: cubicOut });
+    const tip_stretch = new Tween(0, { easing: cubicOut });
+    const relax = () => tip_stretch.set(0, { duration: token_ms('--duration-press') });
     let stretch_idle;
 
     $effect(() => () => clearTimeout(stretch_idle));
@@ -148,11 +151,11 @@ export function star_drag(options) {
         const center = clamp(resist_end(near_start, max, -1, drag.start_center, zone), min, max);
         if (elapsed > 0) {
             const speed = (center - previous) / elapsed;
-            drag.velocity += (speed - drag.velocity) * (1 - Math.exp(-elapsed / 24));
+            drag.velocity += (speed - drag.velocity) * (1 - Math.exp(-elapsed / VELOCITY_SMOOTHING_MS));
             if (drag.stretch) {
                 tip_stretch.set(clamp(-speed * STRETCH_GAIN, -STRETCH_MAX, STRETCH_MAX), { duration: 0 });
                 clearTimeout(stretch_idle);
-                stretch_idle = setTimeout(() => tip_stretch.set(0), STRETCH_IDLE_MS);
+                stretch_idle = setTimeout(relax, STRETCH_IDLE_MS);
             }
         }
         drag.moved = true;
@@ -162,7 +165,7 @@ export function star_drag(options) {
     function end(event) {
         if (drag?.id !== event.pointerId) return;
         clearTimeout(stretch_idle);
-        tip_stretch.set(0);
+        relax();
         const { index, velocity, last_time, initial_position, moved } = drag;
         drag = undefined;
         if (!moved) return;
@@ -172,7 +175,7 @@ export function star_drag(options) {
         const idle = Math.max(0, event.timeStamp - last_time);
         const can_glide = released && idle <= GLIDE_IDLE_MS && !reduced_motion();
         const glide = can_glide
-            ? clamp(velocity * GLIDE_REACH * Math.exp(-idle / 65), -GLIDE_MAX, GLIDE_MAX)
+            ? clamp(velocity * GLIDE_REACH * Math.exp(-idle / GLIDE_DECAY_MS), -GLIDE_MAX, GLIDE_MAX)
             : 0;
         const position = resting_position(bounds, Math.abs(glide) >= 1 ? glide : 0);
         positions[index] =

@@ -1,7 +1,5 @@
 import { cubicInOut, cubicOut } from 'svelte/easing';
 
-export const TOUCH_LINGER_MS = 300;
-
 export function reduced_motion() {
     return typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 }

@@ -13,6 +13,10 @@
     --font-hand: Yuyu, sans-serif;
     --font-display: Amarante, serif;
 
+    --font-weight-body: 300;
+    --font-weight-normal: 400;
+    --font-weight-semibold: 600;
+
     --radius-card: 0.75rem;
 
     --spacing-page-x: clamp(1.25rem, 6.4vw - 0.25rem, 10rem);
@@ -28,6 +32,7 @@
     --spacing-control: 0.75rem;
     --spacing-inline: 0.5rem;
 
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-press: ease-in-out;
     --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-flight: cubic-bezier(0.65, 0, 0.35, 1);
@@ -39,17 +44,32 @@
     --tone-faint: 0.3;
     --tone-hover: 0.9;
     --tone-line: 0.072;
+    --tone-line-hover: 0.14;
+    --tone-frame: 0.045;
     --tone-grain: 0.04;
 
+    --duration-hint: 120ms;
     --duration-press: 140ms;
+    --duration-quick: 180ms;
+    --duration-pop: 200ms;
+    --duration-linger: 300ms;
     --duration-reveal: 350ms;
     --duration-slide: 350ms;
     --duration-overlay: 350ms;
     --duration-tint: 400ms;
     --duration-glide: 420ms;
     --duration-flight: 450ms;
+    --duration-settle: 450ms;
+    --duration-page: 500ms;
+    --duration-theme: 600ms;
+    --duration-boil: 780ms;
+    --duration-confirm: 1600ms;
+    --duration-peek: 2500ms;
+    --duration-stagger: 120ms;
+    --delay-arrival: 800ms;
 
     --press-inset: 6px;
+    --press-shift: 16px;
     --outline-spread: 10px;
     --outline-press: 4px;
     --outline-thumb: 4px;
@@ -57,13 +77,57 @@
     --star-inset: 3.5rem;
     --edge-fade: clamp(1.25rem, 2vw + 0.5rem, 2rem);
     --viewer-gap-y: calc(var(--spacing-panel) + 3rem);
+    --stroke: 2px;
 
-    --layer-panel-header: 80;
+    --trim-rest: 1;
+    --trim-hover: 0.8;
+    --trim-press: 0.6;
+    --trim-shift-hover: -0.1;
+    --trim-shift-press: -0.2;
+    --nudge-hover: -1.06px 1.06px;
+    --nudge-press: -2.12px 2.12px;
+    --squeeze-hover: 0.92;
+    --squeeze-press: 0.84;
+
+    --icon-trim: var(--trim-rest);
+    --icon-shift: 0;
+    --icon-nudge: 0 0;
+    --icon-squeeze: 1;
+    --icon-duration: var(--duration-press);
+    --icon-ease: var(--ease-press);
+
+    --tint-rest-glow: oklch(20.5% 0.004 325.6);
+    --tint-rest-ink: oklch(70% 0.01 325.6);
+    --tint-strength: 0.47;
+    --scrim: oklch(from var(--color-surface-deep) l c h / 70%);
+    --filter-muted: saturate(0) sepia(0.1);
+    --blur-scrim: 8px;
+    --shadow-lift: 0 0.5rem 1.5rem oklch(0% 0 0 / 35%);
+    --shadow-glyph: 0 0 4px oklch(0% 0 0 / 60%);
+
+    --level-below: -1;
+    --level-base: 0;
+    --level-raised: 1;
+    --level-float: 2;
+    --level-control: 3;
+    --level-sticky: 4;
+
     --layer-overlay: 90;
     --layer-flight: 100;
     --layer-edge: 110;
     --layer-grain: 120;
     --layer-music: 130;
+}
+
+:root[data-theme='light'] {
+    --color-surface: oklch(98.5% 0.002 325.6);
+    --color-ink: oklch(20.5% 0 0);
+    --tone-soft: 0.75;
+    --tone-muted: 0.55;
+    --tone-faint: 0.45;
+    --tone-line: 0.16;
+    --font-weight-body: 350;
+    --font-weight-normal: 450;
 }
 
 @media (width < 48rem) {
@@ -113,8 +177,20 @@
     initial-value: 0.072;
 }
 
-@property --project-ink {
-    syntax: '<color>';
+@property --outline-shown {
+    syntax: '<number>';
     inherits: true;
-    initial-value: #ffffff;
+    initial-value: 1;
+}
+
+@property --font-weight-body {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 300;
+}
+
+@property --font-weight-normal {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 400;
 }

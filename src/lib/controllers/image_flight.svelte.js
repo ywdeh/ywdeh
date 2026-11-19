@@ -8,10 +8,10 @@ export function image_flight(options) {
     let closing = false;
     let home;
 
-    function landing_box(dialog, enlarged) {
+    function landing_box(enlarged) {
         const measured = enlarged.complete && enlarged.naturalWidth && enlarged.getBoundingClientRect();
         if (measured?.width && measured?.height) return measured;
-        const area = dialog.querySelector('.viewer_viewport')?.getBoundingClientRect();
+        const area = options.viewport?.getBoundingClientRect();
         const { width, height } = options.natural ?? {};
         if (!area?.width || !width || !height) return null;
         const fit = Math.min(1, area.width / width, area.height / height);
@@ -23,8 +23,8 @@ export function image_flight(options) {
         };
     }
 
-    function launch(dialog, direction) {
-        const frame = dialog.querySelector('.viewer_frame');
+    function launch(direction) {
+        const frame = options.frame;
         const enlarged = frame?.querySelector('img');
         if (direction === 'in') home = options.origin;
         if (!frame || !enlarged || !home?.isConnected || !flight_ms()) return false;
@@ -46,7 +46,7 @@ export function image_flight(options) {
             flight = fly({
                 image: home,
                 small: picture_box(home),
-                big: landing_box(dialog, enlarged),
+                big: landing_box(enlarged),
                 direction,
                 src: ready ? enlarged.currentSrc : undefined,
             });

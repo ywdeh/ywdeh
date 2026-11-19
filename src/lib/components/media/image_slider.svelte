@@ -1,5 +1,6 @@
 <script>
     import { press } from '$lib/actions/press.js';
+    import { labels } from '$lib/content/labels.js';
     import { case_context } from '$lib/media/case_context.js';
     import { image_color } from '$lib/media/images.js';
     import { token } from '$lib/motion/timing.js';
@@ -13,6 +14,7 @@
     const SWIPE_SHARE = 0.06;
     const context = case_context();
 
+    let stage = $state();
     let viewport;
     let active = $state(0);
     let offset = $state(0);
@@ -43,7 +45,7 @@
 
     function pointermove(event) {
         if (!dragging) return;
-        let delta = event.clientX - start_x;
+        const delta = event.clientX - start_x;
         if (Math.abs(delta) > DRAG_START) dragged = true;
         const at_edge = (active === 0 && delta > 0) || (active === pictures.length - 1 && delta < 0);
         offset = at_edge ? delta * EDGE_RESISTANCE : delta;
@@ -60,11 +62,16 @@
     }
 </script>
 
-<div class="slider flex flex-col gap-copy">
-    <div class="stage relative" class:tinted={!!context} style:--tint={image_color(pictures[active]?.src)}>
+<div class="slider isolate flex flex-col gap-copy">
+    <div
+        bind:this={stage}
+        class="stage relative"
+        class:tinted={!!context}
+        style:--tint={image_color(pictures[active]?.src)}
+    >
         <button
             type="button"
-            aria-label="Enlarge current image"
+            aria-label={labels.enlarge_current}
             data-own-swipe
             bind:this={viewport}
             bind:clientWidth={width}
@@ -89,7 +96,7 @@
                 {#each pictures as { src, alt }, index (src)}
                     {#if index === 0}
                         <span class="block min-w-0 shrink-0 basis-full" bind:contentRect={first_slide}>
-                            <Artwork {src} {alt} zoom={false} eager reveal={() => (active = index)} />
+                            <Artwork {src} {alt} zoom={false} eager anchor={stage} reveal={() => (active = index)} />
                         </span>
                     {:else}
                         <span class="fill block min-w-0 shrink-0 basis-full" style:height>
@@ -98,6 +105,7 @@
                                 {alt}
                                 zoom={false}
                                 class="h-full"
+                                anchor={stage}
                                 reveal={() => (active = index)}
                             />
                         </span>
@@ -105,23 +113,23 @@
                 {/each}
             </span>
         </button>
-        {#if context}<HoverBadge kind="zoom" />{/if}
+        {#if context}<HoverBadge kind="zoom" host={stage} tinted={false} />{/if}
     </div>
 
     {#if pictures.length > 1}
-        <div class="relative z-3 flex flex-wrap gap-control">
+        <div class="relative level-control flex flex-wrap gap-control">
             {#each pictures as { src, alt }, index (src)}
                 <button
                     type="button"
                     use:press={{ target: '.thumb_frame' }}
                     onclick={() => (active = index)}
-                    aria-label="Show image {index + 1}"
+                    aria-label={labels.show_image(index + 1)}
                     aria-current={index === active}
                     style:--tint={image_color(src)}
                     class="thumb tinted own_outline relative isolate flex aspect-4/3 h-14 shrink-0 rounded-card md:h-18"
                 >
                     <span
-                        class="thumb_frame frame relative z-1 block size-full overflow-hidden rounded-card bg-placeholder"
+                        class="thumb_frame relative level-raised block size-full overflow-hidden rounded-card bg-placeholder"
                     >
                         <img
                             {src}
@@ -155,8 +163,8 @@
         scale: var(--press-scale);
     }
 
-    .stage:has(> .viewport:is(.is_held, :global(.is_pressed))) :global(.badge) {
-        translate: 0 calc(-1 * var(--press-inset));
+    .stage:has(> .viewport:is(.is_held, :global(.is_pressed))) {
+        --badge-lift: calc(-1 * var(--press-inset));
     }
 
     .track :global(img) {
@@ -176,7 +184,7 @@
         content: '';
         position: absolute;
         inset: calc(-1 * var(--outline-thumb));
-        z-index: 0;
+        z-index: var(--level-base);
         border-radius: calc(var(--radius-card) + var(--outline-thumb));
         background: var(--tint-glow);
         opacity: 0;

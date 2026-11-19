@@ -1,21 +1,23 @@
 <script>
     import { Tween } from 'svelte/motion';
     import { cubicInOut } from 'svelte/easing';
-    import { motion_ms, TOUCH_LINGER_MS } from '$lib/motion/timing.js';
     import { center_reveal } from '$lib/actions/center_reveal.js';
-    import { project_frame } from '$lib/geometry/project_frame.js';
+    import { hover_intent } from '$lib/controllers/hover_intent.svelte.js';
+    import { FRAME, frame_gap, project_frame } from '$lib/geometry/project_frame.js';
+    import { motion_ms } from '$lib/motion/timing.js';
     import ArrowLink from '$lib/components/ui/arrow_link.svelte';
+    import Range from '$lib/components/ui/range.svelte';
 
-    let { name, year, color, logo, links, description } = $props();
+    let { name, year, logo, links, description } = $props();
 
     let card;
+    let label;
     let logo_failed = $state(false);
     let link_active = $state(false);
     let centered = $state(false);
     let one_per_row = $state(false);
     let size = $state({ width: 400, height: 360 });
-    let gap = $state({ start: 16, end: 700 });
-    let touch_idle;
+    let gap = $state({ start: FRAME.gap_min, end: FRAME.width * 0.7 });
     const fold = new Tween(0, { easing: cubicInOut });
     const revealed = $derived(centered && one_per_row);
     const outline = $derived(project_frame(size, gap, fold.current));
@@ -25,60 +27,44 @@
         fold.set(link_active || revealed ? 1 : 0, { duration: motion_ms('--duration-press', card) });
     });
 
-    function set_fold(active) {
-        clearTimeout(touch_idle);
-        link_active = active;
-    }
+    $effect(() => {
+        if (!logo) return;
+        const probe = new Image();
+        probe.onerror = () => (logo_failed = true);
+        probe.src = logo.src;
+        return () => (probe.onerror = null);
+    });
 
-    const link_events = {
-        onpointerenter: (event) => event.pointerType === 'mouse' && set_fold(true),
-        onpointerleave: (event) => event.pointerType === 'mouse' && set_fold(false),
-        onpointerdown: (event) => event.pointerType !== 'mouse' && set_fold(true),
-        onpointerup: (event) => event.pointerType === 'pen' && unfold(TOUCH_LINGER_MS),
-        onpointercancel: (event) => event.pointerType === 'pen' && unfold(0),
-        ontouchend: () => unfold(TOUCH_LINGER_MS),
-        ontouchcancel: () => unfold(0),
-    };
+    const intent = hover_intent({
+        enter: () => (link_active = true),
+        leave: () => (link_active = false),
+    });
 
-    function unfold(delay) {
-        clearTimeout(touch_idle);
-        touch_idle = setTimeout(() => set_fold(false), delay);
-    }
-
-    $effect(() => () => clearTimeout(touch_idle));
-
-    function measure(node) {
-        const label = node.querySelector('.project_links');
+    $effect(() => {
         const observer = new ResizeObserver(() => {
-            const frame = node.getBoundingClientRect();
+            const frame = card.getBoundingClientRect();
             if (!frame.width) return;
             const box = label.getBoundingClientRect();
             size = { width: frame.width, height: frame.height };
-            one_per_row = frame.width >= node.parentElement.clientWidth - 1;
-            node.style.setProperty('--link-inset', `${box.height / 2 + 5}px`);
-            gap = {
-                start: Math.max(16, ((box.left - frame.left) / frame.width) * 1000),
-                end: Math.min(982, ((box.right - frame.left) / frame.width) * 1000),
-            };
+            one_per_row = frame.width >= card.parentElement.clientWidth - 1;
+            card.style.setProperty('--label-half', `${box.height / 2}px`);
+            gap = frame_gap(frame, box);
         });
-        observer.observe(node);
+        observer.observe(card);
         observer.observe(label);
-        return { destroy: () => observer.disconnect() };
-    }
+        return () => observer.disconnect();
+    });
 </script>
 
 <article
     bind:this={card}
-    use:measure
     use:center_reveal={(value) => (centered = value)}
-    style:--tint={color}
     class:revealed
-    class:link_active
-    class="project tinted relative isolate flex flex-col items-start p-gutter"
+    class="project relative isolate flex flex-col items-start p-gutter"
 >
     <svg
-        class="frame_line pointer-events-none absolute inset-0 -z-1 size-full"
-        viewBox="0 0 1000 400"
+        class="frame_line pointer-events-none absolute inset-0 level-below size-full"
+        viewBox="0 0 {FRAME.width} {FRAME.height}"
         preserveAspectRatio="none"
         aria-hidden="true"
     >
@@ -104,23 +90,15 @@
                         style:--logo-image="url('{logo.src}')"
                         style:--logo-ratio={logo.ratio}
                         style:--logo-height="{logo.height}px"
-                    >
-                        <img src={logo.src} alt="" hidden onerror={() => (logo_failed = true)} />
-                    </span>
+                    ></span>
                 {:else}
                     {name}
                 {/if}
             </h3>
             {#if year}
-                <span
-                    class="ink-muted inline-flex shrink-0 items-center gap-1.5 self-start font-hand text-2xl leading-none whitespace-nowrap select-none"
-                    aria-label={year}
-                >
-                    {#each year_parts as part, index (index)}
-                        {#if index > 0}<span class="raised" aria-hidden="true">-</span>{/if}
-                        <span class:raised={index > 0} aria-hidden="true">{part}</span>
-                    {/each}
-                </span>
+                <p class="ink-muted shrink-0 self-start text-ui whitespace-nowrap">
+                    <Range parts={year_parts} />
+                </p>
             {/if}
         </div>
 
@@ -131,16 +109,10 @@
         </div>
     </div>
 
-    <div class="project_links flex w-fit items-center gap-control px-inline text-2xl">
+    <div bind:this={label} class="project_links flex w-fit items-center gap-control px-inline text-2xl">
         {#each links as link, index (link.href)}
             {#if index > 0}<span class="ink-faint" aria-hidden="true">-</span>{/if}
-            <ArrowLink
-                href={link.href}
-                external
-                aria-label="{name} {link.label}"
-                class="min-w-0"
-                {...link_events}
-            >
+            <ArrowLink href={link.href} external aria-label="{name} {link.label}" class="min-w-0" {...intent}>
                 {link.label}
             </ArrowLink>
         {/each}
@@ -149,29 +121,19 @@
 
 <style>
     .project {
-        --project-ink: var(--color-ink);
-        color: var(--project-ink);
+        --frame-baseline: 5px;
         min-height: clamp(18rem, 26vw, 22rem);
-        padding-bottom: calc(var(--spacing-gutter) + var(--link-inset, 21px));
+        padding-bottom: calc(var(--spacing-gutter) + var(--label-half, 16px) + var(--frame-baseline));
     }
 
-    .project.link_active,
-    .project.revealed,
-    .project:has(.project_links :global(a:is(:active, .is_pressed))) {
-        --project-ink: oklch(from var(--tint) 0.93 clamp(0.03, calc(c * 0.3), 0.045) h);
-    }
-
-    .project.revealed :global(.arrow_link) {
-        opacity: var(--tone-hover);
-    }
-
-    .project.revealed :global(.arrow_link path) {
-        stroke-dasharray: 0.8 1;
-        translate: -1.06px 1.06px;
+    .project.revealed {
+        --link-rest: var(--tone-hover);
+        --icon-trim: var(--trim-hover);
+        --icon-nudge: var(--nudge-hover);
     }
 
     .frame_line {
-        opacity: 0.045;
+        opacity: var(--tone-frame);
     }
 
     .logo {
@@ -180,11 +142,8 @@
         max-width: 100%;
         height: var(--logo-height);
         background-color: currentColor;
+        -webkit-mask: var(--logo-image) left center / contain no-repeat;
         mask: var(--logo-image) left center / contain no-repeat;
-    }
-
-    .raised {
-        translate: 0 -3px;
     }
 
     .description {
@@ -193,16 +152,10 @@
 
     .project_links {
         position: absolute;
-        bottom: 5px;
+        bottom: var(--frame-baseline);
         left: calc(var(--spacing-gutter) - var(--spacing-inline));
         translate: 0 50%;
         max-width: calc(100% - var(--spacing-gutter) * 2);
-    }
-
-    @media (prefers-reduced-motion: no-preference) {
-        .project {
-            transition: --project-ink calc(var(--duration-press) * 3) var(--ease-out);
-        }
     }
 
     @media (width < 48rem) {

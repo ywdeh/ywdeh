@@ -1,11 +1,13 @@
 <script>
     import { center_reveal } from '$lib/actions/center_reveal.js';
     import { press } from '$lib/actions/press.js';
+    import { labels } from '$lib/content/labels.js';
     import { badges_state } from '$lib/controllers/badge.svelte.js';
+    import { hover_intent } from '$lib/controllers/hover_intent.svelte.js';
     import { spring_pan } from '$lib/controllers/spring_pan.svelte.js';
     import { image_color, image_info } from '$lib/media/images.js';
     import { queued } from '$lib/media/load_queue.js';
-    import { reduced_motion, TOUCH_LINGER_MS } from '$lib/motion/timing.js';
+    import { reduced_motion, token_ms } from '$lib/motion/timing.js';
     import HoverBadge from '$lib/components/ui/hover_badge.svelte';
 
     let {
@@ -19,96 +21,91 @@
         pan = false,
         onclick,
         preload,
+        class: classes = '',
+        ...rest
     } = $props();
 
-    const STAGGER_MS = 120;
+    const PAN_MARGIN = 0.2;
+    const ROW_TOLERANCE = 2;
+
     const picture = $derived(kind === 'picture');
     const info = $derived(image_info(thumbnail));
     const spring = spring_pan();
 
-    let figure;
+    let figure = $state();
     let trigger;
     let centered = $state(false);
     let revealed = $state(false);
     let hovered = $state(false);
     let focused = $state(false);
     let stagger = $state(0);
-    let touch_idle;
 
     const in_color = $derived(centered || hovered || focused);
     const shown = $derived(in_color ? src : thumbnail);
 
-    function hover_start() {
-        hovered = true;
-        stagger = 0;
-        preload?.();
-        if (pan && !reduced_motion()) spring.hold(trigger);
-    }
-
-    function hover_end() {
-        hovered = false;
-        spring.reset();
-    }
-
-    function linger(delay) {
-        clearTimeout(touch_idle);
-        touch_idle = setTimeout(hover_end, delay);
-    }
+    const intent = hover_intent({
+        enter() {
+            hovered = true;
+            stagger = 0;
+            preload?.();
+            if (pan && !reduced_motion()) spring.hold(trigger);
+        },
+        leave() {
+            hovered = false;
+            spring.reset();
+        },
+    });
 
     function follow(event) {
         if (!pan || event.pointerType !== 'mouse') return;
         const bounds = event.currentTarget.getBoundingClientRect();
         if (!bounds.width) return;
         const x = (event.clientX - bounds.left) / bounds.width;
-        spring.to(Math.min(100, Math.max(0, ((x - 0.2) / 0.6) * 100)));
+        spring.to(Math.min(100, Math.max(0, ((x - PAN_MARGIN) / (1 - 2 * PAN_MARGIN)) * 100)));
     }
 
     function place_in_row() {
-        const item = figure.closest('.gallery_item') ?? figure;
         const place = { column: 0, alone: true };
-        if (!item.parentElement) return place;
-        const { top, left } = item.getBoundingClientRect();
-        for (const sibling of item.parentElement.children) {
-            if (sibling === item) continue;
+        if (!figure.parentElement) return place;
+        const { top, left } = figure.getBoundingClientRect();
+        for (const sibling of figure.parentElement.children) {
+            if (sibling === figure) continue;
             const bounds = sibling.getBoundingClientRect();
-            if (Math.abs(bounds.top - top) >= 2) continue;
+            if (Math.abs(bounds.top - top) >= ROW_TOLERANCE) continue;
             place.alone = false;
             if (bounds.left < left) place.column++;
         }
         return place;
     }
 
+    function fills_row() {
+        const row = figure.parentElement;
+        if (!row) return true;
+        const style = getComputedStyle(row);
+        const inner = row.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+        return figure.getBoundingClientRect().width >= inner - ROW_TOLERANCE;
+    }
+
     function reveal(value) {
         const { column, alone } = place_in_row();
-        stagger = column * STAGGER_MS;
+        stagger = column * token_ms('--duration-stagger');
         centered = value;
-        revealed = value && alone;
+        revealed = value && alone && matchMedia('(hover: none)').matches && fills_row();
         if (revealed) preload?.();
     }
 
     $effect(() => {
         badges_state.reveal(figure, revealed);
     });
-
-    $effect(() => () => clearTimeout(touch_idle));
 </script>
 
 <figure
     bind:this={figure}
-    class="work_card tinted relative"
+    {...rest}
+    class="work_card tinted relative isolate {classes}"
     class:hovered={hovered || revealed}
     style:--tint={image_color(src) ?? image_color(thumbnail)}
-    onpointerenter={(event) => event.pointerType === 'mouse' && hover_start()}
-    onpointerleave={(event) => event.pointerType === 'mouse' && hover_end()}
-    onpointerdown={(event) => {
-        if (event.pointerType === 'mouse') return;
-        clearTimeout(touch_idle);
-        hover_start();
-    }}
-    onpointerup={(event) => event.pointerType === 'pen' && linger(TOUCH_LINGER_MS)}
-    onpointercancel={(event) => event.pointerType === 'pen' && linger(0)}
-    ontouchend={() => linger(TOUCH_LINGER_MS)}
-    ontouchcancel={() => linger(0)}
+    {...intent}
     onpointermove={follow}
 >
     <button
@@ -125,10 +122,10 @@
         onpointerdown={preload}
         {onclick}
         aria-label={picture ? `${title} — ${client}` : undefined}
-        class="trigger own_outline relative z-10 flex w-full flex-col gap-copy text-left text-ui"
+        class="trigger own_outline relative level-raised flex w-full flex-col gap-copy text-left text-ui"
     >
         <span class="relative block">
-            <span class="preview frame block overflow-hidden rounded-card bg-placeholder">
+            <span class="preview block overflow-hidden rounded-card bg-placeholder">
                 <img
                     use:queued={shown}
                     {alt}
@@ -144,7 +141,7 @@
                     style:--stagger="{stagger}ms"
                 />
             </span>
-            <HoverBadge kind={picture ? 'zoom' : 'open'} />
+            <HoverBadge kind={picture ? 'zoom' : 'open'} host={figure} />
         </span>
 
         {#if picture}
@@ -157,8 +154,8 @@
                 <span class="reading live_tint ink-muted whitespace-nowrap">
                     <span>{client}</span>
                     {#if minutes}
-                        <span class="minutes" aria-label="approximately {minutes} minute read"
-                            >~{minutes}m</span
+                        <span class="minutes" aria-label={labels.reading_time(minutes)}
+                            >{labels.reading_time_short(minutes)}</span
                         >
                     {/if}
                 </span>
@@ -168,25 +165,33 @@
 </figure>
 
 <style>
+    figure {
+        --outline-shown: 0;
+        --badge-idle-opacity: 1;
+    }
+
+    figure:is(.hovered, :focus-within),
+    figure:has(> .trigger:is(:active, :global(.is_pressed))) {
+        --outline-shown: 1;
+    }
+
     figure::before {
         content: '';
         position: absolute;
         inset: 0;
-        z-index: 0;
+        z-index: var(--level-base);
         border-radius: var(--radius-card);
         background: var(--tint-glow);
-        opacity: 0;
+        opacity: var(--outline-shown);
         pointer-events: none;
     }
 
     figure:is(.hovered, :focus-within)::before {
-        opacity: 1;
         inset: calc(-1 * var(--outline-spread));
         border-radius: calc(var(--radius-card) + var(--outline-spread));
     }
 
     figure:has(> .trigger:is(:active, :global(.is_pressed)))::before {
-        opacity: 1;
         inset: calc(-1 * var(--outline-press));
         border-radius: calc(var(--radius-card) + var(--outline-press));
     }
@@ -200,7 +205,7 @@
     }
 
     img {
-        filter: saturate(0) sepia(0.1);
+        filter: var(--filter-muted);
     }
 
     img.in_color,
@@ -239,7 +244,7 @@
         position: absolute;
         right: 0;
         opacity: 0;
-        translate: 0.5rem;
+        translate: var(--spacing-inline);
     }
 
     figure:is(.hovered, :focus-within) .reading:has(.minutes) {
@@ -252,9 +257,12 @@
     }
 
     @media (prefers-reduced-motion: no-preference) {
+        figure {
+            transition: --outline-shown var(--duration-press) var(--ease-press);
+        }
+
         figure::before {
             transition:
-                opacity var(--duration-press) var(--ease-press),
                 inset var(--duration-press) var(--ease-press),
                 border-radius var(--duration-press) var(--ease-press);
         }

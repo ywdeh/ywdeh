@@ -68,7 +68,7 @@
 }
 
 @utility link-soft {
-    opacity: var(--tone-soft);
+    opacity: var(--link-rest, var(--tone-soft));
     &:focus-visible {
         opacity: var(--tone-hover);
     }
@@ -78,7 +78,7 @@
         }
     }
     &:is(:active, .is_pressed) {
-        opacity: var(--tone-soft);
+        opacity: var(--link-rest, var(--tone-soft));
     }
 }
 
@@ -95,8 +95,109 @@
 }
 
 @utility tinted {
-    --tint-glow: oklch(from var(--tint, oklch(20.5% 0.004 325.6)) calc(l + 0.2) calc(c* 1.5) h / 12%);
+    --tint-glow: oklch(from var(--tint, var(--tint-rest-glow)) calc(l + 0.2) calc(sqrt(c) * var(--tint-strength)) h / 12%);
     --tint-ink: oklch(
-        from var(--tint, oklch(70% 0.01 325.6)) clamp(0.85, l, 0.9) max(calc(c* 0.55), 0.015) h
+        from var(--tint, var(--tint-rest-ink)) clamp(0.85, l, 0.9) max(calc(c * 0.55), 0.015) h
     );
+}
+
+@utility icon-host {
+    @media (prefers-reduced-motion: no-preference) {
+        @media (hover: hover) and (pointer: fine) {
+            &:hover {
+                --icon-trim: var(--trim-hover);
+                --icon-shift: var(--trim-shift-hover);
+                --icon-nudge: var(--nudge-hover);
+                --icon-squeeze: var(--squeeze-hover);
+            }
+        }
+        &:is(:active, .is_pressed) {
+            --icon-trim: var(--trim-press);
+            --icon-shift: var(--trim-shift-press);
+            --icon-nudge: var(--nudge-press);
+            --icon-squeeze: var(--squeeze-press);
+        }
+    }
+}
+
+@utility stroke-trim {
+    stroke-dasharray: var(--icon-trim) 1;
+    stroke-dashoffset: var(--icon-shift);
+    @media (prefers-reduced-motion: no-preference) {
+        transition:
+            stroke-dasharray var(--icon-duration) var(--icon-ease),
+            stroke-dashoffset var(--icon-duration) var(--icon-ease);
+    }
+}
+
+@utility stroke-nudge {
+    stroke-dasharray: var(--icon-trim) 1;
+    translate: var(--icon-nudge);
+    @media (prefers-reduced-motion: no-preference) {
+        transition:
+            stroke-dasharray var(--icon-duration) var(--icon-ease),
+            translate var(--icon-duration) var(--icon-ease);
+    }
+}
+
+@utility stroke-squeeze {
+    scale: var(--icon-squeeze);
+    transform-box: fill-box;
+    transform-origin: center;
+    @media (prefers-reduced-motion: no-preference) {
+        transition: scale var(--icon-duration) var(--icon-ease);
+    }
+}
+
+@utility rule {
+    display: inline-block;
+    width: 0.5em;
+    height: var(--stroke);
+    margin-inline: 0.5em;
+    vertical-align: middle;
+    border-radius: calc(var(--stroke) / 2);
+    background: currentColor;
+}
+
+@utility scrim {
+    background-color: var(--scrim);
+}
+
+@utility mute-behind {
+    -webkit-backdrop-filter: var(--filter-muted);
+    backdrop-filter: var(--filter-muted);
+}
+
+@utility mute-blur-behind {
+    -webkit-backdrop-filter: blur(var(--blur-scrim)) var(--filter-muted);
+    backdrop-filter: blur(var(--blur-scrim)) var(--filter-muted);
+}
+
+@utility blur-behind {
+    -webkit-backdrop-filter: blur(var(--blur-scrim));
+    backdrop-filter: blur(var(--blur-scrim));
+}
+
+@utility level-below {
+    z-index: var(--level-below);
+}
+
+@utility level-base {
+    z-index: var(--level-base);
+}
+
+@utility level-raised {
+    z-index: var(--level-raised);
+}
+
+@utility level-float {
+    z-index: var(--level-float);
+}
+
+@utility level-control {
+    z-index: var(--level-control);
+}
+
+@utility level-sticky {
+    z-index: var(--level-sticky);
 }

@@ -1,6 +1,10 @@
 import { reduced_motion } from './timing.js';
 
-export function reveal_intro({ page, identity, content, ready }) {
+const PAGE = { duration: 0.7, ease: 'power2.inOut' };
+const CONTENT = { duration: 0.5, ease: 'power2.inOut' };
+const LINES = { y: 30, delay: 0.2, stagger: 0.1, ease: 'power1.inOut' };
+
+export function reveal_intro({ page, identity, text, content, ready }) {
     let disposed = false;
     let finished = false;
     let context;
@@ -29,24 +33,16 @@ export function reveal_intro({ page, identity, content, ready }) {
                     const reveal_content = () => {
                         if (revealed || disposed) return;
                         revealed = true;
-                        gsap.to([identity, content], {
-                            opacity: 1,
-                            duration: 0.5,
-                            ease: 'power2.inOut',
-                            onComplete: finish,
-                        });
+                        gsap.to([identity, content], { opacity: 1, ...CONTENT, onComplete: finish });
                     };
-                    gsap.to(page, { opacity: 1, duration: 0.7, ease: 'power2.inOut' });
-                    split = SplitText.create(page.querySelector('[data-split]'), {
+                    gsap.to(page, { opacity: 1, ...PAGE });
+                    split = SplitText.create(text, {
                         type: 'lines',
                         autoSplit: true,
                         onSplit: (self) =>
                             gsap.from(self.lines, {
-                                y: 30,
                                 opacity: 0,
-                                delay: 0.2,
-                                stagger: 0.1,
-                                ease: 'power1.inOut',
+                                ...LINES,
                                 onComplete: () => {
                                     self.revert();
                                     reveal_content();
