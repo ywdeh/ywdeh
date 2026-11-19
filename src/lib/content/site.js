@@ -1,3 +1,5 @@
+export const page_title = (part) => (part ? `${site.title} (${part})` : site.title);
+
 export const site = {
     url: 'https://hedwy.art',
     title: 'hedwy',

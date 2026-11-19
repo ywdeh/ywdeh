@@ -95,7 +95,10 @@
 }
 
 @utility tinted {
-    --tint-glow: oklch(from var(--tint, var(--tint-rest-glow)) calc(l + 0.2) calc(sqrt(c) * var(--tint-strength)) h / 12%);
+    --tint-glow: oklch(
+        from var(--tint, var(--tint-rest-glow)) var(--tint-lightness)
+            min(c * var(--tint-grey-fade), var(--tint-chroma)) h / 12%
+    );
     --tint-ink: oklch(
         from var(--tint, var(--tint-rest-ink)) clamp(0.85, l, 0.9) max(calc(c * 0.55), 0.015) h
     );

@@ -4,7 +4,7 @@
     import { page } from '$app/state';
     import { labels } from '$lib/content/labels.js';
     import { projects } from '$lib/content/projects.js';
-    import { section } from '$lib/content/site.js';
+    import { page_title, section } from '$lib/content/site.js';
     import { cases, selected_work } from '$lib/content/work.js';
     import { image_info, preload_image } from '$lib/media/images.js';
     import { reveal_intro } from '$lib/motion/intro.js';
@@ -44,6 +44,8 @@
     const case_blocks = $derived(view.slug && loaded_case(view.slug));
     const picture = $derived(view.gallery && gallery_item(view.gallery));
     const gallery_image = $derived(picture && gallery?.image(view.gallery));
+    const titled = $derived(page.state.view ?? arrival);
+    const title = $derived(page_title(titled.slug && cases[titled.slug]?.title));
 
     function go(next) {
         const target = { ...HOME, ...next };
@@ -82,6 +84,10 @@
         };
     });
 </script>
+
+<svelte:head>
+    <title>{title}</title>
+</svelte:head>
 
 <main
     bind:this={main}

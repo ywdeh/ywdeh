@@ -1,7 +1,7 @@
-import { site } from './site.js';
+import { page_title, site } from './site.js';
 
 export const resume = {
-    page_title: 'hedwy: resume',
+    page_title: page_title('resume'),
     headings: {
         skills: { title: 'skills', stars: 'personal-projects' },
         experience: { title: 'experience', stars: 'case-studies' },

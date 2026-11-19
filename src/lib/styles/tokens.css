@@ -98,7 +98,9 @@
 
     --tint-rest-glow: oklch(20.5% 0.004 325.6);
     --tint-rest-ink: oklch(70% 0.01 325.6);
-    --tint-strength: 0.47;
+    --tint-lightness: 0.55;
+    --tint-chroma: 0.07;
+    --tint-grey-fade: 60;
     --scrim: oklch(from var(--color-surface-deep) l c h / 70%);
     --filter-muted: saturate(0) sepia(0.1);
     --blur-scrim: 8px;
