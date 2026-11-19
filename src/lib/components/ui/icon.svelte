@@ -37,7 +37,7 @@
 >
     {#if crossfade}
         {#key paths}
-            <g in:fade={{ duration: motion_ms('--duration-press') }}>{@render drawing()}</g>
+            <g transition:fade={{ duration: motion_ms('--duration-press') }}>{@render drawing()}</g>
         {/key}
     {:else}
         {@render drawing()}

@@ -6,11 +6,12 @@
     import { strokes } from '$lib/geometry/strokes.js';
     import { overlay_pace } from '$lib/motion/timing.js';
     import CloseButton from '$lib/components/ui/close_button.svelte';
+    import IconButton from '$lib/components/ui/icon_button.svelte';
+    import NegativeIcon from '$lib/components/ui/negative_icon.svelte';
 
-    let { src, alt = '', width, height, title, zoom_width, origin, tinted = true, close, ongone } = $props();
+    let { src, alt = '', width, height, title, zoom_width, origin, tinted = true, link, close, ongone } = $props();
 
     const WIDE_RATIO = 2;
-    const ICON_GRID = 24;
 
     const heading = $props.id();
     const wide = $derived(width / height > WIDE_RATIO);
@@ -102,23 +103,21 @@
         </figure>
     </div>
 
-    <header class="close fixed level-raised" in:reveal_close|global={'in'} out:reveal_close|global={'out'}>
+    <header class="controls fixed level-raised flex" in:reveal_close|global={'in'} out:reveal_close|global={'out'}>
         <h1 id={heading} class="sr-only">{title}</h1>
-        <svg class="absolute size-0" aria-hidden="true">
-            <mask id="{heading}-x" maskContentUnits="objectBoundingBox">
-                <g
-                    transform="scale({1 / ICON_GRID})"
-                    fill="none"
-                    stroke="white"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                >
-                    {#each strokes.close as d (d)}<path {d} pathLength="1" class="stroke-trim" />{/each}
-                </g>
-            </mask>
-        </svg>
-        <span class="negative" aria-hidden="true" style:--x-mask="url(#{heading}-x)"></span>
-        <CloseButton bind:element={close_button} label={labels.close_image} onclick={request_close} />
+        {#if link}
+            {@const paths = link.copied ? strokes.check : strokes.link}
+            <NegativeIcon {paths}>
+                <IconButton
+                    label={link.copied ? labels.link_copied : labels.copy_link}
+                    {paths}
+                    onclick={link.copy}
+                />
+            </NegativeIcon>
+        {/if}
+        <NegativeIcon paths={strokes.close}>
+            <CloseButton bind:element={close_button} label={labels.close_image} onclick={request_close} />
+        </NegativeIcon>
     </header>
 </div>
 
@@ -168,41 +167,12 @@
         touch-action: none;
     }
 
-    .close {
+    .controls {
         --negative: 1;
         --shown: 1;
-        --x-strength: 0.85;
         --icon-opacity: calc(var(--shown) * (1 - var(--negative)));
         top: calc(var(--spacing-panel) - var(--spacing-inline));
         right: calc(var(--spacing-panel) - var(--spacing-inline));
-    }
-
-    .negative {
-        position: absolute;
-        top: var(--spacing-inline);
-        left: var(--spacing-inline);
-        width: 2rem;
-        height: 2rem;
-        pointer-events: none;
-        -webkit-mask: var(--x-mask);
-        mask: var(--x-mask);
-        -webkit-backdrop-filter: grayscale(1) contrast(6) invert(1);
-        backdrop-filter: grayscale(1) contrast(6) invert(1);
-        opacity: calc(var(--shown) * var(--negative) * var(--x-strength));
-    }
-
-    .close:has(:focus-visible) {
-        --x-strength: 1;
-    }
-
-    @media (hover: hover) {
-        .close:has(:global(.icon-host:hover)) {
-            --x-strength: 1;
-        }
-    }
-
-    .close:has(:global(.icon-host:is(:active, .is_pressed))) {
-        --x-strength: 0.85;
     }
 
     @media (prefers-reduced-motion: no-preference) {
@@ -212,18 +182,6 @@
 
         .layer:global(.is_settling) {
             transition: transform var(--duration-settle) var(--ease-settle);
-        }
-
-        @media (hover: hover) and (pointer: fine) {
-            .close:has(:global(.icon-host:hover)) {
-                --icon-trim: var(--trim-hover);
-                --icon-shift: var(--trim-shift-hover);
-            }
-        }
-
-        .close:has(:global(.icon-host:is(:active, .is_pressed))) {
-            --icon-trim: var(--trim-press);
-            --icon-shift: var(--trim-shift-press);
         }
     }
 </style>

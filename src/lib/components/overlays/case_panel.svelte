@@ -13,7 +13,8 @@
     import { labels } from '$lib/content/labels.js';
     import { provide_case } from '$lib/media/case_context.js';
     import { image_info, picture_name } from '$lib/media/images.js';
-    import { overlay_pace, token_ms } from '$lib/motion/timing.js';
+    import { link_copy } from '$lib/controllers/link_copy.svelte.js';
+    import { overlay_pace } from '$lib/motion/timing.js';
     import { strokes } from '$lib/geometry/strokes.js';
     import CloseButton from '$lib/components/ui/close_button.svelte';
     import IconButton from '$lib/components/ui/icon_button.svelte';
@@ -28,9 +29,8 @@
     let viewed = $state();
     let viewing = $state(false);
     let covering = $state(false);
-    let copied = $state(false);
-    let copied_timer;
     let pressed;
+    const link = link_copy();
 
     const context = provide_case((image) => {
         if (!image?.naturalWidth || !image.dataset.src) return;
@@ -78,18 +78,7 @@
         return { ...overlay_pace(), css: (t) => `transform: translateX(${(1 - t) * 100}%)` };
     }
 
-    async function copy_link() {
-        try {
-            await navigator.clipboard.writeText(location.href);
-        } catch {
-            return;
-        }
-        copied = true;
-        clearTimeout(copied_timer);
-        copied_timer = setTimeout(() => (copied = false), token_ms('--duration-confirm'));
-    }
-
-    $effect(() => () => clearTimeout(copied_timer));
+    $effect(() => () => link.destroy());
 
     function keydown(event) {
         if (viewing || event.key !== 'Escape' || event.defaultPrevented) return;
@@ -124,9 +113,9 @@
             <h1 id={heading} class="text-heading">{title}</h1>
             <span class="-m-2 flex" class:invisible={viewing || covering}>
                 <IconButton
-                    label={copied ? labels.link_copied : labels.copy_link}
-                    paths={copied ? strokes.check : strokes.link}
-                    onclick={copy_link}
+                    label={link.copied ? labels.link_copied : labels.copy_link}
+                    paths={link.copied ? strokes.check : strokes.link}
+                    onclick={link.copy}
                 />
                 <CloseButton label={labels.close_case} onclick={close} />
             </span>
@@ -154,6 +143,7 @@
         {...viewed}
         title={viewed.alt || title}
         tinted={false}
+        {link}
         close={() => show_picture(null)}
         ongone={() => !viewing && (covering = false)}
     />
