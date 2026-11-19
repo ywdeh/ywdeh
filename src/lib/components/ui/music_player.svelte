@@ -411,8 +411,10 @@
 
     .music {
         --disc: 4.5rem;
-        right: max(1rem, calc(var(--spacing-page-x) / 2));
-        bottom: max(1rem, calc(var(--spacing-page-y) / 2));
+        /* the same distance from both screen edges, so the disc sits square in the corner */
+        --corner: max(1rem, calc(var(--spacing-page-y) / 2));
+        right: var(--corner);
+        bottom: var(--corner);
         z-index: var(--layer-music);
         max-width: calc(100vw - 2rem);
         /* text, icons and the progress line take the cover's colour instead of plain white */
@@ -431,8 +433,8 @@
     .music::before {
         content: '';
         position: absolute;
-        right: calc(-1 * max(1rem, calc(var(--spacing-page-x) / 2)));
-        bottom: calc(-1 * max(1rem, calc(var(--spacing-page-y) / 2)));
+        right: calc(-1 * var(--corner));
+        bottom: calc(-1 * var(--corner));
         z-index: -1;
         width: calc(100% + 18rem);
         height: calc(100% + 15rem);
