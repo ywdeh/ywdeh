@@ -59,6 +59,16 @@ export const cases = {
         client: 'MorroWorld',
         alt: 'morroworld landing page, a gold title on dark green',
     },
+    ollie: {
+        title: 'artist website design',
+        client: 'Ollie',
+        alt: 'ollie tour website, a gothic logo over a red lit concert crowd',
+    },
+    hedwy_portfolio: {
+        title: 'portfolio ui kit',
+        client: 'personal',
+        alt: 'hedwy portfolio components, link buttons, accordion and the mobile layout in red and dark grey',
+    },
 };
 
 export const selected_work = [
@@ -69,10 +79,11 @@ export const selected_work = [
         pan: true,
     },
     { slug: 'routes_and_journeys', cover: '/routes_and_journeys/emblem.webp', minutes: 2 },
-    { slug: 'palia_concept', cover: '/palia_concept/hotbar.webp', minutes: 1 },
     { slug: 'morroworld', cover: '/morroworld/landing.webp', minutes: 2 },
-    { slug: 'pixel_icons_pack', cover: '/pixel_icons_pack/icons_vol2.png', minutes: 1 },
+    { slug: 'palia_concept', cover: '/palia_concept/hotbar.webp', minutes: 1 },
     { slug: 'wintertale_banner', cover: '/wintertale_banner/banner.webp', minutes: 1, pan: true },
+    { slug: 'ollie', cover: '/ollie/cover.webp', minutes: 1 },
+    { slug: 'pixel_icons_pack', cover: '/pixel_icons_pack/icons_vol2.png', minutes: 1 },
 ];
 
 export const gallery = [
@@ -92,16 +103,17 @@ export const gallery = [
     },
     { slug: 'dino_cafe', src: '/dino_cafe/dino_logo.webp', full: '/dino_cafe/dino_logo_animated.webp' },
     { slug: 'blue_animation', src: '/blue_animation/blue.webp', full: '/blue_animation/blue_animated.webp' },
+    { slug: 'hedwy_portfolio', src: '/hedwy_portfolio/portfolio_kit.webp' },
 ];
 
 export const gallery_rows = {
     wide: [
         ['pride', 'sq_heart', 'daloras_cards', 'sneakers_photos', 'sneakers_logo'],
-        ['sneakers_banner', 'dino_logo', 'blue'],
+        ['sneakers_banner', 'dino_logo', 'blue', 'portfolio_kit'],
     ],
     compact: [
         ['pride', 'sq_heart', 'daloras_cards'],
         ['sneakers_banner', 'dino_logo'],
-        ['sneakers_photos', 'sneakers_logo', 'blue'],
+        ['sneakers_photos', 'sneakers_logo', 'blue', 'portfolio_kit'],
     ],
 };

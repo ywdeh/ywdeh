@@ -161,7 +161,6 @@
         margin-inline: auto;
         overflow: clip;
         border-radius: var(--radius-card);
-        background-color: var(--color-placeholder);
     }
 
     img {
