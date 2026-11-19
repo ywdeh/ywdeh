@@ -68,7 +68,7 @@ export const resume = {
             ],
         },
     ],
-    work: ['paladins_concept', 'morroworld', 'palia_concept', 'dino_cafe', 'routes_and_journeys'],
+    work: ['paladins_concept', 'morroworld', 'ollie', 'palia_concept', 'dino_cafe', 'routes_and_journeys'],
     projects: [
         {
             name: 'Patter',
