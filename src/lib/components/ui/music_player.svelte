@@ -142,12 +142,15 @@
         };
         later();
         addEventListener('scroll', later, { passive: true, capture: true });
+        // once more when scrolling settles, in case the last frame's check was skipped
+        addEventListener('scrollend', sample, { capture: true });
         addEventListener('resize', later);
         player.addEventListener('pointerenter', later);
         player.addEventListener('focusin', later);
         return () => {
             cancelAnimationFrame(frame);
             removeEventListener('scroll', later, { capture: true });
+            removeEventListener('scrollend', sample, { capture: true });
             removeEventListener('resize', later);
             player.removeEventListener('pointerenter', later);
             player.removeEventListener('focusin', later);
@@ -433,17 +436,18 @@
         z-index: -1;
         width: calc(100% + 18rem);
         height: calc(100% + 15rem);
-        /* eased stops, like light falling off, so the shade has no edge to read a shape from */
+        /* the page's own colour with eased stops, like light falling off, so it reads as the
+           page settling rather than a dark patch with an edge */
         background: radial-gradient(
             farthest-side at 100% 100%,
-            oklch(from var(--color-surface-deep) l c h / 85%),
-            oklch(from var(--color-surface-deep) l c h / 80%) 14%,
-            oklch(from var(--color-surface-deep) l c h / 68%) 28%,
-            oklch(from var(--color-surface-deep) l c h / 51%) 42%,
-            oklch(from var(--color-surface-deep) l c h / 33%) 56%,
-            oklch(from var(--color-surface-deep) l c h / 18%) 69%,
-            oklch(from var(--color-surface-deep) l c h / 8%) 81%,
-            oklch(from var(--color-surface-deep) l c h / 2%) 91%,
+            oklch(from var(--color-surface) l c h / 85%),
+            oklch(from var(--color-surface) l c h / 80%) 14%,
+            oklch(from var(--color-surface) l c h / 68%) 28%,
+            oklch(from var(--color-surface) l c h / 51%) 42%,
+            oklch(from var(--color-surface) l c h / 33%) 56%,
+            oklch(from var(--color-surface) l c h / 18%) 69%,
+            oklch(from var(--color-surface) l c h / 8%) 81%,
+            oklch(from var(--color-surface) l c h / 2%) 91%,
             transparent
         );
         /* same grey-out as the case and viewer backdrops, fading out with the shade */
