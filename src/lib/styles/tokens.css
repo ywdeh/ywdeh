@@ -63,6 +63,7 @@
     --layer-flight: 100;
     --layer-edge: 110;
     --layer-grain: 120;
+    --layer-music: 130;
 }
 
 @media (width < 48rem) {

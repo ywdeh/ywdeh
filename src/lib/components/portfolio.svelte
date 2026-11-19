@@ -20,6 +20,7 @@
     import GalleryGrid from '$lib/components/media/gallery_grid.svelte';
     import CasePanel from '$lib/components/overlays/case_panel.svelte';
     import ImageViewer from '$lib/components/overlays/image_viewer.svelte';
+    import MusicPlayer from '$lib/components/ui/music_player.svelte';
 
     let { arrival } = $props();
 
@@ -130,6 +131,8 @@
         </div>
     </div>
 </main>
+
+<MusicPlayer />
 
 {#if picture}
     {@const entry = cases[picture.slug]}
