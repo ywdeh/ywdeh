@@ -95,8 +95,8 @@ export const resume = {
             items: 'html, css, js, sveltekit, tailwind, backend basics, discord bots, game server scripting',
         },
         {
-            group: 'AI tools',
-            items: 'Claude, ChatGPT, Codex',
+            group: 'software',
+            items: 'Figma, Photoshop, Illustrator, Procreate; Claude, ChatGPT, Codex',
         },
         {
             group: 'languages',

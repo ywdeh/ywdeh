@@ -58,8 +58,7 @@
 
 <article
     bind:this={card}
-    use:center_reveal={(value) => (centered = value)}
-    class:revealed
+    use:center_reveal={(value) => (centered = value)}    class:revealed
     class="project relative isolate flex flex-col items-start p-gutter"
 >
     <svg
