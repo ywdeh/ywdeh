@@ -2,6 +2,8 @@
     import { onMount } from 'svelte';
     import { cubicOut } from 'svelte/easing';
     import { press } from '$lib/actions/press.js';
+    import { track as track_event } from '$lib/analytics/track.js';
+    import { events } from '$lib/content/events.js';
     import { labels } from '$lib/content/labels.js';
     import { tracks } from '$lib/content/music.js';
     import { light_under } from '$lib/controllers/light_under.svelte.js';
@@ -66,12 +68,14 @@
     }
 
     function toggle() {
+        track_event(events.music_toggle, { action: music.playing ? 'pause' : 'play', track: music.track.title });
         glance();
         music.toggle(host);
     }
 
     function next() {
         music.next();
+        track_event(events.music_next, { track: music.track.title });
         glance();
     }
 
@@ -107,6 +111,8 @@
                         <a
                             use:press
                             href={track_url(track.id)}
+                            data-track-skip
+                            onclick={() => track_event(events.music_track, { track: track.title })}
                             target="_blank"
                             rel="noopener noreferrer"
                             class="max-w-full truncate font-normal"

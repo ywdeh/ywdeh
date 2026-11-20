@@ -1,3 +1,5 @@
+import { track } from '$lib/analytics/track.js';
+import { events } from '$lib/content/events.js';
 import { token_ms } from '$lib/motion/timing.js';
 
 export function link_copy() {
@@ -14,6 +16,7 @@ export function link_copy() {
             } catch {
                 return;
             }
+            track(events.copy_link, { page: location.pathname });
             copied = true;
             clearTimeout(timer);
             timer = setTimeout(() => (copied = false), token_ms('--duration-confirm'));

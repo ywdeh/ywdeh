@@ -1,9 +1,13 @@
 <script>
     import '$lib/styles/app.css';
+    import { onMount } from 'svelte';
+    import { track_links } from '$lib/analytics/track.js';
     import { site } from '$lib/content/site.js';
     import Atmosphere from '$lib/components/layout/atmosphere.svelte';
 
     let { children } = $props();
+
+    onMount(() => track_links());
 </script>
 
 <svelte:head>

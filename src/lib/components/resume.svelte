@@ -1,5 +1,7 @@
 <script>
     import { press } from '$lib/actions/press.js';
+    import { track } from '$lib/analytics/track.js';
+    import { events } from '$lib/content/events.js';
     import { bullet, strokes } from '$lib/geometry/strokes.js';
     import { mask_url } from '$lib/geometry/svg.js';
     import { labels } from '$lib/content/labels.js';
@@ -34,7 +36,10 @@
                 class="icon-host link-soft tap-target print:hidden"
                 aria-label={light ? labels.theme_dark : labels.theme_light}
                 aria-pressed={light}
-                onclick={() => (light = !light)}
+                onclick={() => {
+                    light = !light;
+                    track(events.resume_theme, { theme: light ? 'light' : 'dark' });
+                }}
             >
                 <Icon paths={light ? strokes.moon : strokes.sun} class="size-6" />
             </button>
@@ -55,7 +60,10 @@
                     <a use:press {href} class="link-soft tap-target">{label}</a>
                 {/each}
             </nav>
-            <ArrowLink turn={135} class="print:hidden" onclick={() => print()}>{labels.print}</ArrowLink>
+            <ArrowLink turn={135} class="print:hidden" onclick={() => {
+                    track(events.print_resume);
+                    print();
+                }}>{labels.print}</ArrowLink>
         </div>
     </div>
 

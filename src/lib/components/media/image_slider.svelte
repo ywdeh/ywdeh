@@ -1,8 +1,10 @@
 <script>
     import { press } from '$lib/actions/press.js';
+    import { track } from '$lib/analytics/track.js';
+    import { events } from '$lib/content/events.js';
     import { labels } from '$lib/content/labels.js';
     import { case_context } from '$lib/media/case_context.js';
-    import { image_color } from '$lib/media/images.js';
+    import { image_color, picture_name } from '$lib/media/images.js';
     import { token } from '$lib/motion/timing.js';
     import Artwork from '$lib/components/media/artwork.svelte';
     import HoverBadge from '$lib/components/ui/hover_badge.svelte';
@@ -122,7 +124,10 @@
                 <button
                     type="button"
                     use:press={{ target: '.thumb_frame' }}
-                    onclick={() => (active = index)}
+                    onclick={() => {
+                        active = index;
+                        track(events.slider_thumb, { image: picture_name(src), page: location.pathname });
+                    }}
                     aria-label={labels.show_image(index + 1)}
                     aria-current={index === active}
                     style:--tint={image_color(src)}
