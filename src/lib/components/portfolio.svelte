@@ -109,25 +109,25 @@
         >
             <div class="flex flex-col gap-row">
                 <SiteNavigation />
-                <Section {...section('personal-projects')}>
-                    {#each projects as project (project.name)}
-                        <ProjectCard {...project} />
+                <Section {...section('case-studies')}>
+                    {#each selected_work as { slug, cover, minutes, pan } (slug)}
+                        <WorkCard
+                            src={cover}
+                            {minutes}
+                            {pan}
+                            alt={cases[slug].alt}
+                            title={cases[slug].title}
+                            client={cases[slug].client}
+                            preload={() => preload_case(slug)}
+                            onclick={() => go({ slug })}
+                        />
                     {/each}
                 </Section>
             </div>
 
-            <Section {...section('case-studies')}>
-                {#each selected_work as { slug, cover, minutes, pan } (slug)}
-                    <WorkCard
-                        src={cover}
-                        {minutes}
-                        {pan}
-                        alt={cases[slug].alt}
-                        title={cases[slug].title}
-                        client={cases[slug].client}
-                        preload={() => preload_case(slug)}
-                        onclick={() => go({ slug })}
-                    />
+            <Section {...section('personal-projects')}>
+                {#each projects as project (project.name)}
+                    <ProjectCard {...project} />
                 {/each}
             </Section>
 

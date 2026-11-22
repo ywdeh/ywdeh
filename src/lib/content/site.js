@@ -35,8 +35,8 @@ export const site = {
         ],
     ],
     sections: [
-        { id: 'personal-projects', label: 'personal projects', columns: 2 },
         { id: 'case-studies', label: 'selected work', columns: 3 },
+        { id: 'personal-projects', label: 'personal projects', columns: 2 },
         { id: 'gallery', label: 'gallery', columns: 1 },
     ],
     contact: { id: 'contacts', label: 'contact me' },
