@@ -19,4 +19,13 @@ export const projects = [
             "I wanted a comfortable space for people to feel at home; over time I learned a scripting language and wrote over 100 custom features to improve the base game's immersion, look and feel",
         ],
     },
+    {
+        name: 'Playlist',
+        year: '2026',
+        logo: { src: '/projects/playlist_logo.svg', ratio: 1.457, height: 48 },
+        links: [{ label: 'playlist.hedwy.art', href: 'https://playlist.hedwy.art' }],
+        description: [
+            "playlist is a live page of what I'm listening to, pulled straight from my spotify: the song playing right now, my top songs and artists, and recent plays",
+        ],
+    },
 ];
