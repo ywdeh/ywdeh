@@ -23,7 +23,7 @@ export const projects = [
         name: 'Playlist',
         year: '2026',
         logo: { src: '/projects/playlist_logo.svg', ratio: 1.457, height: 48 },
-        links: [{ label: 'playlist.hedwy.art', href: 'https://playlist.hedwy.art' }],
+        links: [{ label: 'music.hedwy.art', href: 'https://music.hedwy.art' }],
         description: [
             "playlist is a live page of what I'm listening to, pulled straight from my spotify: the song playing right now, my top songs and artists, and recent plays",
             'built as a test of api interactions',
