@@ -22,10 +22,10 @@ export const projects = [
     {
         name: 'Music',
         year: '2026',
-        logo: { src: '/projects/playlist_logo.svg', ratio: 1.457, height: 48 },
+        logo: { src: '/projects/music_logo.svg', ratio: 1.86, height: 38 },
         links: [{ label: 'music.hedwy.art', href: 'https://music.hedwy.art' }],
         description: [
-            "music is a live page of what I'm listening to, pulled straight from my spotify: the song playing right now, my top songs and artists, and recent plays",
+            "music is a live tracker of what I'm listening to, pulled straight from my spotify: the song playing right now, my top songs and artists, and recent plays",
             'built as a test of api interactions',
         ],
     },
