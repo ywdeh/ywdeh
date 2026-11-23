@@ -2,7 +2,7 @@
     import { press } from '$lib/actions/press.js';
     import Icon from '$lib/components/ui/icon.svelte';
 
-    let { label, paths, onclick, element = $bindable(), class: classes = '', ...rest } = $props();
+    let { label, paths, icon, onclick, element = $bindable(), class: classes = '', ...rest } = $props();
 </script>
 
 <button
@@ -14,7 +14,11 @@
     {...rest}
     class="icon_button icon-host link-quiet pointer-events-auto block shrink-0 p-2 {classes}"
 >
-    <Icon {paths} stroke={1.5} crossfade class="size-8 text-ink" />
+    {#if icon}
+        {@render icon()}
+    {:else}
+        <Icon {paths} stroke={1.5} crossfade class="size-8 text-ink" />
+    {/if}
 </button>
 
 <style>

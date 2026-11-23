@@ -99,6 +99,7 @@
         from var(--tint, var(--tint-rest-glow)) var(--tint-lightness)
             min(c * var(--tint-grey-fade), var(--tint-chroma)) h / 12%
     );
+    --tint-plate: linear-gradient(var(--tint-glow) 0 0), var(--color-surface);
     --tint-ink: oklch(
         from var(--tint, var(--tint-rest-ink)) clamp(0.85, l, 0.9) max(calc(c * 0.55), 0.015) h
     );
@@ -145,10 +146,13 @@
 
 @utility stroke-squeeze {
     scale: var(--icon-squeeze);
+    stroke-width: calc(var(--icon-stroke, 2) / var(--icon-squeeze));
     transform-box: fill-box;
     transform-origin: center;
     @media (prefers-reduced-motion: no-preference) {
-        transition: scale var(--icon-duration) var(--icon-ease);
+        transition:
+            scale var(--icon-duration) var(--icon-ease),
+            stroke-width var(--icon-duration) var(--icon-ease);
     }
 }
 

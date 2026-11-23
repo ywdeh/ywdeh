@@ -1,10 +1,21 @@
 <script>
     import { cases, gallery_rows } from '$lib/content/work.js';
     import { image_info, preload_image } from '$lib/media/images.js';
-    import { gallery_item } from '$lib/routing/views.js';
+    import { labels } from '$lib/content/labels.js';
+    import { page_link } from '$lib/controllers/context_menu.svelte.js';
+    import { strokes } from '$lib/geometry/strokes.js';
+    import { gallery_item, HOME, view_path } from '$lib/routing/views.js';
     import WorkCard from '$lib/components/cards/work_card.svelte';
 
-    let { open } = $props();
+    let { open, open_case } = $props();
+
+    const menu_for = (name, slug) => () => [
+        [
+            { label: labels.menu.open_image, icon: strokes.zoom, run: () => open(name) },
+            { label: labels.menu.copy_image_link, copy: page_link(view_path({ ...HOME, gallery: name })) },
+        ],
+        [{ label: labels.menu.open_case, icon: strokes.arrow, run: () => open_case(slug) }],
+    ];
 
     const WIDE_FROM = 1440;
     let root;
@@ -34,6 +45,7 @@
                     client={entry.client}
                     preload={() => preload_image(item.full ?? item.src)}
                     onclick={() => open(name)}
+                    menu={menu_for(name, item.slug)}
                 />
             {/each}
         </div>

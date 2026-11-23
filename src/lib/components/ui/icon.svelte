@@ -27,6 +27,7 @@
 
 <svg
     class="icon {classes}"
+    style:--icon-stroke={stroke}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"

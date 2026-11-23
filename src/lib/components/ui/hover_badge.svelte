@@ -1,5 +1,6 @@
 <script>
     import { badges_state } from '$lib/controllers/badge.svelte.js';
+    import { menu } from '$lib/controllers/context_menu.svelte.js';
     import { strokes } from '$lib/geometry/strokes.js';
     import Icon from '$lib/components/ui/icon.svelte';
 
@@ -29,7 +30,8 @@
 <span
     bind:this={element}
     class="badge"
-    class:shown={badges_state.current === badge}
+    class:shown={badges_state.current === badge && !menu.open}
+    class:muted={menu.open}
     aria-hidden="true"
 >
     <span class="disc" class:tinted>
@@ -50,6 +52,10 @@
         pointer-events: none;
         opacity: var(--outline-shown);
         translate: 0 var(--badge-lift, 0);
+    }
+
+    .badge.muted {
+        opacity: 0;
     }
 
     :global(:is(:active, .is_pressed)) > .badge,
@@ -114,7 +120,9 @@
 
     @media (prefers-reduced-motion: no-preference) {
         .badge {
-            transition: translate var(--duration-press) var(--ease-press);
+            transition:
+                translate var(--duration-press) var(--ease-press),
+                opacity var(--duration-press) var(--ease-press);
         }
 
         :global(:is(:active, .is_pressed)) > .badge,

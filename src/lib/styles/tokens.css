@@ -63,6 +63,7 @@
     --duration-page: 500ms;
     --duration-theme: 600ms;
     --duration-boil: 780ms;
+    --duration-hold: 450ms;
     --duration-confirm: 1600ms;
     --duration-peek: 2500ms;
     --duration-stagger: 120ms;
@@ -87,6 +88,7 @@
     --nudge-press: -2.12px 2.12px;
     --squeeze-hover: 0.92;
     --squeeze-press: 0.84;
+    --copy-fit: 0.66;
 
     --icon-trim: var(--trim-rest);
     --icon-shift: 0;
@@ -103,6 +105,7 @@
     --scrim: oklch(from var(--color-surface-deep) l c h / 70%);
     --filter-muted: saturate(0) sepia(0.1);
     --blur-scrim: 8px;
+    --blur-copied: 4px;
     --shadow-lift: 0 0.5rem 1.5rem oklch(0% 0 0 / 35%);
     --shadow-glyph: 0 0 4px oklch(0% 0 0 / 60%);
 
@@ -117,6 +120,7 @@
     --layer-flight: 100;
     --layer-edge: 110;
     --layer-grain: 120;
+    --layer-menu: 115;
     --layer-music: 130;
 }
 

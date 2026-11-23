@@ -7,6 +7,8 @@ export const events = {
     music_next: 'music next',
     music_track: 'music open in spotify',
     copy_link: 'copy link',
+    menu_open: 'context menu',
+    menu_copy: 'context menu copy',
     slider_thumb: 'slider thumbnail',
     print_resume: 'resume pdf',
     resume_theme: 'resume theme',

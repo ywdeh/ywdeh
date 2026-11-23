@@ -2,10 +2,12 @@
     import { fade } from 'svelte/transition';
     import { pan_zoom, unzoom_before_close } from '$lib/actions/pan_zoom.js';
     import { labels } from '$lib/content/labels.js';
+    import { context_menu } from '$lib/controllers/context_menu.svelte.js';
     import { image_flight } from '$lib/controllers/image_flight.svelte.js';
     import { strokes } from '$lib/geometry/strokes.js';
     import { overlay_pace } from '$lib/motion/timing.js';
     import CloseButton from '$lib/components/ui/close_button.svelte';
+    import CopyIcon from '$lib/components/ui/copy_icon.svelte';
     import IconButton from '$lib/components/ui/icon_button.svelte';
     import NegativeIcon from '$lib/components/ui/negative_icon.svelte';
 
@@ -58,6 +60,15 @@
         }
     }
 
+    const menu = {
+        items: () => [
+            [
+                { label: labels.menu.copy_image_link, copy: location.href },
+                { label: labels.menu.close_image, icon: strokes.close, run: request_close },
+            ],
+        ],
+    };
+
     function keydown(event) {
         if (event.key !== 'Escape' || event.defaultPrevented) return;
         event.preventDefault();
@@ -89,6 +100,7 @@
             <div
                 bind:this={viewport}
                 use:pan_zoom
+                use:context_menu={menu}
                 class="viewport"
                 role="button"
                 tabindex="0"
@@ -106,13 +118,11 @@
     <header class="controls fixed level-raised flex" in:reveal_close|global={'in'} out:reveal_close|global={'out'}>
         <h1 id={heading} class="sr-only">{title}</h1>
         {#if link}
-            {@const paths = link.copied ? strokes.check : strokes.link}
-            <NegativeIcon {paths}>
-                <IconButton
-                    label={link.copied ? labels.link_copied : labels.copy_link}
-                    {paths}
-                    onclick={link.copy}
-                />
+            <NegativeIcon>
+                {#snippet icon()}<CopyIcon swapped={link.copied} stroke={1.5} fit inline />{/snippet}
+                <IconButton label={link.copied ? labels.link_copied : labels.copy_link} onclick={link.copy}>
+                    {#snippet icon()}<CopyIcon swapped={link.copied} stroke={1.5} fit class="size-8 text-ink" />{/snippet}
+                </IconButton>
             </NegativeIcon>
         {/if}
         <NegativeIcon paths={strokes.close}>

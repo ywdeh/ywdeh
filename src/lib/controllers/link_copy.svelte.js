@@ -2,7 +2,9 @@ import { track } from '$lib/analytics/track.js';
 import { events } from '$lib/content/events.js';
 import { token_ms } from '$lib/motion/timing.js';
 
-export function link_copy() {
+const page_copy = () => ({ text: location.href, event: [events.copy_link, { page: location.pathname }] });
+
+export function link_copy(source = page_copy) {
     let copied = $state(false);
     let timer;
 
@@ -11,12 +13,13 @@ export function link_copy() {
             return copied;
         },
         async copy() {
+            const { text, event } = source();
             try {
-                await navigator.clipboard.writeText(location.href);
+                await navigator.clipboard.writeText(text);
             } catch {
                 return;
             }
-            track(events.copy_link, { page: location.pathname });
+            track(...event);
             copied = true;
             clearTimeout(timer);
             timer = setTimeout(() => (copied = false), token_ms('--duration-confirm'));

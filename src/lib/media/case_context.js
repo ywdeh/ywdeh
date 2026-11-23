@@ -4,10 +4,11 @@ import { picture_name } from './images.js';
 
 const KEY = Symbol('case');
 
-export function provide_case(open) {
+export function provide_case(open, link) {
     const images = new SvelteMap();
     const context = {
         open,
+        link: (src) => link?.(picture_name(src)),
         register(node, { reveal, anchor }) {
             const src = node.dataset.src;
             const entry = { node, reveal, anchor };

@@ -2,6 +2,8 @@
     import { Tween } from 'svelte/motion';
     import { cubicInOut } from 'svelte/easing';
     import { center_reveal } from '$lib/actions/center_reveal.js';
+    import { labels } from '$lib/content/labels.js';
+    import { context_menu } from '$lib/controllers/context_menu.svelte.js';
     import { hover_intent } from '$lib/controllers/hover_intent.svelte.js';
     import { FRAME, frame_gap, project_frame } from '$lib/geometry/project_frame.js';
     import { motion_ms } from '$lib/motion/timing.js';
@@ -35,6 +37,22 @@
         return () => (probe.onerror = null);
     });
 
+    const open_entries = () => links.map((link) => ({ label: labels.menu.open(link.label), href: link.href }));
+
+    const card_menu = {
+        hold: false,
+        items: () => [open_entries(), [{ label: labels.menu.copy_link, copy: links[0]?.href }].filter((entry) => entry.copy)],
+    };
+
+    const link_menu = (link) => ({
+        items: () => [
+            [
+                { label: labels.menu.open(link.label), href: link.href },
+                { label: labels.menu.copy_link, copy: link.href },
+            ],
+        ],
+    });
+
     const intent = hover_intent({
         enter: () => (link_active = true),
         leave: () => (link_active = false),
@@ -58,7 +76,9 @@
 
 <article
     bind:this={card}
-    use:center_reveal={(value) => (centered = value)}    class:revealed
+    use:center_reveal={(value) => (centered = value)}
+    use:context_menu={card_menu}
+    class:revealed
     class="project relative isolate flex flex-col items-start p-gutter"
 >
     <svg
@@ -111,7 +131,12 @@
     <div bind:this={label} class="project_links flex w-fit items-center gap-control px-inline text-2xl">
         {#each links as link, index (link.href)}
             {#if index > 0}<span class="ink-faint" aria-hidden="true">-</span>{/if}
-            <ArrowLink href={link.href} external aria-label="{name} {link.label}" class="min-w-0" {...intent}>
+            <ArrowLink href={link.href} external
+                aria-label="{name} {link.label}"
+                menu={link_menu(link)}
+                class="min-w-0"
+                {...intent}
+            >
                 {link.label}
             </ArrowLink>
         {/each}

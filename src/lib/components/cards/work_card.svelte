@@ -3,6 +3,7 @@
     import { press } from '$lib/actions/press.js';
     import { labels } from '$lib/content/labels.js';
     import { badges_state } from '$lib/controllers/badge.svelte.js';
+    import { context_menu, holds } from '$lib/controllers/context_menu.svelte.js';
     import { hover_intent } from '$lib/controllers/hover_intent.svelte.js';
     import { spring_pan } from '$lib/controllers/spring_pan.svelte.js';
     import { image_color, image_info } from '$lib/media/images.js';
@@ -21,6 +22,7 @@
         pan = false,
         onclick,
         preload,
+        menu,
         class: classes = '',
         ...rest
     } = $props();
@@ -103,10 +105,11 @@
     bind:this={figure}
     {...rest}
     class="work_card tinted relative isolate {classes}"
-    class:hovered={hovered || revealed}
+    class:hovered={hovered || revealed || holds(figure)}
     style:--tint={image_color(src) ?? image_color(thumbnail)}
     {...intent}
     onpointermove={follow}
+    use:context_menu={menu && { items: menu, outline: true, lit: () => hovered || revealed || focused || holds(figure) }}
 >
     <button
         type="button"
@@ -181,7 +184,7 @@
         inset: 0;
         z-index: var(--level-base);
         border-radius: var(--radius-card);
-        background: var(--tint-glow);
+        background: var(--tint-plate);
         opacity: var(--outline-shown);
         pointer-events: none;
     }

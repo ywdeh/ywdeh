@@ -1,14 +1,16 @@
 <script>
     import { press } from '$lib/actions/press.js';
+    import { context_menu } from '$lib/controllers/context_menu.svelte.js';
     import { strokes } from '$lib/geometry/strokes.js';
     import Icon from '$lib/components/ui/icon.svelte';
 
-    let { href, external = false, turn = 0, class: classes = '', children, ...rest } = $props();
+    let { href, external = false, turn = 0, menu, glyph, class: classes = '', children, ...rest } = $props();
 </script>
 
 <svelte:element
     this={href ? 'a' : 'button'}
     use:press
+    use:context_menu={menu}
     {href}
     type={href ? undefined : 'button'}
     target={external ? '_blank' : undefined}
@@ -18,7 +20,11 @@
 >
     {@render children()}
     <span class="turn" style:rotate="{turn}deg">
-        <Icon paths={strokes.arrow} motion="nudge" class="size-6" />
+        {#if glyph}
+            {@render glyph()}
+        {:else}
+            <Icon paths={strokes.arrow} motion="nudge" class="size-6" />
+        {/if}
     </span>
 </svelte:element>
 

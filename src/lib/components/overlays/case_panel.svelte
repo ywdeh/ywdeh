@@ -13,15 +13,28 @@
     import { labels } from '$lib/content/labels.js';
     import { provide_case } from '$lib/media/case_context.js';
     import { image_info, picture_name } from '$lib/media/images.js';
+    import { context_menu } from '$lib/controllers/context_menu.svelte.js';
     import { link_copy } from '$lib/controllers/link_copy.svelte.js';
     import { overlay_pace } from '$lib/motion/timing.js';
     import { strokes } from '$lib/geometry/strokes.js';
     import CloseButton from '$lib/components/ui/close_button.svelte';
+    import CopyIcon from '$lib/components/ui/copy_icon.svelte';
     import IconButton from '$lib/components/ui/icon_button.svelte';
     import SiteFooter from '$lib/components/layout/site_footer.svelte';
     import ImageViewer from '$lib/components/overlays/image_viewer.svelte';
 
-    let { title, picture, show_picture, close, children } = $props();
+    let { title, picture, link: case_link, picture_link, show_picture, close, children } = $props();
+
+    const panel_menu = {
+        hold: false,
+        skip: (target) => !!target.closest('a[href]'),
+        items: () => [
+            [
+                { label: labels.menu.copy_link, copy: case_link },
+                { label: labels.menu.close_case, icon: strokes.close, run: close },
+            ],
+        ],
+    };
 
     const ZOOM_HEADROOM = 1.2;
 
@@ -36,7 +49,7 @@
         if (!image?.naturalWidth || !image.dataset.src) return;
         pressed = image;
         show_picture(picture_name(image.dataset.src));
-    });
+    }, (name) => picture_link?.(name));
 
     function view(image, from_spot) {
         const info = image_info(image.dataset.src);
@@ -105,6 +118,7 @@
         aria-labelledby={heading}
         class="panel sheet fixed inset-y-0 right-0 level-base flex flex-col overflow-y-auto overscroll-contain bg-surface font-normal"
         use:swipe_to_close={close}
+        use:context_menu={case_link && panel_menu}
         transition:slide|global
     >
         <header
@@ -112,11 +126,9 @@
         >
             <h1 id={heading} class="text-heading">{title}</h1>
             <span class="-m-2 flex" class:invisible={viewing || covering}>
-                <IconButton
-                    label={link.copied ? labels.link_copied : labels.copy_link}
-                    paths={link.copied ? strokes.check : strokes.link}
-                    onclick={link.copy}
-                />
+                <IconButton label={link.copied ? labels.link_copied : labels.copy_link} onclick={link.copy}>
+                    {#snippet icon()}<CopyIcon swapped={link.copied} stroke={1.5} fit class="size-8 text-ink" />{/snippet}
+                </IconButton>
                 <CloseButton label={labels.close_case} onclick={close} />
             </span>
         </header>

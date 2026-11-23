@@ -3,6 +3,8 @@
     import { track } from '$lib/analytics/track.js';
     import { events } from '$lib/content/events.js';
     import { labels } from '$lib/content/labels.js';
+    import { context_menu } from '$lib/controllers/context_menu.svelte.js';
+    import { strokes } from '$lib/geometry/strokes.js';
     import { case_context } from '$lib/media/case_context.js';
     import { image_color, picture_name } from '$lib/media/images.js';
     import { token } from '$lib/motion/timing.js';
@@ -32,6 +34,19 @@
         if (!width || !viewport) return 1;
         return (width - 2 * parseFloat(token('--press-inset', viewport))) / width;
     });
+
+    const menu = {
+        items: () => [
+            [
+                {
+                    label: labels.menu.open_image,
+                    icon: strokes.zoom,
+                    run: () => context.open(viewport.querySelectorAll('img')[active]),
+                },
+                { label: labels.menu.copy_image_link, copy: context.link(pictures[active].src) },
+            ],
+        ],
+    };
 
     const can_open = (event) => !!context && (!dragged || event.detail === 0);
 
@@ -78,6 +93,7 @@
             bind:this={viewport}
             bind:clientWidth={width}
             use:press={{ when: can_open }}
+            use:context_menu={context && menu}
             onpointerdown={pointerdown}
             onpointermove={pointermove}
             onpointerup={release}
