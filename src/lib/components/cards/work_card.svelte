@@ -3,7 +3,7 @@
     import { press } from '$lib/actions/press.js';
     import { labels } from '$lib/content/labels.js';
     import { badges_state } from '$lib/controllers/badge.svelte.js';
-    import { context_menu, holds } from '$lib/controllers/context_menu.svelte.js';
+    import { context_menu, holds } from '$lib/context_menu';
     import { hover_intent } from '$lib/controllers/hover_intent.svelte.js';
     import { spring_pan } from '$lib/controllers/spring_pan.svelte.js';
     import { image_color, image_info } from '$lib/media/images.js';

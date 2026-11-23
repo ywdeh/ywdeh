@@ -2,8 +2,7 @@
     import { Tween } from 'svelte/motion';
     import { cubicInOut } from 'svelte/easing';
     import { center_reveal } from '$lib/actions/center_reveal.js';
-    import { labels } from '$lib/content/labels.js';
-    import { context_menu } from '$lib/controllers/context_menu.svelte.js';
+    import { context_menu, menus } from '$lib/context_menu';
     import { hover_intent } from '$lib/controllers/hover_intent.svelte.js';
     import { FRAME, frame_gap, project_frame } from '$lib/geometry/project_frame.js';
     import { motion_ms } from '$lib/motion/timing.js';
@@ -37,21 +36,7 @@
         return () => (probe.onerror = null);
     });
 
-    const open_entries = () => links.map((link) => ({ label: labels.menu.open(link.label), href: link.href }));
-
-    const card_menu = {
-        hold: false,
-        items: () => [open_entries(), [{ label: labels.menu.copy_link, copy: links[0]?.href }].filter((entry) => entry.copy)],
-    };
-
-    const link_menu = (link) => ({
-        items: () => [
-            [
-                { label: labels.menu.open(link.label), href: link.href },
-                { label: labels.menu.copy_link, copy: link.href },
-            ],
-        ],
-    });
+    const card_menu = menus.project(() => links);
 
     const intent = hover_intent({
         enter: () => (link_active = true),
@@ -133,7 +118,7 @@
             {#if index > 0}<span class="ink-faint" aria-hidden="true">-</span>{/if}
             <ArrowLink href={link.href} external
                 aria-label="{name} {link.label}"
-                menu={link_menu(link)}
+                menu={menus.link(link)}
                 class="min-w-0"
                 {...intent}
             >

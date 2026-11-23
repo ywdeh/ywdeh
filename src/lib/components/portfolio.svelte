@@ -4,9 +4,8 @@
     import { page } from '$app/state';
     import { labels } from '$lib/content/labels.js';
     import { projects } from '$lib/content/projects.js';
-    import { page_title, section, site } from '$lib/content/site.js';
-    import { context_menu, page_link } from '$lib/controllers/context_menu.svelte.js';
-    import { strokes } from '$lib/geometry/strokes.js';
+    import { page_title, section } from '$lib/content/site.js';
+    import { context_menu, ContextMenu, enabled as menu_enabled, menus, page_link } from '$lib/context_menu';
     import { cases, selected_work } from '$lib/content/work.js';
     import { image_info, preload_image } from '$lib/media/images.js';
     import { reveal_intro } from '$lib/motion/intro.js';
@@ -23,7 +22,6 @@
     import CaseBody from '$lib/components/media/case_body.svelte';
     import GalleryGrid from '$lib/components/media/gallery_grid.svelte';
     import CasePanel, { panel_content_width } from '$lib/components/overlays/case_panel.svelte';
-    import ContextMenu from '$lib/components/overlays/context_menu.svelte';
     import ImageViewer from '$lib/components/overlays/image_viewer.svelte';
     import MusicPlayer from '$lib/components/ui/music_player.svelte';
 
@@ -55,24 +53,6 @@
         if (same_view(target, view) && page.url.pathname === view_path(target)) return;
         pushState(view_path(target), { view: target });
     }
-
-    const case_menu = (slug) => () => [
-        [
-            { label: labels.menu.open_case, icon: strokes.arrow, run: () => go({ slug }) },
-            { label: labels.menu.copy_link, copy: page_link(view_path({ ...HOME, slug })) },
-        ],
-    ];
-
-    const page_menu = {
-        hold: false,
-        skip: (target) => !!target.closest('a[href]'),
-        items: () => [
-            [
-                { label: labels.menu.copy_site_link, copy: page_link('/') },
-                { label: labels.menu.copy_email, copy: site.email, track: 'email' },
-            ],
-        ],
-    };
 
     function arrive() {
         content_ready = mounted = true;
@@ -114,7 +94,7 @@
     bind:this={main}
     data-reveal
     inert={!!(picture || view.slug)}
-    use:context_menu={page_menu}
+    use:context_menu={menus.page()}
     class="min-h-dvh w-full overflow-x-clip px-page-x py-page-y opacity-0"
 >
     <div class="flex w-full flex-col gap-section">
@@ -142,7 +122,7 @@
                             client={cases[slug].client}
                             preload={() => preload_case(slug)}
                             onclick={() => go({ slug })}
-                            menu={case_menu(slug)}
+                            menu={menus.case(slug, () => go({ slug }))}
                         />
                     {/each}
                 </Section>
@@ -164,7 +144,7 @@
 </main>
 
 <MusicPlayer />
-<ContextMenu />
+{#if menu_enabled}<ContextMenu />{/if}
 
 {#if picture}
     {@const entry = cases[picture.slug]}

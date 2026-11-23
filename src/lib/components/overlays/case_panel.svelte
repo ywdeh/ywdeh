@@ -13,10 +13,9 @@
     import { labels } from '$lib/content/labels.js';
     import { provide_case } from '$lib/media/case_context.js';
     import { image_info, picture_name } from '$lib/media/images.js';
-    import { context_menu } from '$lib/controllers/context_menu.svelte.js';
+    import { context_menu, menus } from '$lib/context_menu';
     import { link_copy } from '$lib/controllers/link_copy.svelte.js';
     import { overlay_pace } from '$lib/motion/timing.js';
-    import { strokes } from '$lib/geometry/strokes.js';
     import CloseButton from '$lib/components/ui/close_button.svelte';
     import CopyIcon from '$lib/components/ui/copy_icon.svelte';
     import IconButton from '$lib/components/ui/icon_button.svelte';
@@ -25,16 +24,7 @@
 
     let { title, picture, link: case_link, picture_link, show_picture, close, children } = $props();
 
-    const panel_menu = {
-        hold: false,
-        skip: (target) => !!target.closest('a[href]'),
-        items: () => [
-            [
-                { label: labels.menu.copy_link, copy: case_link },
-                { label: labels.menu.close_case, icon: strokes.close, run: close },
-            ],
-        ],
-    };
+    const panel_menu = menus.case_panel({ link: () => case_link, close: () => close() });
 
     const ZOOM_HEADROOM = 1.2;
 

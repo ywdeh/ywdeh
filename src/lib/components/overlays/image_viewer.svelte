@@ -2,7 +2,7 @@
     import { fade } from 'svelte/transition';
     import { pan_zoom, unzoom_before_close } from '$lib/actions/pan_zoom.js';
     import { labels } from '$lib/content/labels.js';
-    import { context_menu } from '$lib/controllers/context_menu.svelte.js';
+    import { context_menu, menus } from '$lib/context_menu';
     import { image_flight } from '$lib/controllers/image_flight.svelte.js';
     import { strokes } from '$lib/geometry/strokes.js';
     import { overlay_pace } from '$lib/motion/timing.js';
@@ -60,14 +60,7 @@
         }
     }
 
-    const menu = {
-        items: () => [
-            [
-                { label: labels.menu.copy_image_link, copy: location.href },
-                { label: labels.menu.close_image, icon: strokes.close, run: request_close },
-            ],
-        ],
-    };
+    const menu = menus.viewer({ close: request_close });
 
     function keydown(event) {
         if (event.key !== 'Escape' || event.defaultPrevented) return;

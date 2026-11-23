@@ -3,7 +3,7 @@
     import { events } from '$lib/content/events.js';
     import { labels } from '$lib/content/labels.js';
     import { site } from '$lib/content/site.js';
-    import { context_menu } from '$lib/controllers/context_menu.svelte.js';
+    import { context_menu, menus } from '$lib/context_menu';
     import { link_copy } from '$lib/controllers/link_copy.svelte.js';
     import ArrowLink from '$lib/components/ui/arrow_link.svelte';
     import CopyIcon from '$lib/components/ui/copy_icon.svelte';
@@ -15,23 +15,6 @@
         event: [events.contact, { method: 'email copy', page: location.pathname }],
     }));
 
-    const email_menu = {
-        items: () => [
-            [
-                { label: labels.menu.copy_email, copy: site.email, track: 'email' },
-                { label: labels.menu.write_email, href: `mailto:${site.email}` },
-            ],
-        ],
-    };
-
-    const social_menu = ({ label, href }) => ({
-        items: () => [
-            [
-                { label: labels.menu.open(label), href },
-                { label: labels.menu.copy_link, copy: href },
-            ],
-        ],
-    });
 
     $effect(() => () => email.destroy());
 </script>
@@ -41,7 +24,7 @@
         <p>{site.call_to_action}</p>
         <div class="flex flex-col gap-copy md:flex-row md:items-center md:justify-between">
             <ArrowLink
-                menu={email_menu}
+                menu={menus.email()}
                 aria-label={email.copied ? labels.email_copied : labels.copy_email(site.email)}
                 onclick={email.copy}
                 class="w-fit"
@@ -49,7 +32,7 @@
                 {#snippet glyph()}<CopyIcon swapped={email.copied} class="size-6" />{/snippet}
                 <span class="email" class:copied={email.copied}>
                     <span class="address">{site.email}</span>
-                    <span class="done" aria-hidden="true">{labels.menu.copied}</span>
+                    <span class="done" aria-hidden="true">{labels.copied}</span>
                 </span>
             </ArrowLink>
             <ArrowLink href={site.resume} external class="w-fit">{site.resume_label}</ArrowLink>
@@ -68,7 +51,7 @@
             {#each site.socials as social (social.href)}
                 <a
                     use:press
-                    use:context_menu={social_menu(social)}
+                    use:context_menu={menus.link(social)}
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"

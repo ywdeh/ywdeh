@@ -3,8 +3,7 @@
     import { track } from '$lib/analytics/track.js';
     import { events } from '$lib/content/events.js';
     import { labels } from '$lib/content/labels.js';
-    import { context_menu } from '$lib/controllers/context_menu.svelte.js';
-    import { strokes } from '$lib/geometry/strokes.js';
+    import { context_menu, menus } from '$lib/context_menu';
     import { case_context } from '$lib/media/case_context.js';
     import { image_color, picture_name } from '$lib/media/images.js';
     import { token } from '$lib/motion/timing.js';
@@ -35,18 +34,10 @@
         return (width - 2 * parseFloat(token('--press-inset', viewport))) / width;
     });
 
-    const menu = {
-        items: () => [
-            [
-                {
-                    label: labels.menu.open_image,
-                    icon: strokes.zoom,
-                    run: () => context.open(viewport.querySelectorAll('img')[active]),
-                },
-                { label: labels.menu.copy_image_link, copy: context.link(pictures[active].src) },
-            ],
-        ],
-    };
+    const menu = menus.image({
+        open: () => context.open(viewport.querySelectorAll('img')[active]),
+        link: () => context.link(pictures[active].src),
+    });
 
     const can_open = (event) => !!context && (!dragged || event.detail === 0);
 

@@ -18,6 +18,7 @@ export const labels = {
     socials: 'Socials and contacts',
     copy_email: (email) => `Copy email ${email}`,
     email_copied: 'Email copied',
+    copied: 'copied',
     menu: {
         open_case: 'open case',
         open_image: 'open image',

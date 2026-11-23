@@ -1,6 +1,6 @@
 <script>
     import { press } from '$lib/actions/press.js';
-    import { context_menu } from '$lib/controllers/context_menu.svelte.js';
+    import { context_menu } from '$lib/context_menu';
     import { strokes } from '$lib/geometry/strokes.js';
     import Icon from '$lib/components/ui/icon.svelte';
 

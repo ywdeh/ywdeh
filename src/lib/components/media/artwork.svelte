@@ -1,8 +1,7 @@
 <script>
     import { press } from '$lib/actions/press.js';
     import { labels } from '$lib/content/labels.js';
-    import { context_menu } from '$lib/controllers/context_menu.svelte.js';
-    import { strokes } from '$lib/geometry/strokes.js';
+    import { context_menu, menus } from '$lib/context_menu';
     import { case_context } from '$lib/media/case_context.js';
     import { image_info } from '$lib/media/images.js';
     import { queued } from '$lib/media/load_queue.js';
@@ -22,18 +21,10 @@
         });
     const lazy = (node, value) => (eager ? undefined : queued(node, value));
 
-    const menu = {
-        items: () => [
-            [
-                {
-                    label: labels.menu.open_image,
-                    icon: strokes.zoom,
-                    run: () => context.open(button?.querySelector('img')),
-                },
-                { label: labels.menu.copy_image_link, copy: context.link(src) },
-            ],
-        ],
-    };
+    const menu = menus.image({
+        open: () => context.open(button?.querySelector('img')),
+        link: () => context.link(src),
+    });
 </script>
 
 {#snippet picture()}

@@ -1,6 +1,6 @@
 <script>
     import { badges_state } from '$lib/controllers/badge.svelte.js';
-    import { menu } from '$lib/controllers/context_menu.svelte.js';
+    import { menu } from '$lib/context_menu';
     import { strokes } from '$lib/geometry/strokes.js';
     import Icon from '$lib/components/ui/icon.svelte';
 

@@ -7,12 +7,12 @@
     import { events } from '$lib/content/events.js';
     import { labels } from '$lib/content/labels.js';
     import { site } from '$lib/content/site.js';
-    import { close_menu, copy_text, menu, pass_to_native, tint_shown } from '$lib/controllers/context_menu.svelte.js';
+    import { close_menu, copy_text, menu, pass_to_native, tint_shown } from './state.svelte.js';
     import { strokes } from '$lib/geometry/strokes.js';
     import { motion_ms, token_ms } from '$lib/motion/timing.js';
     import CopyIcon from '$lib/components/ui/copy_icon.svelte';
     import Icon from '$lib/components/ui/icon.svelte';
-    import MailIcon from '$lib/components/ui/mail_icon.svelte';
+    import MailIcon from './mail_icon.svelte';
 
     const EDGE = 16;
     const NEAR = 24;

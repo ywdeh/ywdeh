@@ -1,6 +1,7 @@
 import { track } from '$lib/analytics/track.js';
 import { events } from '$lib/content/events.js';
 import { token_ms } from '$lib/motion/timing.js';
+import { enabled } from './enabled.js';
 
 const HOLD_SLOP = 10;
 const HOLD_GRACE = 1000;
@@ -80,6 +81,7 @@ const keeps_native = (event) =>
 const claimed = new WeakSet();
 
 export function context_menu(node, options) {
+    if (!enabled) return;
     let current = options;
     let held_at = 0;
     let timer;
