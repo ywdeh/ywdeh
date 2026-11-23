@@ -26,6 +26,7 @@ export const projects = [
         links: [{ label: 'playlist.hedwy.art', href: 'https://playlist.hedwy.art' }],
         description: [
             "playlist is a live page of what I'm listening to, pulled straight from my spotify: the song playing right now, my top songs and artists, and recent plays",
+            'built as a test of api interactions',
         ],
     },
 ];
